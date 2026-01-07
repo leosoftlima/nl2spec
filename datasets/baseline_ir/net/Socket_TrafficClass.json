@@ -1,0 +1,15 @@
+{
+  "id": "Socket_TrafficClass",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "settc",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "The traffic class value"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "InetAddress_IsReachable",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "isreachable",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "The timeout value for InetAddress.isReachable() should not be a negative value."
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "StringTokenizer_HasMoreElements",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "hasnexttrue",
+        "timing": "after"
+      },
+      {
+        "name": "hasnextfalse",
+        "timing": "after"
+      },
+      {
+        "name": "next",
+        "timing": "before"
+      }
+    ],
+    "guard": "b",
+    "violation_message": "StringTokenizer.hasMoreTokens()/hasMoreElements() did not return false before calling nextToken()/nextElement()."
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "Socket_ReuseAddress",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "create_connected",
+        "timing": "after"
+      },
+      {
+        "name": "create_unconnected",
+        "timing": "after"
+      },
+      {
+        "name": "bind",
+        "timing": "before"
+      },
+      {
+        "name": "set",
+        "timing": "before"
+      }
+    ],
+    "pattern": "(create_connected | create_unconnected set* bind+) set",
+    "violation_message": "The behavior of setting SO_REUSEADDR after a socket is bound is not defined."
+  }
+}

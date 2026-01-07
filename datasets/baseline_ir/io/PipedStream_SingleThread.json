@@ -1,0 +1,35 @@
+{
+  "id": "PipedStream_SingleThread",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "create1",
+        "timing": "after"
+      },
+      {
+        "name": "create2",
+        "timing": "before"
+      },
+      {
+        "name": "create3",
+        "timing": "after"
+      },
+      {
+        "name": "create4",
+        "timing": "before"
+      },
+      {
+        "name": "write",
+        "timing": "before"
+      },
+      {
+        "name": "read",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "A single thread attempted to use both a PipedInputStream instance and a PipedOutputStream instance, which may deadlock the thread."
+  }
+}

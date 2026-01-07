@@ -1,0 +1,19 @@
+{
+  "id": "DatagramPacket_Length",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "construct_len",
+        "timing": "before"
+      },
+      {
+        "name": "construct_offlen",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "The offset argument and/or the length argument are out of range;"
+  }
+}

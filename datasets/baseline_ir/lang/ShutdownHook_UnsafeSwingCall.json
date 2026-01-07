@@ -1,0 +1,52 @@
+{
+  "id": "ShutdownHook_UnsafeSwingCall",
+  "category": "FSM",
+  "ir": {
+    "type": "fsm",
+    "states": [
+      "unregistered",
+      "registered",
+      "started",
+      "unsafe"
+    ],
+    "start_state": "unregistered",
+    "transitions": [
+      {
+        "from": "unregistered",
+        "event": "register",
+        "to": "registered"
+      },
+      {
+        "from": "registered",
+        "event": "unregister",
+        "to": "unregistered"
+      },
+      {
+        "from": "registered",
+        "event": "start",
+        "to": "started"
+      },
+      {
+        "from": "started",
+        "event": "swingcall1",
+        "to": "unsafe"
+      },
+      {
+        "from": "started",
+        "event": "swingcall2",
+        "to": "unsafe"
+      },
+      {
+        "from": "unsafe",
+        "event": "swingcall1",
+        "to": "unsafe"
+      },
+      {
+        "from": "unsafe",
+        "event": "swingcall2",
+        "to": "unsafe"
+      }
+    ],
+    "violation_message": "An operation that potentially leads to deadlocks was performed in a shutdown hook."
+  }
+}

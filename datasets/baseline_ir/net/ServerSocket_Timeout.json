@@ -1,0 +1,15 @@
+{
+  "id": "ServerSocket_Timeout",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "set",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "An invalid timeout value"
+  }
+}

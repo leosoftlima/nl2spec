@@ -1,0 +1,15 @@
+{
+  "id": "String_UseStringBuilder",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "constructor_create",
+        "timing": "after"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "Using the constructor String(StringBuilder builder) is inefficient. Use toString() method on the StringBuilder."
+  }
+}

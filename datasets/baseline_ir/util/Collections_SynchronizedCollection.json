@@ -1,0 +1,27 @@
+{
+  "id": "Collections_SynchronizedCollection",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "sync",
+        "timing": "after"
+      },
+      {
+        "name": "syncCreateIter",
+        "timing": "after"
+      },
+      {
+        "name": "asyncCreateIter",
+        "timing": "after"
+      },
+      {
+        "name": "accessIter",
+        "timing": "before"
+      }
+    ],
+    "pattern": "(sync asyncCreateIter) | (sync syncCreateIter accessIter)",
+    "violation_message": "A synchronized collection was accessed in a thread-unsafe manner."
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "id": "ShutdownHook_SystemExit",
+  "category": "FSM",
+  "ir": {
+    "type": "fsm",
+    "states": [
+      "unregistered",
+      "registered",
+      "started",
+      "unsafe"
+    ],
+    "start_state": "unregistered",
+    "transitions": [
+      {
+        "from": "unregistered",
+        "event": "register",
+        "to": "registered"
+      },
+      {
+        "from": "registered",
+        "event": "unregister",
+        "to": "unregistered"
+      },
+      {
+        "from": "registered",
+        "event": "start",
+        "to": "started"
+      },
+      {
+        "from": "started",
+        "event": "exit",
+        "to": "unsafe"
+      },
+      {
+        "from": "unsafe",
+        "event": "exit",
+        "to": "unsafe"
+      }
+    ],
+    "violation_message": "Invoking System.exit() in a shutdown hook was suppressed because it may lead to deadlocks."
+  }
+}

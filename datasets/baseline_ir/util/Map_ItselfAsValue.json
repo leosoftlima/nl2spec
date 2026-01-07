@@ -1,0 +1,19 @@
+{
+  "id": "Map_ItselfAsValue",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "put",
+        "timing": "before"
+      },
+      {
+        "name": "putall",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "A map cannot contain itself as a value."
+  }
+}

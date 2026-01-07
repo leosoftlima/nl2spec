@@ -1,0 +1,23 @@
+{
+  "id": "Map_UnsynchronizedAddAll",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "enter",
+        "timing": "before"
+      },
+      {
+        "name": "modify",
+        "timing": "before"
+      },
+      {
+        "name": "leave",
+        "timing": "after"
+      }
+    ],
+    "pattern": "(enter leave modify*)*",
+    "violation_message": "The source map of putAll() has been modified."
+  }
+}

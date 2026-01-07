@@ -1,0 +1,15 @@
+{
+  "id": "Boolean_StaticFactory",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "constructor_create",
+        "timing": "after"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "Using the constructor Boolean(boolean value) might be inefficient. Use valueOf(boolean) if it is appropriate."
+  }
+}

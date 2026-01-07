@@ -1,0 +1,15 @@
+{
+  "id": "Collections_UnnecessaryNewSetFromMap",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "unnecessary",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "There is no need to use Collections.newSetFromMap() on HashMap or TreeMap."
+  }
+}

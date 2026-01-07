@@ -1,0 +1,15 @@
+{
+  "id": "PriorityQueue_NonNull",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "insertnull",
+        "timing": "before"
+      }
+    ],
+    "guard": "e == null",
+    "violation_message": "PriorityQueue does not permit null."
+  }
+}

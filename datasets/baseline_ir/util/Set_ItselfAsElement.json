@@ -1,0 +1,19 @@
+{
+  "id": "Set_ItselfAsElement",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "add",
+        "timing": "before"
+      },
+      {
+        "name": "addall",
+        "timing": "before"
+      }
+    ],
+    "guard": "elem == s",
+    "violation_message": "A set cannot contain itself as an element."
+  }
+}

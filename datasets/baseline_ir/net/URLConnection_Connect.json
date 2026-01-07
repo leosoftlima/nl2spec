@@ -1,0 +1,19 @@
+{
+  "id": "URLConnection_Connect",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "explicit",
+        "timing": "before"
+      },
+      {
+        "name": "implicit",
+        "timing": "before"
+      }
+    ],
+    "pattern": "(explicit | implicit) explicit+",
+    "violation_message": "URLConnection.connect() has been called multiple twice."
+  }
+}

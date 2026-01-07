@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nl2spec.org/schema/ir.schema.json",
+  "title": "nl2spec Canonical IR Schema",
+  "type": "object",
+  "required": ["category", "ir"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Optional identifier for the specification."
+    },
+    "category": {
+      "type": "string",
+      "enum": ["EVENT", "ERE", "FSM", "LTL"],
+      "description": "Specification category derived from empirical dataset analysis."
+    },
+    "natural_language": {
+      "type": "string",
+      "description": "Natural language description of the property."
+    },
+    "ir": {
+      "$ref": "#/$defs/irBody"
+    }
+  },
+  "$defs": {
+    "event": {
+      "type": "object",
+      "required": ["name", "timing"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Logical name of the observed event."
+        },
+        "timing": {
+          "type": "string",
+          "enum": ["before", "after"],
+          "description": "Event observation timing."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "irBody": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["single_event", "ere", "fsm", "ltl"]
+        },
+        "events": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/event" },
+          "minItems": 1
+        },
+        "guard": {
+          "type": "string",
+          "description": "Boolean condition evaluated when the event is observed."
+        },
+        "pattern": {
+          "type": "string",
+          "description": "ERE pattern over event names."
+        },
+        "states": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 2
+        },
+        "start_state": {
+          "type": "string"
+        },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["from", "event", "to"],
+            "properties": {
+              "from": { "type": "string" },
+              "event": { "type": "string" },
+              "timing": {
+                "type": "string",
+                "enum": ["before", "after"]
+              },
+              "to": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "forbidden": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["from", "event"],
+            "properties": {
+              "from": { "type": "string" },
+              "event": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "formula": {
+          "type": "string",
+          "description": "LTL formula over event names."
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["program"],
+          "description": "Evaluation scope for temporal properties."
+        },
+        "violation_message": {
+          "type": "string",
+          "description": "Human-readable violation message."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "type": { "const": "single_event" } }
+          },
+          "then": {
+            "required": ["events", "guard", "violation_message"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "ere" } }
+          },
+          "then": {
+            "required": ["events", "pattern", "violation_message"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "fsm" } }
+          },
+          "then": {
+            "required": ["states", "start_state", "transitions", "violation_message"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "ltl" } }
+          },
+          "then": {
+            "required": ["events", "formula", "violation_message"]
+          }
+        }
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

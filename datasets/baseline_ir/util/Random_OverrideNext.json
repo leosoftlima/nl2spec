@@ -1,0 +1,15 @@
+{
+  "id": "Random_OverrideNext",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "staticinit",
+        "timing": "after"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "next"
+  }
+}

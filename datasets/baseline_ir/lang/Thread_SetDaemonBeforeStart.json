@@ -1,0 +1,19 @@
+{
+  "id": "Thread_SetDaemonBeforeStart",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "start",
+        "timing": "before"
+      },
+      {
+        "name": "setDaemon",
+        "timing": "before"
+      }
+    ],
+    "pattern": "setDaemon* start",
+    "violation_message": "setDaemon should not be set after the thread started"
+  }
+}

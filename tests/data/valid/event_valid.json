@@ -1,0 +1,11 @@
+{
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      { "name": "open", "timing": "before" }
+    ],
+    "guard": "file is null",
+    "violation_message": "File is null."
+  }
+}

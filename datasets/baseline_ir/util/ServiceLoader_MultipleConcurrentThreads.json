@@ -1,0 +1,23 @@
+{
+  "id": "ServiceLoader_MultipleConcurrentThreads",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "create",
+        "timing": "after"
+      },
+      {
+        "name": "gooduse",
+        "timing": "before"
+      },
+      {
+        "name": "baduse",
+        "timing": "before"
+      }
+    ],
+    "pattern": "create gooduse* baduse",
+    "violation_message": "A ServiceLoader object has been used by multiple threads."
+  }
+}

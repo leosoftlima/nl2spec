@@ -1,0 +1,15 @@
+{
+  "id": "Closeable_MeaninglessClose",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "close",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "close() has no effect."
+  }
+}

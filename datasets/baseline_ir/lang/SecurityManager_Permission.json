@@ -1,0 +1,19 @@
+{
+  "id": "SecurityManager_Permission",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "get",
+        "timing": "after"
+      },
+      {
+        "name": "check",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "The context argument to checkPermission must come from getSecurityContext method call."
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "InputStream_MarkAfterClose",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "mark",
+        "timing": "before"
+      },
+      {
+        "name": "close",
+        "timing": "before"
+      }
+    ],
+    "pattern": "close+ mark+",
+    "violation_message": "mark() after close() had no effect."
+  }
+}

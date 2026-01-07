@@ -1,0 +1,15 @@
+{
+  "id": "URLEncoder_EncodeUTF8",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "encode",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "utf-8"
+  }
+}

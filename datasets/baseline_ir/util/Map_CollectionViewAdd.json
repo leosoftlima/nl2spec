@@ -1,0 +1,19 @@
+{
+  "id": "Map_CollectionViewAdd",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "getset",
+        "timing": "after"
+      },
+      {
+        "name": "add",
+        "timing": "before"
+      }
+    ],
+    "pattern": "getset add+",
+    "violation_message": "A collection/set view of a map does not support add()/addAll()."
+  }
+}

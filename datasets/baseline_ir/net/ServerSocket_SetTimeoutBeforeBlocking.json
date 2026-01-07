@@ -1,0 +1,23 @@
+{
+  "id": "ServerSocket_SetTimeoutBeforeBlocking",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "enter",
+        "timing": "before"
+      },
+      {
+        "name": "leave",
+        "timing": "after"
+      },
+      {
+        "name": "set",
+        "timing": "before"
+      }
+    ],
+    "pattern": "set* (enter leave)* set*",
+    "violation_message": "ServerSocket.setSoTimeout() should be set prior to entering the blocking operation."
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "Collection_UnsafeIterator",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "create",
+        "timing": "after"
+      },
+      {
+        "name": "modify",
+        "timing": "before"
+      },
+      {
+        "name": "useiter",
+        "timing": "before"
+      }
+    ],
+    "pattern": "create useiter* modify+ useiter",
+    "violation_message": "The collection was modified while an iterator is being used."
+  }
+}

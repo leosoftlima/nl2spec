@@ -1,0 +1,117 @@
+{
+  "id": "ListIterator_hasNextPrevious",
+  "category": "FSM",
+  "ir": {
+    "type": "fsm",
+    "states": [
+      "na",
+      "nextavailable",
+      "prevavailable",
+      "bothavailable"
+    ],
+    "start_state": "na",
+    "transitions": [
+      {
+        "from": "na",
+        "event": "hasnexttrue",
+        "to": "nextavailable"
+      },
+      {
+        "from": "na",
+        "event": "hasnextfalse",
+        "to": "na"
+      },
+      {
+        "from": "na",
+        "event": "hasprevioustrue",
+        "to": "prevavailable"
+      },
+      {
+        "from": "na",
+        "event": "haspreviousfalse",
+        "to": "na"
+      },
+      {
+        "from": "nextavailable",
+        "event": "hasprevioustrue",
+        "to": "bothavailable"
+      },
+      {
+        "from": "nextavailable",
+        "event": "haspreviousfalse",
+        "to": "nextavailable"
+      },
+      {
+        "from": "nextavailable",
+        "event": "hasnexttrue",
+        "to": "nextavailable"
+      },
+      {
+        "from": "nextavailable",
+        "event": "hasnextfalse",
+        "to": "na"
+      },
+      {
+        "from": "nextavailable",
+        "event": "next",
+        "to": "prevavailable"
+      },
+      {
+        "from": "prevavailable",
+        "event": "hasnexttrue",
+        "to": "bothavailable"
+      },
+      {
+        "from": "prevavailable",
+        "event": "hasnextfalse",
+        "to": "prevavailable"
+      },
+      {
+        "from": "prevavailable",
+        "event": "hasprevioustrue",
+        "to": "prevavailable"
+      },
+      {
+        "from": "prevavailable",
+        "event": "haspreviousfalse",
+        "to": "na"
+      },
+      {
+        "from": "prevavailable",
+        "event": "previous",
+        "to": "nextavailable"
+      },
+      {
+        "from": "bothavailable",
+        "event": "hasnexttrue",
+        "to": "bothavailable"
+      },
+      {
+        "from": "bothavailable",
+        "event": "hasnextfalse",
+        "to": "prevavailable"
+      },
+      {
+        "from": "bothavailable",
+        "event": "hasprevioustrue",
+        "to": "bothavailable"
+      },
+      {
+        "from": "bothavailable",
+        "event": "haspreviousfalse",
+        "to": "nextavailable"
+      },
+      {
+        "from": "bothavailable",
+        "event": "next",
+        "to": "prevavailable"
+      },
+      {
+        "from": "bothavailable",
+        "event": "previous",
+        "to": "nextavailable"
+      }
+    ],
+    "violation_message": "ListIterator.hasNext()/hasPrevious() was not called before calling next()/previous()."
+  }
+}

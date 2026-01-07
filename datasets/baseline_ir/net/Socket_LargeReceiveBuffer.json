@@ -1,0 +1,27 @@
+{
+  "id": "Socket_LargeReceiveBuffer",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "create_connected",
+        "timing": "after"
+      },
+      {
+        "name": "create_unconnected",
+        "timing": "after"
+      },
+      {
+        "name": "connect",
+        "timing": "before"
+      },
+      {
+        "name": "set",
+        "timing": "before"
+      }
+    ],
+    "pattern": "(create_connected | create_unconnected set* connect+) set",
+    "violation_message": "A receive window large than 64K bytes must be set before the socket is connected."
+  }
+}

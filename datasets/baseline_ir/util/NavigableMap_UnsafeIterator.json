@@ -1,0 +1,31 @@
+{
+  "id": "NavigableMap_UnsafeIterator",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "getset",
+        "timing": "after"
+      },
+      {
+        "name": "getiter",
+        "timing": "after"
+      },
+      {
+        "name": "modifyMap",
+        "timing": "before"
+      },
+      {
+        "name": "modifySet",
+        "timing": "before"
+      },
+      {
+        "name": "useiter",
+        "timing": "before"
+      }
+    ],
+    "pattern": "getset (modifyMap | modifySet)* getiter useiter* (modifyMap | modifySet)+ useiter",
+    "violation_message": "The NavigableMap was modified while an iteration over the set is in progress."
+  }
+}

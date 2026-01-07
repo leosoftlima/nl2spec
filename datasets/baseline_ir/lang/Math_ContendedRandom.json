@@ -1,0 +1,19 @@
+{
+  "id": "Math_ContendedRandom",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "onethread_use",
+        "timing": "before"
+      },
+      {
+        "name": "otherthread_use",
+        "timing": "before"
+      }
+    ],
+    "pattern": "onethread_use*",
+    "violation_message": "Math.random() is used by multiple threads. If there is contention, we recommend you to use Random.nextDouble()."
+  }
+}

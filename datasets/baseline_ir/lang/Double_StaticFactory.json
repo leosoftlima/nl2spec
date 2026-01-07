@@ -1,0 +1,15 @@
+{
+  "id": "Double_StaticFactory",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "constructor_create",
+        "timing": "after"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "Using the constructor Double(double value) might be inefficient. Use valueOf(double) if it is appropriate."
+  }
+}

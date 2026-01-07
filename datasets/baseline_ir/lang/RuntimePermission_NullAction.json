@@ -1,0 +1,15 @@
+{
+  "id": "RuntimePermission_NullAction",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "constructor_runtimeperm",
+        "timing": "after"
+      }
+    ],
+    "guard": "actions != null",
+    "violation_message": "The actions string should be null."
+  }
+}

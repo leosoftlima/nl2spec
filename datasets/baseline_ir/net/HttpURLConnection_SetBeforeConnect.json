@@ -1,0 +1,19 @@
+{
+  "id": "HttpURLConnection_SetBeforeConnect",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "set",
+        "timing": "before"
+      },
+      {
+        "name": "connect",
+        "timing": "before"
+      }
+    ],
+    "pattern": "set* connect*",
+    "violation_message": "setFixedLengthStreamingMode(), setChunkedStreamingMode() or setRequestMethod() should not be invoked after the connection was made."
+  }
+}

@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nl2spec"
+version = "0.1.0"
+description = "Natural Language to Runtime Verification Specifications"
+authors = [
+    { name = "Leonardo Lima" ,
+      name = "Victor Lira" ,
+      name = "Leopoldo Teixeira" ,
+      name = "Breno Miranda"}
+]
+requires-python = ">=3.9"
+
+dependencies = [
+    "jsonschema>=4.0",
+    "pyyaml>=6.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["core*"]

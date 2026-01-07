@@ -1,0 +1,15 @@
+{
+  "id": "Dictionary_NullKeyOrValue",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "putnull",
+        "timing": "before"
+      }
+    ],
+    "guard": "key == null || value == null",
+    "violation_message": "Dictionary allow neither null key nor null value."
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "ProcessBuilder_NullKeyOrValue",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "createMap",
+        "timing": "after"
+      },
+      {
+        "name": "nullPut",
+        "timing": "before"
+      },
+      {
+        "name": "nullQuery",
+        "timing": "before"
+      }
+    ],
+    "pattern": "createMap (nullPut | nullQuery)+",
+    "violation_message": "null key or value is not permitted in the map from ProcessBuilder.environment()"
+  }
+}

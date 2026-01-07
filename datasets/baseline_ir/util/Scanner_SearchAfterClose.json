@@ -1,0 +1,19 @@
+{
+  "id": "Scanner_SearchAfterClose",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "close",
+        "timing": "before"
+      },
+      {
+        "name": "search",
+        "timing": "before"
+      }
+    ],
+    "pattern": "close+ search+",
+    "violation_message": "A closed Scanner object attempted to perform search operations."
+  }
+}

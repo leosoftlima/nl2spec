@@ -1,0 +1,15 @@
+{
+  "id": "DatagramPacket_SetLength",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "setlength",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "The length argument is out of range;"
+  }
+}

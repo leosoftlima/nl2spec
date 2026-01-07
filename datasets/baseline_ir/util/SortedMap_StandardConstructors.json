@@ -1,0 +1,15 @@
+{
+  "id": "SortedMap_StandardConstructors",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "staticinit",
+        "timing": "after"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "does not define the 'standard' SortedMap constructors."
+  }
+}

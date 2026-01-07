@@ -1,0 +1,23 @@
+{
+  "id": "TreeMap_Comparable",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "create",
+        "timing": "before"
+      },
+      {
+        "name": "put",
+        "timing": "before"
+      },
+      {
+        "name": "putall",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "A non-comparable object is being inserted into a TreeMap object."
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "CharSequence_NotInSet",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "set_add",
+        "timing": "before"
+      },
+      {
+        "name": "set_addall",
+        "timing": "before"
+      }
+    ],
+    "guard": "!flag",
+    "violation_message": "It might not be safe to add a CharSequence instance into a set"
+  }
+}

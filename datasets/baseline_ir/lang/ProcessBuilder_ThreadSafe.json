@@ -1,0 +1,19 @@
+{
+  "id": "ProcessBuilder_ThreadSafe",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "safe_oper",
+        "timing": "before"
+      },
+      {
+        "name": "unsafe_oper",
+        "timing": "before"
+      }
+    ],
+    "guard": "this.owner == null || this.owner == t",
+    "violation_message": "More than two threads attempted to use a ProcessBuilder instance, which may lead to a race condition"
+  }
+}

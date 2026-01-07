@@ -1,0 +1,15 @@
+{
+  "id": "ContentHandler_GetContent",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "get_content",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "An application does not generally call ContentHandler.getContent()."
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "id": "ShutdownHook_PrematureStart",
+  "category": "FSM",
+  "ir": {
+    "type": "fsm",
+    "states": [
+      "unregistered",
+      "registered",
+      "err"
+    ],
+    "start_state": "unregistered",
+    "transitions": [
+      {
+        "from": "unregistered",
+        "event": "good_register",
+        "to": "registered"
+      },
+      {
+        "from": "unregistered",
+        "event": "bad_register",
+        "to": "err"
+      },
+      {
+        "from": "registered",
+        "event": "unregister",
+        "to": "unregistered"
+      },
+      {
+        "from": "registered",
+        "event": "userstart",
+        "to": "err"
+      }
+    ],
+    "violation_message": "A virtual-machine shutdown hook has been started by the user code."
+  }
+}

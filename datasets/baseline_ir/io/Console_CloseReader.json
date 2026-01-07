@@ -1,0 +1,19 @@
+{
+  "id": "Console_CloseReader",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "getreader",
+        "timing": "after"
+      },
+      {
+        "name": "close",
+        "timing": "before"
+      }
+    ],
+    "pattern": "getreader close+",
+    "violation_message": "Invoking close() on the object returned by Console.reader() does not close the underlying stream."
+  }
+}

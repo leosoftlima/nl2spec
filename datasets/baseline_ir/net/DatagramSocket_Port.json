@@ -1,0 +1,15 @@
+{
+  "id": "DatagramSocket_Port",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "construct_port",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "The specified port"
+  }
+}

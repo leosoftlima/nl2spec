@@ -1,0 +1,46 @@
+{
+  "id": "PipedInputStream_UnconnectedRead",
+  "category": "FSM",
+  "ir": {
+    "type": "fsm",
+    "states": [
+      "initial",
+      "unconnected",
+      "connected"
+    ],
+    "start_state": "initial",
+    "transitions": [
+      {
+        "from": "initial",
+        "event": "create",
+        "to": "unconnected"
+      },
+      {
+        "from": "initial",
+        "event": "create_oi",
+        "to": "connected"
+      },
+      {
+        "from": "unconnected",
+        "event": "create_io",
+        "to": "connected"
+      },
+      {
+        "from": "unconnected",
+        "event": "connect1",
+        "to": "connected"
+      },
+      {
+        "from": "unconnected",
+        "event": "connect2",
+        "to": "connected"
+      },
+      {
+        "from": "connected",
+        "event": "read",
+        "to": "connected"
+      }
+    ],
+    "violation_message": "An unconnected PipedInputStream performed read() operation."
+  }
+}

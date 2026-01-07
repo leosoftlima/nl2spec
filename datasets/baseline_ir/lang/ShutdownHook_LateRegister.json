@@ -1,0 +1,23 @@
+{
+  "id": "ShutdownHook_LateRegister",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "register",
+        "timing": "after"
+      },
+      {
+        "name": "unregister",
+        "timing": "after"
+      },
+      {
+        "name": "start",
+        "timing": "after"
+      }
+    ],
+    "pattern": "(register | unregister)* start+ (register | unregister)",
+    "violation_message": "A shutdown hook was registered/unregister after the shutdown sequence had begun."
+  }
+}

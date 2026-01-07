@@ -1,0 +1,15 @@
+{
+  "id": "Byte_BadDecodeArg",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "decode",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "Wrong argument to Byte.decode(String nm)"
+  }
+}

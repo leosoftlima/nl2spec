@@ -1,0 +1,23 @@
+{
+  "id": "Scanner_ManipulateAfterClose",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "create",
+        "timing": "after"
+      },
+      {
+        "name": "close",
+        "timing": "after"
+      },
+      {
+        "name": "manipulate",
+        "timing": "before"
+      }
+    ],
+    "pattern": "create close+ manipulate",
+    "violation_message": "The source stream or reader was used after the Scanner had been closed."
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "InputStream_MarkReset",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "mark_or_reset",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "FileInputStream, PushbackInputStream, ObjectInputStream, PipedInputStream and SequenceInputStream do not support mark() and reset()."
+  }
+}

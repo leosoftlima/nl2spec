@@ -1,0 +1,19 @@
+{
+  "id": "Reader_UnmarkedReset",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "mark",
+        "timing": "before"
+      },
+      {
+        "name": "reset",
+        "timing": "before"
+      }
+    ],
+    "pattern": "mark (mark | reset)*",
+    "violation_message": "BufferedReader and LineNumberReader allow reset() only after mark() has been invoked."
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "id": "Collections_SynchronizedMap",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "sync",
+        "timing": "after"
+      },
+      {
+        "name": "createSet",
+        "timing": "after"
+      },
+      {
+        "name": "syncCreateIter",
+        "timing": "after"
+      },
+      {
+        "name": "asyncCreateIter",
+        "timing": "after"
+      },
+      {
+        "name": "accessIter",
+        "timing": "before"
+      }
+    ],
+    "pattern": "sync createSet (asyncCreateIter | (syncCreateIter accessIter))",
+    "violation_message": "A collection view of a synchronized map was accessed in a thread-unsafe manner."
+  }
+}

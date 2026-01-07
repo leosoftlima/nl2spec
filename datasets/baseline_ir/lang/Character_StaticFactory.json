@@ -1,0 +1,15 @@
+{
+  "id": "Character_StaticFactory",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "constructor_create",
+        "timing": "after"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "Using the constructor Character(char value) might be inefficient. Use valueOf(char c) if it is appropriate."
+  }
+}

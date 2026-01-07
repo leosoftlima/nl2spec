@@ -1,0 +1,19 @@
+{
+  "id": "CharSequence_UndefinedHashCode",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "equals",
+        "timing": "before"
+      },
+      {
+        "name": "hashCode",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "equals and hashCode methods might not be supported in CharSequence"
+  }
+}

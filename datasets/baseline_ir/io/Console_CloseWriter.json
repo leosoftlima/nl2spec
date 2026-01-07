@@ -1,0 +1,19 @@
+{
+  "id": "Console_CloseWriter",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "getwriter",
+        "timing": "after"
+      },
+      {
+        "name": "close",
+        "timing": "before"
+      }
+    ],
+    "pattern": "getwriter close+",
+    "violation_message": "Invoking close() on the object returned by Console.writer() does not close the underlying stream."
+  }
+}

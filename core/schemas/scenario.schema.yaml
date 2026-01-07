@@ -1,0 +1,15 @@
+# Schema canônico de um cenário NL → Spec
+
+id: string              # ex: scenario_01
+description: string     # descrição em linguagem natural
+
+api:
+  language: string      # ex: java
+  name: string          # ex: FileSystemAPI
+  events:
+    - name: string      # ex: open
+      signature: string # ex: open(String path)
+
+expected_properties:
+  - string              # descrição informal da propriedade
+

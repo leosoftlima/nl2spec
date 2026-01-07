@@ -1,0 +1,15 @@
+{
+  "id": "Short_BadDecodeArg",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "decode",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "Wrong argument to Short.decode(String nm)"
+  }
+}

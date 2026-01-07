@@ -1,0 +1,19 @@
+{
+  "id": "MulticastSocket_TTL",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "set1",
+        "timing": "before"
+      },
+      {
+        "name": "set2",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "The specified TTL"
+  }
+}

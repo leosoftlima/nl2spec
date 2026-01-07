@@ -1,0 +1,23 @@
+{
+  "id": "List_UnsynchronizedSubList",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "createsublist",
+        "timing": "after"
+      },
+      {
+        "name": "modifybackinglist",
+        "timing": "before"
+      },
+      {
+        "name": "usesublist",
+        "timing": "before"
+      }
+    ],
+    "pattern": "createsublist usesublist* modifybackinglist+ usesublist",
+    "violation_message": "The backing list was modified while a sub-list is being used."
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "System_WrongKeyOrValue",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "createMap",
+        "timing": "after"
+      },
+      {
+        "name": "nullPut",
+        "timing": "before"
+      },
+      {
+        "name": "nullQuery",
+        "timing": "before"
+      },
+      {
+        "name": "notStringQuery",
+        "timing": "before"
+      }
+    ],
+    "pattern": "createMap (nullPut | nullQuery | notStringQuery)+",
+    "violation_message": "null key or value is not permitted in the map from System.getenv(). Also key or value which is not of type String is not allowed."
+  }
+}

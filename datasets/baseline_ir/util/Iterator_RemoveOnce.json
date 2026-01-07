@@ -1,0 +1,19 @@
+{
+  "id": "Iterator_RemoveOnce",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "remove",
+        "timing": "before"
+      },
+      {
+        "name": "next",
+        "timing": "before"
+      }
+    ],
+    "pattern": "(next+ (remove | epsilon))*",
+    "violation_message": "Iterator.remove() can be called only once per call to next()."
+  }
+}

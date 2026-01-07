@@ -1,0 +1,87 @@
+{
+  "id": "StreamTokenizer_AccessInvalidField",
+  "category": "FSM",
+  "ir": {
+    "type": "fsm",
+    "states": [
+      "valid",
+      "read_word",
+      "read_num",
+      "done"
+    ],
+    "start_state": "valid",
+    "transitions": [
+      {
+        "from": "valid",
+        "event": "nexttoken_word",
+        "to": "read_word"
+      },
+      {
+        "from": "valid",
+        "event": "nexttoken_num",
+        "to": "read_num"
+      },
+      {
+        "from": "valid",
+        "event": "nexttoken_eol",
+        "to": "valid"
+      },
+      {
+        "from": "valid",
+        "event": "nexttoken_eof",
+        "to": "done"
+      },
+      {
+        "from": "read_word",
+        "event": "sval",
+        "to": "read_word"
+      },
+      {
+        "from": "read_word",
+        "event": "nexttoken_word",
+        "to": "read_word"
+      },
+      {
+        "from": "read_word",
+        "event": "nexttoken_num",
+        "to": "read_num"
+      },
+      {
+        "from": "read_word",
+        "event": "nexttoken_eol",
+        "to": "valid"
+      },
+      {
+        "from": "read_word",
+        "event": "nexttoken_eof",
+        "to": "done"
+      },
+      {
+        "from": "read_num",
+        "event": "nval",
+        "to": "read_num"
+      },
+      {
+        "from": "read_num",
+        "event": "nexttoken_word",
+        "to": "read_word"
+      },
+      {
+        "from": "read_num",
+        "event": "nexttoken_num",
+        "to": "read_num"
+      },
+      {
+        "from": "read_num",
+        "event": "nexttoken_eol",
+        "to": "valid"
+      },
+      {
+        "from": "read_num",
+        "event": "nexttoken_eof",
+        "to": "done"
+      }
+    ],
+    "violation_message": "The caller attempted to read an invalidated value."
+  }
+}

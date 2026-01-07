@@ -1,0 +1,15 @@
+{
+  "id": "Comparable_CompareToNull",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "nullcompare",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "null cannot be compared to any object"
+  }
+}

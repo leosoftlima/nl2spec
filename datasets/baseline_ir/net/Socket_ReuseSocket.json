@@ -1,0 +1,23 @@
+{
+  "id": "Socket_ReuseSocket",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "close",
+        "timing": "before"
+      },
+      {
+        "name": "bind",
+        "timing": "before"
+      },
+      {
+        "name": "connect",
+        "timing": "before"
+      }
+    ],
+    "pattern": "close (bind | connect)+",
+    "violation_message": "Once a socket has been closed, it is not available for further networking use; a new socket needs to be created."
+  }
+}

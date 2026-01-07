@@ -1,0 +1,31 @@
+{
+  "id": "PushbackInputStream_UnreadAheadLimit",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "create",
+        "timing": "after"
+      },
+      {
+        "name": "read1",
+        "timing": "after"
+      },
+      {
+        "name": "read2",
+        "timing": "after"
+      },
+      {
+        "name": "safeunread",
+        "timing": "before"
+      },
+      {
+        "name": "unsafeunread",
+        "timing": "before"
+      }
+    ],
+    "pattern": "create (read1 | read2 | safeunread)*",
+    "violation_message": "unread() cannot be performed because the internal pushback buffer is full."
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "Closeable_MultipleClose",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "close",
+        "timing": "before"
+      }
+    ],
+    "pattern": "close close+",
+    "violation_message": "close() was invoked multiple times."
+  }
+}

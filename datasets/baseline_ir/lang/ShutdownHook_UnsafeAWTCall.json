@@ -1,0 +1,42 @@
+{
+  "id": "ShutdownHook_UnsafeAWTCall",
+  "category": "FSM",
+  "ir": {
+    "type": "fsm",
+    "states": [
+      "unregistered",
+      "registered",
+      "started",
+      "unsafe"
+    ],
+    "start_state": "unregistered",
+    "transitions": [
+      {
+        "from": "unregistered",
+        "event": "register",
+        "to": "registered"
+      },
+      {
+        "from": "registered",
+        "event": "unregister",
+        "to": "unregistered"
+      },
+      {
+        "from": "registered",
+        "event": "start",
+        "to": "started"
+      },
+      {
+        "from": "started",
+        "event": "awtcall",
+        "to": "unsafe"
+      },
+      {
+        "from": "unsafe",
+        "event": "awtcall",
+        "to": "unsafe"
+      }
+    ],
+    "violation_message": "An operation that potentially leads to deadlocks was performed in a shutdown hook."
+  }
+}

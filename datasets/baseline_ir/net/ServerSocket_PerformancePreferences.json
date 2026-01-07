@@ -1,0 +1,27 @@
+{
+  "id": "ServerSocket_PerformancePreferences",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "create_bound",
+        "timing": "after"
+      },
+      {
+        "name": "create_unbound",
+        "timing": "after"
+      },
+      {
+        "name": "bind",
+        "timing": "before"
+      },
+      {
+        "name": "set",
+        "timing": "before"
+      }
+    ],
+    "pattern": "(create_bound | create_unbound set* bind+) set",
+    "violation_message": "Invoking ServerSocket.setPerformancePreferences() after the socket has been bound will have no effect."
+  }
+}

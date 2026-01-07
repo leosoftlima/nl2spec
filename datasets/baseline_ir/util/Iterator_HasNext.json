@@ -1,0 +1,23 @@
+{
+  "id": "Iterator_HasNext",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "hasnexttrue",
+        "timing": "after"
+      },
+      {
+        "name": "hasnextfalse",
+        "timing": "after"
+      },
+      {
+        "name": "next",
+        "timing": "before"
+      }
+    ],
+    "guard": "b",
+    "violation_message": "Iterator.hasNext() was not called before calling next()."
+  }
+}

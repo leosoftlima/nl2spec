@@ -1,0 +1,27 @@
+{
+  "id": "Socket_PerformancePreferences",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "create_connected",
+        "timing": "after"
+      },
+      {
+        "name": "create_unconnected",
+        "timing": "after"
+      },
+      {
+        "name": "connect",
+        "timing": "before"
+      },
+      {
+        "name": "set",
+        "timing": "before"
+      }
+    ],
+    "pattern": "(create_connected | create_unconnected set* connect+) set",
+    "violation_message": "Invoking Socket.setPerformancePreferences() after the socket has been bound will have no effect."
+  }
+}

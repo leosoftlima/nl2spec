@@ -1,0 +1,19 @@
+{
+  "id": "Properties_ManipulateAfterLoad",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "manipulate",
+        "timing": "before"
+      },
+      {
+        "name": "close",
+        "timing": "after"
+      }
+    ],
+    "pattern": "close+ manipulate",
+    "violation_message": "read(), available(), reset() or skip() was invoked after Properties.loadFromXML() closes the stream."
+  }
+}

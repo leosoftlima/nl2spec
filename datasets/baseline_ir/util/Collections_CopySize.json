@@ -1,0 +1,15 @@
+{
+  "id": "Collections_CopySize",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "bad_copy",
+        "timing": "before"
+      }
+    ],
+    "guard": "dest.size(",
+    "violation_message": "The destination list must be at least as long as the source list."
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "ClassLoader_UnsafeClassDefinition",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "defineClass",
+        "timing": "before"
+      }
+    ],
+    "guard": "name.startsWith(\"java.\"",
+    "violation_message": "java."
+  }
+}

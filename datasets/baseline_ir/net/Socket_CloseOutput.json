@@ -1,0 +1,23 @@
+{
+  "id": "Socket_CloseOutput",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "getoutput",
+        "timing": "after"
+      },
+      {
+        "name": "close",
+        "timing": "before"
+      },
+      {
+        "name": "use",
+        "timing": "before"
+      }
+    ],
+    "pattern": "getoutput close use+",
+    "violation_message": "The output stream of a closed socket is about to be used."
+  }
+}

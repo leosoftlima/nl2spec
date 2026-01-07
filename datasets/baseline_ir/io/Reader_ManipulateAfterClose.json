@@ -1,0 +1,19 @@
+{
+  "id": "Reader_ManipulateAfterClose",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "manipulate",
+        "timing": "before"
+      },
+      {
+        "name": "close",
+        "timing": "before"
+      }
+    ],
+    "pattern": "close+ manipulate+",
+    "violation_message": "read(), ready(), mark(), reset() or skip() was invoked after close()."
+  }
+}

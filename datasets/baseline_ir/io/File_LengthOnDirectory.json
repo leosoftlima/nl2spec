@@ -1,0 +1,15 @@
+{
+  "id": "File_LengthOnDirectory",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "bad_length",
+        "timing": "before"
+      }
+    ],
+    "guard": "f.isDirectory(",
+    "violation_message": "length() was invoked on a File instance that represents a directory."
+  }
+}

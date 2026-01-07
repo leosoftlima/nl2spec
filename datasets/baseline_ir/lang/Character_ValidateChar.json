@@ -1,0 +1,19 @@
+{
+  "id": "Character_ValidateChar",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "charCount",
+        "timing": "before"
+      },
+      {
+        "name": "toCodePoint",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "The code point used in charCount(int codePoint) is not valid."
+  }
+}

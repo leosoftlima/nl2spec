@@ -1,0 +1,15 @@
+{
+  "id": "Enum_NoExtraWhiteSpace",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "valueOf",
+        "timing": "before"
+      }
+    ],
+    "guard": "name.length(",
+    "violation_message": "Please use the exact name. No extraneous whitespace characters are permitted"
+  }
+}

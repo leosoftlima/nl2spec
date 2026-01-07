@@ -1,0 +1,19 @@
+{
+  "id": "Deque_OfferRatherThanAdd",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "create",
+        "timing": "after"
+      },
+      {
+        "name": "add",
+        "timing": "before"
+      }
+    ],
+    "pattern": "create add+",
+    "violation_message": "When using a capacity-restricted deque, it is generally preferable to use offerFirst(), offerLast() and offer() instead of addFirt(), addLast() and add()."
+  }
+}

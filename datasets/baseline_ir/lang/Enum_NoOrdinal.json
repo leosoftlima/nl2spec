@@ -1,0 +1,15 @@
+{
+  "id": "Enum_NoOrdinal",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "ordinal",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "Most programmers will have no use for ordinal() method."
+  }
+}

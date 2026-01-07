@@ -1,0 +1,23 @@
+{
+  "id": "ListIterator_RemoveOnce",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "remove",
+        "timing": "before"
+      },
+      {
+        "name": "next",
+        "timing": "before"
+      },
+      {
+        "name": "previous",
+        "timing": "before"
+      }
+    ],
+    "pattern": "((next | previous)+ (remove | epsilon))*",
+    "violation_message": "ListIterator.remove() can be called only once per call to next()/previous()."
+  }
+}

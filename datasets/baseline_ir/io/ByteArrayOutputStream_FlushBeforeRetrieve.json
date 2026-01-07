@@ -1,0 +1,88 @@
+{
+  "id": "ByteArrayOutputStream_FlushBeforeRetrieve",
+  "category": "FSM",
+  "ir": {
+    "type": "fsm",
+    "states": [
+      "initial",
+      "outputstreamcreated",
+      "writing",
+      "flushed",
+      "closed"
+    ],
+    "start_state": "initial",
+    "transitions": [
+      {
+        "from": "initial",
+        "event": "outputstreaminit",
+        "to": "outputstreamcreated"
+      },
+      {
+        "from": "outputstreamcreated",
+        "event": "write",
+        "to": "writing"
+      },
+      {
+        "from": "outputstreamcreated",
+        "event": "flush",
+        "to": "flushed"
+      },
+      {
+        "from": "outputstreamcreated",
+        "event": "close",
+        "to": "closed"
+      },
+      {
+        "from": "writing",
+        "event": "write",
+        "to": "writing"
+      },
+      {
+        "from": "writing",
+        "event": "flush",
+        "to": "flushed"
+      },
+      {
+        "from": "writing",
+        "event": "close",
+        "to": "closed"
+      },
+      {
+        "from": "flushed",
+        "event": "flush",
+        "to": "flushed"
+      },
+      {
+        "from": "flushed",
+        "event": "write",
+        "to": "writing"
+      },
+      {
+        "from": "flushed",
+        "event": "tobytearray",
+        "to": "flushed"
+      },
+      {
+        "from": "flushed",
+        "event": "tostring",
+        "to": "flushed"
+      },
+      {
+        "from": "flushed",
+        "event": "close",
+        "to": "closed"
+      },
+      {
+        "from": "closed",
+        "event": "tobytearray",
+        "to": "closed"
+      },
+      {
+        "from": "closed",
+        "event": "tostring",
+        "to": "closed"
+      }
+    ],
+    "violation_message": "flush() or close() should be invoked before toByteArray() or toString() to get the complete contents."
+  }
+}

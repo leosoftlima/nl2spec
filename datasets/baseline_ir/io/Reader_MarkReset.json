@@ -1,0 +1,19 @@
+{
+  "id": "Reader_MarkReset",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "mark",
+        "timing": "before"
+      },
+      {
+        "name": "reset",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "PushbackReader, InputStreamReader, FileReader and PipedReader do not support mark() and reset()."
+  }
+}

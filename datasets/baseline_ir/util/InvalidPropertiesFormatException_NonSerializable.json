@@ -1,0 +1,19 @@
+{
+  "id": "InvalidPropertiesFormatException_NonSerializable",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "serialize",
+        "timing": "before"
+      },
+      {
+        "name": "deserialize",
+        "timing": "after"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "InvalidPropertiesFormatException is not intended to be Serialized."
+  }
+}

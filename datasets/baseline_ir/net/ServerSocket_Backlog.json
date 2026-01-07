@@ -1,0 +1,19 @@
+{
+  "id": "ServerSocket_Backlog",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "construct",
+        "timing": "before"
+      },
+      {
+        "name": "set",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "The backlog argument"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "Object_NoClone",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "clone",
+        "timing": "before"
+      }
+    ],
+    "guard": "o.getClass(",
+    "violation_message": "java.lang.Object"
+  }
+}

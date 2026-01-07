@@ -1,0 +1,23 @@
+{
+  "id": "Throwable_InitCauseOnce",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "createWithoutThrowable",
+        "timing": "after"
+      },
+      {
+        "name": "createWithThrowable",
+        "timing": "after"
+      },
+      {
+        "name": "initCause",
+        "timing": "before"
+      }
+    ],
+    "pattern": "(createWithoutThrowable initCause initCause+) | (createWithThrowable initCause+)",
+    "violation_message": "initCause should not be called more than once."
+  }
+}

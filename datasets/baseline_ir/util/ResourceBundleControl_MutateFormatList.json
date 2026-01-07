@@ -1,0 +1,19 @@
+{
+  "id": "ResourceBundleControl_MutateFormatList",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "create",
+        "timing": "after"
+      },
+      {
+        "name": "mutate",
+        "timing": "before"
+      }
+    ],
+    "pattern": "create mutate",
+    "violation_message": "The list returned by ResourceBundle.Control.getFormats() or getCandidateLocales() was mutated."
+  }
+}

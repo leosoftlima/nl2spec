@@ -1,0 +1,19 @@
+{
+  "id": "Short_BadParsingArgs",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "bad_arg",
+        "timing": "before"
+      },
+      {
+        "name": "bad_arg2",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "Wrong argument to Short.parseShort(String s, int radix)"
+  }
+}

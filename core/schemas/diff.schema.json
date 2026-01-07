@@ -1,0 +1,14 @@
+{
+  "scenario_id": "string",
+  "summary": {
+    "missing_events": "number",
+    "extra_events": "number",
+    "matched_events": "number",
+    "event_match_ratio": "number"
+  },
+  "details": {
+    "missing_events": ["string"],
+    "extra_events": ["string"],
+    "matched_events": ["string"]
+  }
+}

@@ -1,0 +1,52 @@
+# ==========================================================
+# nl2spec configuration file
+# Controls pipeline behavior without code changes
+# ==========================================================
+
+mode: test   # test | dev | experiment
+
+paths:
+  dataset_nl: datasets/nl_scenarios.json
+  output_dir: outputs/
+  schema_ir: nl2spec/core/schemas/ir.schema.json
+
+pipeline:
+  generate: true
+  compare: true
+  export_csv: true
+  stats: true
+
+llm:
+  provider: mock   # mock | openai | azure | huggingface
+
+  # ---------------------------
+  # MOCK LLM (default for tests)
+  # ---------------------------
+  mock:
+    class: nl2spec.core.llms.mock_llm.MockLLM
+
+  # ---------------------------
+  # OPENAI (real experiments)
+  # ---------------------------
+  # openai:
+  #   class: nl2spec.core.llms.openai_llm.OpenAILLM
+  #   model: gpt-4o
+  #   temperature: 0.2
+  #   api_key_env: OPENAI_API_KEY
+
+  # ---------------------------
+  # AZURE OPENAI
+  # ---------------------------
+  # azure:
+  #   class: nl2spec.core.llms.azure_llm.AzureOpenAILLM
+  #   deployment: gpt4
+  #   endpoint_env: AZURE_OPENAI_ENDPOINT
+  #   api_key_env: AZURE_OPENAI_KEY
+
+  # ---------------------------
+  # HUGGINGFACE (local / OSS)
+  # ---------------------------
+  # huggingface:
+  #   class: nl2spec.core.llms.hf_llm.HuggingFaceLLM
+  #   model_name: mistralai/Mistral-7B-Instruct-v0.2
+  #   device: cuda

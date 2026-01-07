@@ -1,0 +1,31 @@
+{
+  "id": "Reader_ReadAheadLimit",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "mark",
+        "timing": "before"
+      },
+      {
+        "name": "read1",
+        "timing": "after"
+      },
+      {
+        "name": "readn",
+        "timing": "after"
+      },
+      {
+        "name": "badreset",
+        "timing": "before"
+      },
+      {
+        "name": "goodreset",
+        "timing": "before"
+      }
+    ],
+    "pattern": "(mark | read1 | readn | goodreset)* badreset+",
+    "violation_message": "The position mark has been invalidated."
+  }
+}

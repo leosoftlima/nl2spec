@@ -1,0 +1,19 @@
+{
+  "id": "Appendable_ThreadSafe",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "safe_append",
+        "timing": "before"
+      },
+      {
+        "name": "unsafe_append",
+        "timing": "before"
+      }
+    ],
+    "guard": "this.owner == null || this.owner == t",
+    "violation_message": "More than two threads attempted to use an Appendable instance, which may lead to a race condition"
+  }
+}

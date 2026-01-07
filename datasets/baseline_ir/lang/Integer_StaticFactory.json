@@ -1,0 +1,15 @@
+{
+  "id": "Integer_StaticFactory",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "constructor_create",
+        "timing": "after"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "Using the constructor Integer(int value) might be inefficient. Use valueOf(int) if it is appropriate."
+  }
+}

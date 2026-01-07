@@ -1,0 +1,19 @@
+{
+  "id": "ServiceLoaderIterator_Remove",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "create",
+        "timing": "after"
+      },
+      {
+        "name": "remove",
+        "timing": "before"
+      }
+    ],
+    "pattern": "create remove",
+    "violation_message": "The iterator returned by ServiceLoader.iterator() does not support removal."
+  }
+}

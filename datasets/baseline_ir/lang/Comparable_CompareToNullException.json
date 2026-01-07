@@ -1,0 +1,19 @@
+{
+  "id": "Comparable_CompareToNullException",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "badexception",
+        "timing": "after"
+      },
+      {
+        "name": "badcompare",
+        "timing": "after"
+      }
+    ],
+    "guard": "!(e instanceof NullPointerException",
+    "violation_message": "NullPointerException should be thrown when an object is compared to null"
+  }
+}

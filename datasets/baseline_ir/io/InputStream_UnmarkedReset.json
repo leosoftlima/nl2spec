@@ -1,0 +1,19 @@
+{
+  "id": "InputStream_UnmarkedReset",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "mark",
+        "timing": "before"
+      },
+      {
+        "name": "reset",
+        "timing": "before"
+      }
+    ],
+    "pattern": "mark (mark | reset)*",
+    "violation_message": "BufferedInputStream, DataInputStream and LineNumberInputStream allow reset() only after mark() has been invoked."
+  }
+}

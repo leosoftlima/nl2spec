@@ -1,0 +1,71 @@
+{
+  "id": "Arrays_SortBeforeBinarySearch",
+  "category": "FSM",
+  "ir": {
+    "type": "fsm",
+    "states": [
+      "unsorted",
+      "sorted1",
+      "sorted2"
+    ],
+    "start_state": "unsorted",
+    "transitions": [
+      {
+        "from": "unsorted",
+        "event": "sort1",
+        "to": "sorted1"
+      },
+      {
+        "from": "unsorted",
+        "event": "sort2",
+        "to": "sorted2"
+      },
+      {
+        "from": "unsorted",
+        "event": "modify",
+        "to": "unsorted"
+      },
+      {
+        "from": "sorted1",
+        "event": "sort1",
+        "to": "sorted1"
+      },
+      {
+        "from": "sorted1",
+        "event": "sort2",
+        "to": "sorted2"
+      },
+      {
+        "from": "sorted1",
+        "event": "modify",
+        "to": "unsorted"
+      },
+      {
+        "from": "sorted1",
+        "event": "bsearch1",
+        "to": "sorted1"
+      },
+      {
+        "from": "sorted2",
+        "event": "sort1",
+        "to": "sorted1"
+      },
+      {
+        "from": "sorted2",
+        "event": "sort2",
+        "to": "sorted2"
+      },
+      {
+        "from": "sorted2",
+        "event": "modify",
+        "to": "unsorted"
+      },
+      {
+        "from": "sorted2",
+        "event": "bsearch2",
+        "to": "sorted2"
+      }
+    ],
+    "violation_message": "The array or part of the array must be sorted prior to making binarySearch() call."
+  }
+}

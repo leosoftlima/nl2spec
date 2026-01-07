@@ -1,0 +1,28 @@
+# Few-shot datasets (confidential)
+datasets/fewshot/
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.pyc
+
+# =========================
+# Ambientes e configs locais
+# =========================
+.env
+.env.*
+.idea/
+.vscode/
+
+# =========================
+# Logs e temporários
+# =========================
+logs/
+*.log
+
+# Python build artifacts
+*.egg-info/
+dist/
+build/
+

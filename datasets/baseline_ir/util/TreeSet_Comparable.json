@@ -1,0 +1,19 @@
+{
+  "id": "TreeSet_Comparable",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "add",
+        "timing": "before"
+      },
+      {
+        "name": "addall",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "A non-comparable object is being inserted into a TreeSet object."
+  }
+}

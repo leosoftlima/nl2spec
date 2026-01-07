@@ -1,0 +1,15 @@
+{
+  "id": "URL_SetURLStreamHandlerFactory",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "set",
+        "timing": "before"
+      }
+    ],
+    "pattern": "set set+",
+    "violation_message": "URL.setURLStreamHandlerFactory() can be called at most once in a given Java Virtual Machine."
+  }
+}

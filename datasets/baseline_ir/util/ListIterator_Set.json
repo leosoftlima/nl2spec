@@ -1,0 +1,35 @@
+{
+  "id": "ListIterator_Set",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "create",
+        "timing": "after"
+      },
+      {
+        "name": "remove",
+        "timing": "before"
+      },
+      {
+        "name": "add",
+        "timing": "before"
+      },
+      {
+        "name": "next",
+        "timing": "before"
+      },
+      {
+        "name": "previous",
+        "timing": "before"
+      },
+      {
+        "name": "set",
+        "timing": "before"
+      }
+    ],
+    "pattern": "create add* ((next | previous)+ set* (remove | add+ | epsilon))*",
+    "violation_message": "ListIterator.set() can be made only if neither remove() nor add() have been called after the last call to next() or previous()."
+  }
+}

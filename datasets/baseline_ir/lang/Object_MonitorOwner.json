@@ -1,0 +1,19 @@
+{
+  "id": "Object_MonitorOwner",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "bad_notify",
+        "timing": "before"
+      },
+      {
+        "name": "bad_wait",
+        "timing": "before"
+      }
+    ],
+    "guard": "true",
+    "violation_message": "notify() and notifyAll() can be called only by the owner of this object's monitor."
+  }
+}

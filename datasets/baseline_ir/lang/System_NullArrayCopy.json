@@ -1,0 +1,15 @@
+{
+  "id": "System_NullArrayCopy",
+  "category": "EVENT",
+  "ir": {
+    "type": "single_event",
+    "events": [
+      {
+        "name": "null_arraycopy",
+        "timing": "before"
+      }
+    ],
+    "guard": "src == null || dest == null",
+    "violation_message": "src or dest should not be null."
+  }
+}

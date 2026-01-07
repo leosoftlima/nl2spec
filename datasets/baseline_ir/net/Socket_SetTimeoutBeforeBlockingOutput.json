@@ -1,0 +1,46 @@
+{
+  "id": "Socket_SetTimeoutBeforeBlockingOutput",
+  "category": "FSM",
+  "ir": {
+    "type": "fsm",
+    "states": [
+      "start",
+      "unblocked",
+      "blocked"
+    ],
+    "start_state": "start",
+    "transitions": [
+      {
+        "from": "start",
+        "event": "getoutput",
+        "to": "unblocked"
+      },
+      {
+        "from": "unblocked",
+        "event": "getoutput",
+        "to": "unblocked"
+      },
+      {
+        "from": "unblocked",
+        "event": "set",
+        "to": "unblocked"
+      },
+      {
+        "from": "unblocked",
+        "event": "enter",
+        "to": "blocked"
+      },
+      {
+        "from": "blocked",
+        "event": "getoutput",
+        "to": "blocked"
+      },
+      {
+        "from": "blocked",
+        "event": "leave",
+        "to": "unblocked"
+      }
+    ],
+    "violation_message": "Socket.setSoTimeout() should be set prior to entering the blocking operation."
+  }
+}

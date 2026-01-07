@@ -1,0 +1,19 @@
+{
+  "id": "InputStream_ManipulateAfterClose",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "manipulate",
+        "timing": "before"
+      },
+      {
+        "name": "close",
+        "timing": "before"
+      }
+    ],
+    "pattern": "close+ manipulate",
+    "violation_message": "read(), available(), reset() or skip() was invoked after close()."
+  }
+}

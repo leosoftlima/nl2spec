@@ -1,0 +1,23 @@
+{
+  "id": "Collections_NewSetFromMap",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "create",
+        "timing": "before"
+      },
+      {
+        "name": "bad_create",
+        "timing": "before"
+      },
+      {
+        "name": "access",
+        "timing": "before"
+      }
+    ],
+    "pattern": "bad_create | (create access)",
+    "violation_message": "The map used in Collections.newSetFromMap() must be empty before calling this method, and should not be accessed directly after this method returns."
+  }
+}

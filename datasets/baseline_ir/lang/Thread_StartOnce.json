@@ -1,0 +1,15 @@
+{
+  "id": "Thread_StartOnce",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "start",
+        "timing": "before"
+      }
+    ],
+    "pattern": "start start+",
+    "violation_message": "Thread should not be started more than once."
+  }
+}
