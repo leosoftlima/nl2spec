@@ -1,6 +1,7 @@
 {
   "id": "Collections_NewSetFromMap",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

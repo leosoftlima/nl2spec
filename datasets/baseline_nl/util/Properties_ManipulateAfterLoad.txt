@@ -1,0 +1,1 @@
+read(), available(), reset() or skip() was invoked after Properties.loadFromXML() closes the stream.

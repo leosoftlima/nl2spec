@@ -1,6 +1,7 @@
 {
   "id": "Collection_UnsynchronizedAddAll",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

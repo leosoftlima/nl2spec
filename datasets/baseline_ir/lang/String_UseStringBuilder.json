@@ -1,8 +1,9 @@
 {
   "id": "String_UseStringBuilder",
   "category": "EVENT",
+  "domain": "lang",
   "ir": {
-    "type": "single_event",
+    "type": "event",
     "events": [
       {
         "name": "constructor_create",

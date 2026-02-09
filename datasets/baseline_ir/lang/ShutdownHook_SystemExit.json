@@ -1,6 +1,7 @@
 {
   "id": "ShutdownHook_SystemExit",
   "category": "FSM",
+  "domain": "lang",
   "ir": {
     "type": "fsm",
     "states": [

@@ -57,8 +57,8 @@ def compare_ir(reference: Dict[str, Any], generated: Dict[str, Any]) -> IRDiff:
     ir_type = ref_ir.get("type")
 
     # 3. Dispatch by IR type
-    if ir_type == "single_event":
-        _compare_single_event(ref_ir, gen_ir, diff)
+    if ir_type == "event":
+        _compare_event(ref_ir, gen_ir, diff)
 
     elif ir_type == "ere":
         _compare_ere(ref_ir, gen_ir, diff)
@@ -92,7 +92,7 @@ def _compare_events(ref_events, gen_events, diff: IRDiff):
         diff.add_warning(f"Extra event: {name}@{timing}")
 
 
-def _compare_single_event(ref_ir, gen_ir, diff: IRDiff):
+def _compare_event(ref_ir, gen_ir, diff: IRDiff):
     _compare_events(
         ref_ir.get("events", []),
         gen_ir.get("events", []),

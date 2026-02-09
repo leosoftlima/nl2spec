@@ -1,6 +1,7 @@
 {
   "id": "ShutdownHook_PrematureStart",
   "category": "FSM",
+  "domain": "lang",
   "ir": {
     "type": "fsm",
     "states": [

@@ -1,0 +1,1 @@
+It might not be safe to add a CharSequence instance into a set

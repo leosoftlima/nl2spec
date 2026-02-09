@@ -1,6 +1,7 @@
 {
   "id": "PipedOutputStream_UnconnectedWrite",
   "category": "FSM",
+  "domain": "io",
   "ir": {
     "type": "fsm",
     "states": [

@@ -8,7 +8,7 @@ class MockLLM:
         {
           "category": "EVENT",
           "ir": {
-            "type": "single_event",
+            "type": "event",
             "events": [
               { "name": "send", "timing": "before" }
             ],
@@ -37,5 +37,5 @@ def test_generate_one_with_mock_llm():
     )
 
     assert ir["category"] == "EVENT"
-    assert ir["ir"]["type"] == "single_event"
+    assert ir["ir"]["type"] == "event"
 

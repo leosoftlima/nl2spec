@@ -4,7 +4,7 @@ from core.comparator.compare_ir import compare_ir
 IR_A = {
     "category": "EVENT",
     "ir": {
-        "type": "single_event",
+        "type": "event",
         "events": [
             {"name": "File.close", "timing": "after"}
         ],
@@ -16,7 +16,7 @@ IR_A = {
 IR_B = {
     "category": "EVENT",
     "ir": {
-        "type": "single_event",
+        "type": "event",
         "events": [
             {"name": "File.close", "timing": "before"}
         ],

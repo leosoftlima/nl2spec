@@ -1,6 +1,7 @@
 {
   "id": "URL_SetURLStreamHandlerFactory",
   "category": "ERE",
+  "domain": "net",
   "ir": {
     "type": "ere",
     "events": [

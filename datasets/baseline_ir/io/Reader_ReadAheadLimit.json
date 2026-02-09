@@ -1,6 +1,7 @@
 {
   "id": "Reader_ReadAheadLimit",
   "category": "ERE",
+  "domain": "io",
   "ir": {
     "type": "ere",
     "events": [

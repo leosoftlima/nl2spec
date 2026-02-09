@@ -1,8 +1,9 @@
 {
   "id": "Serializable_UID",
   "category": "EVENT",
+  "domain": "io",
   "ir": {
-    "type": "single_event",
+    "type": "event",
     "events": [
       {
         "name": "staticinit",

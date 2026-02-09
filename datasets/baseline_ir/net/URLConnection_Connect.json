@@ -1,6 +1,7 @@
 {
   "id": "URLConnection_Connect",
   "category": "ERE",
+  "domain": "net",
   "ir": {
     "type": "ere",
     "events": [

@@ -1,6 +1,7 @@
 {
   "id": "Throwable_InitCauseOnce",
   "category": "ERE",
+  "domain": "lang",
   "ir": {
     "type": "ere",
     "events": [

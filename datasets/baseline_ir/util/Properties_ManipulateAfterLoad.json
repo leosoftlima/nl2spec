@@ -1,6 +1,7 @@
 {
   "id": "Properties_ManipulateAfterLoad",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

@@ -14,6 +14,11 @@
       "enum": ["EVENT", "ERE", "FSM", "LTL"],
       "description": "Specification category derived from empirical dataset analysis."
     },
+    "domain": {
+      "type": "string",
+      "enum": ["io", "lang", "util", "net", "concurrent", "other"],
+      "description": "API domain inferred from the dataset folder structure."
+    },
     "natural_language": {
       "type": "string",
       "description": "Natural language description of the property."
@@ -46,7 +51,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["single_event", "ere", "fsm", "ltl"]
+          "enum": ["event", "ere", "fsm", "ltl"]
         },
         "events": {
           "type": "array",
@@ -115,7 +120,7 @@
       "allOf": [
         {
           "if": {
-            "properties": { "type": { "const": "single_event" } }
+            "properties": { "type": { "const": "event" } }
           },
           "then": {
             "required": ["events", "guard", "violation_message"]

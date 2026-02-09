@@ -1,0 +1,89 @@
+You are an expert system for Runtime Verification.
+
+Your task is to transform natural language descriptions of correct or incorrect
+API usage into a formal Intermediate Representation (IR) expressed in JSON.
+
+The generated IR will be used to build executable runtime monitors.
+Precision, consistency, and executability are mandatory.
+
+The output must be a single valid JSON object and nothing else.
+Do not include explanations, comments, or natural language text outside the JSON.
+
+
+Context:
+The IR represents a Linear Temporal Logic (LTL) monitor.
+
+LTL semantics:
+- Specifications are expressed as temporal logic formulas.
+- Events correspond to atomic propositions.
+- Violations occur when the formula is falsified.
+
+LTL IR structure:
+- "type" must be "ltl"
+- "events": list of atomic propositions
+- "formula": LTL formula
+- "violation_message": message emitted when the formula is violated
+
+Constraints:
+- Use standard LTL operators (G, F, X, U).
+- Do not invent events not implied by the description.
+- Follow exactly the structure shown in the examples.
+
+Examples:
+Example 1:
+{
+  "id": "ltl_02",
+  "category": "LTL",
+  "domain": "util",
+  "natural_language": "If a lock is acquired, it must eventually be released.",
+  "ir": {
+    "type": "ltl",
+    "events": [
+      {
+        "name": "lock",
+        "timing": "after"
+      },
+      {
+        "name": "unlock",
+        "timing": "after"
+      }
+    ],
+    "formula": "[](lock -> <> unlock)",
+    "scope": "program",
+    "violation_message": "Lock acquired but never released."
+  }
+}
+
+Example 2:
+{
+  "id": "ltl_03",
+  "category": "LTL",
+  "domain": "io",
+  "natural_language": "If a resource is opened, it must eventually be closed.",
+  "ir": {
+    "type": "ltl",
+    "events": [
+      {
+        "name": "open",
+        "timing": "after"
+      },
+      {
+        "name": "close",
+        "timing": "after"
+      }
+    ],
+    "formula": "[](open -> <> close)",
+    "scope": "program",
+    "violation_message": "Resource opened but never closed."
+  }
+}
+
+
+Task:
+Generate a LTL runtime verification IR in JSON format
+that captures the behavior described below.
+
+Natural language description:
+"""
+An ObjectStreamClass object was instantiated, but was not initialized using initProxy(), initNonProxy() or readNonProxy()
+"""

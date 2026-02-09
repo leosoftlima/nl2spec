@@ -1,6 +1,7 @@
 {
   "id": "ObjectInput_Close",
   "category": "LTL",
+  "domain": "io",
   "ir": {
     "type": "ltl",
     "events": [

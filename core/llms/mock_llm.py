@@ -11,7 +11,7 @@ class MockLLM:
         return json.dumps({
             "category": "EVENT",
             "ir": {
-                "type": "single_event",
+                "type": "event",
                 "events": [
                     {
                         "name": "File.close",

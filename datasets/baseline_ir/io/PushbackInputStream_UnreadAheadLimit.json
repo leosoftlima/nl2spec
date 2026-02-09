@@ -1,6 +1,7 @@
 {
   "id": "PushbackInputStream_UnreadAheadLimit",
   "category": "ERE",
+  "domain": "io",
   "ir": {
     "type": "ere",
     "events": [

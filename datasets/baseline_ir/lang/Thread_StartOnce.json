@@ -1,6 +1,7 @@
 {
   "id": "Thread_StartOnce",
   "category": "ERE",
+  "domain": "lang",
   "ir": {
     "type": "ere",
     "events": [

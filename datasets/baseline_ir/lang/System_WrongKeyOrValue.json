@@ -1,6 +1,7 @@
 {
   "id": "System_WrongKeyOrValue",
   "category": "ERE",
+  "domain": "lang",
   "ir": {
     "type": "ere",
     "events": [

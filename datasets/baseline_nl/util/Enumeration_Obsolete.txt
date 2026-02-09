@@ -1,0 +1,1 @@
+The Enumeration interface is obsolete. New implementations should consider using the Interface interface.

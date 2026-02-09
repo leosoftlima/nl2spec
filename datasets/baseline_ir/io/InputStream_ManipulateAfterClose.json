@@ -1,6 +1,7 @@
 {
   "id": "InputStream_ManipulateAfterClose",
   "category": "ERE",
+  "domain": "io",
   "ir": {
     "type": "ere",
     "events": [

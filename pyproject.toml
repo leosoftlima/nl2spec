@@ -10,7 +10,8 @@ authors = [
     { name = "Leonardo Lima" ,
       name = "Victor Lira" ,
       name = "Leopoldo Teixeira" ,
-      name = "Breno Miranda"}
+      name = "Breno Miranda",
+      name = "Marcelo D´Amorin"}
 ]
 requires-python = ">=3.9"
 

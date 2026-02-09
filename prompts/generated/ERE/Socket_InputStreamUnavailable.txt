@@ -1,0 +1,89 @@
+You are an expert system for Runtime Verification.
+
+Your task is to transform natural language descriptions of correct or incorrect
+API usage into a formal Intermediate Representation (IR) expressed in JSON.
+
+The generated IR will be used to build executable runtime monitors.
+Precision, consistency, and executability are mandatory.
+
+The output must be a single valid JSON object and nothing else.
+Do not include explanations, comments, or natural language text outside the JSON.
+
+
+Context:
+The IR represents an Extended Regular Expression (ERE) monitor.
+
+ERE semantics:
+- The specification defines allowed and forbidden event sequences.
+- Events correspond to method calls or returns.
+- The expression describes valid execution traces.
+- Violations occur when the execution deviates from the expression.
+
+ERE IR structure:
+- "type" must be "ere"
+- "events": list of relevant events
+- "expression": the ERE defining the allowed behavior
+- "violation_message": message emitted when the expression is violated
+
+Constraints:
+- Do not invent events or methods not implied by the description.
+- Keep the expression minimal and precise.
+- Use only constructs supported by the ERE formalism.
+- Follow exactly the structure shown in the examples.
+
+Examples:
+Example 1:
+{
+  "id": "ere_04",
+  "category": "ERE",
+  "domain": "lang",
+  "natural_language": "A service must be started before it can be stopped.",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "start",
+        "timing": "before"
+      },
+      {
+        "name": "stop",
+        "timing": "before"
+      }
+    ],
+    "pattern": "start stop+",
+    "violation_message": "Service stopped without being started."
+  }
+}
+
+Example 2:
+{
+  "id": "ere_01",
+  "category": "ERE",
+  "domain": "io",
+  "natural_language": "A file must be opened before it is closed.",
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "name": "open",
+        "timing": "before"
+      },
+      {
+        "name": "close",
+        "timing": "before"
+      }
+    ],
+    "pattern": "open close",
+    "violation_message": "File closed without being opened."
+  }
+}
+
+
+Task:
+Generate a ERE runtime verification IR in JSON format
+that captures the behavior described below.
+
+Natural language description:
+"""
+An input stream is unavailable if the socket is closed, is not connected, or the socket input has been shutdown.
+"""

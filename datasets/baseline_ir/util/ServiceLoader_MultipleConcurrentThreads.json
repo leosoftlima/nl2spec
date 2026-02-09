@@ -1,6 +1,7 @@
 {
   "id": "ServiceLoader_MultipleConcurrentThreads",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

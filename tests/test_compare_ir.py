@@ -5,7 +5,7 @@ def test_equal_event_ir():
     ref = {
         "category": "EVENT",
         "ir": {
-            "type": "single_event",
+            "type": "event",
             "events": [{"name": "open", "timing": "before"}],
             "guard": "file is null",
             "violation_message": "error"
@@ -15,7 +15,7 @@ def test_equal_event_ir():
     gen = {
         "category": "EVENT",
         "ir": {
-            "type": "single_event",
+            "type": "event",
             "events": [{"name": "open", "timing": "before"}],
             "guard": "file is null",
             "violation_message": "error"
@@ -30,7 +30,7 @@ def test_missing_event():
     ref = {
         "category": "EVENT",
         "ir": {
-            "type": "single_event",
+            "type": "event",
             "events": [{"name": "open", "timing": "before"}],
             "guard": "x",
             "violation_message": "error"
@@ -40,7 +40,7 @@ def test_missing_event():
     gen = {
         "category": "EVENT",
         "ir": {
-            "type": "single_event",
+            "type": "event",
             "events": [],
             "guard": "x",
             "violation_message": "error"

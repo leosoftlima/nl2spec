@@ -1,6 +1,7 @@
 {
   "id": "SocketImpl_CloseOutput",
   "category": "ERE",
+  "domain": "net",
   "ir": {
     "type": "ere",
     "events": [

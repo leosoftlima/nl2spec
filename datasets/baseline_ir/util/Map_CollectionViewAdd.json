@@ -1,6 +1,7 @@
 {
   "id": "Map_CollectionViewAdd",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

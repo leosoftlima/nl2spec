@@ -1,0 +1,127 @@
+You are an expert system for Runtime Verification.
+
+Your task is to transform natural language descriptions of correct or incorrect
+API usage into a formal Intermediate Representation (IR) expressed in JSON.
+
+The generated IR will be used to build executable runtime monitors.
+Precision, consistency, and executability are mandatory.
+
+The output must be a single valid JSON object and nothing else.
+Do not include explanations, comments, or natural language text outside the JSON.
+
+
+Context:
+The IR represents a Finite State Machine (FSM) monitor.
+
+FSM semantics:
+- States represent abstract phases of API usage.
+- There is exactly one start state.
+- Transitions move the monitor between states when events occur.
+- Events are derived from method calls or returns.
+- Forbidden behavior must be explicitly represented.
+- Each violation must include a violation_message.
+
+FSM IR structure:
+- "type" must be "fsm"
+- "states": list of state names
+- "start_state": initial state
+- "transitions": list of allowed transitions
+- "forbidden": list of forbidden events or transitions
+- "violation_message": message emitted when a violation occurs
+
+Constraints:
+- Do not invent events, methods, or states not implied by the description.
+- Keep the number of states minimal.
+- If an action is forbidden in a state, represent it explicitly.
+- Follow exactly the structure shown in the examples.
+
+Examples:
+Example 1:
+{
+  "id": "fsm_01",
+  "category": "FSM",
+  "natural_language": "A socket must be configured before it is used to send data.",
+  "ir": {
+    "type": "fsm",
+    "states": [
+      "created",
+      "configured",
+      "used"
+    ],
+    "start_state": "created",
+    "transitions": [
+      {
+        "from": "created",
+        "event": "configure",
+        "timing": "before",
+        "to": "configured"
+      },
+      {
+        "from": "configured",
+        "event": "send",
+        "timing": "after",
+        "to": "used"
+      }
+    ],
+    "forbidden": [
+      {
+        "from": "created",
+        "event": "send"
+      }
+    ],
+    "violation_message": "Socket used before configuration."
+  }
+}
+
+Example 2:
+{
+  "id": "fsm_02",
+  "category": "FSM",
+  "natural_language": "A transaction must be committed or rolled back after it is begun.",
+  "ir": {
+    "type": "fsm",
+    "states": [
+      "idle",
+      "active",
+      "finished"
+    ],
+    "start_state": "idle",
+    "transitions": [
+      {
+        "from": "idle",
+        "event": "begin",
+        "timing": "before",
+        "to": "active"
+      },
+      {
+        "from": "active",
+        "event": "commit",
+        "timing": "after",
+        "to": "finished"
+      },
+      {
+        "from": "active",
+        "event": "rollback",
+        "timing": "after",
+        "to": "finished"
+      }
+    ],
+    "forbidden": [
+      {
+        "from": "idle",
+        "event": "commit"
+      }
+    ],
+    "violation_message": "Transaction committed without begin."
+  }
+}
+
+
+Task:
+Generate a FSM runtime verification IR in JSON format
+that captures the behavior described below.
+
+Natural language description:
+"""
+ListIterator.hasNext()/hasPrevious() was not called before calling next()/previous().
+"""

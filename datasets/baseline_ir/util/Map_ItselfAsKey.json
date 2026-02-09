@@ -1,8 +1,9 @@
 {
   "id": "Map_ItselfAsKey",
   "category": "EVENT",
+  "domain": "util",
   "ir": {
-    "type": "single_event",
+    "type": "event",
     "events": [
       {
         "name": "put",

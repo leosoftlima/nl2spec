@@ -1,6 +1,7 @@
 {
   "id": "ProcessBuilder_NullKeyOrValue",
   "category": "ERE",
+  "domain": "lang",
   "ir": {
     "type": "ere",
     "events": [

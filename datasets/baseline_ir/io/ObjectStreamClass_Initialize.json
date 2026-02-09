@@ -1,6 +1,7 @@
 {
   "id": "ObjectStreamClass_Initialize",
   "category": "LTL",
+  "domain": "io",
   "ir": {
     "type": "ltl",
     "events": [

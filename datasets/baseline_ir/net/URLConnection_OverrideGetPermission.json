@@ -1,8 +1,9 @@
 {
   "id": "URLConnection_OverrideGetPermission",
   "category": "EVENT",
+  "domain": "net",
   "ir": {
-    "type": "single_event",
+    "type": "event",
     "events": [
       {
         "name": "staticinit",

@@ -4,7 +4,7 @@ class MockLLM:
         {
           "category": "EVENT",
           "ir": {
-            "type": "single_event",
+            "type": "event",
             "events": [
               { "name": "send", "timing": "before" }
             ],

@@ -1,6 +1,7 @@
 {
   "id": "NavigableMap_Modification",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

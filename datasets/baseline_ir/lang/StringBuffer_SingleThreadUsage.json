@@ -1,6 +1,7 @@
 {
   "id": "StringBuffer_SingleThreadUsage",
   "category": "ERE",
+  "domain": "lang",
   "ir": {
     "type": "ere",
     "events": [

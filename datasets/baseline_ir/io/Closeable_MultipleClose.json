@@ -1,6 +1,7 @@
 {
   "id": "Closeable_MultipleClose",
   "category": "ERE",
+  "domain": "io",
   "ir": {
     "type": "ere",
     "events": [

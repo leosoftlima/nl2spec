@@ -1,6 +1,7 @@
 {
   "id": "ServiceLoaderIterator_Remove",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

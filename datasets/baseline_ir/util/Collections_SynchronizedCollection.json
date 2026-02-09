@@ -1,6 +1,7 @@
 {
   "id": "Collections_SynchronizedCollection",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

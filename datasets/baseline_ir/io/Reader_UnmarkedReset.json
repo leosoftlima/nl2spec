@@ -1,6 +1,7 @@
 {
   "id": "Reader_UnmarkedReset",
   "category": "ERE",
+  "domain": "io",
   "ir": {
     "type": "ere",
     "events": [

@@ -1,9 +1,11 @@
 mode: dev
+seed: 42
 
 paths:
-  dataset_nl: datasets/nl_scenarios.json
-  output_dir: outputs/
-  schema_ir: nl2spec/core/schemas/ir.schema.json
+  baseline_nl: datasets/baseline_nl
+  baseline_ir: datasets/baseline_ir
+  output_dir: ../outputs/
+  schema_ir: core/schemas/ir.schema.json
 
 pipeline:
   generate: true
@@ -12,11 +14,10 @@ pipeline:
   stats: true
 
 prompting:
-  shot_mode: few   # zero | one | few
-  k: 2             # usado só se shot_mode == few
+  shot_mode: few        # zero | one | few
+  k: 2
   fewshot:
-    enabled: true
-    dataset_dir: nl2spec/datasets/fewshot
+    dataset_dir: datasets/fewshot
     selection: fixed
 
 llm:

@@ -1,6 +1,7 @@
 {
   "id": "ByteArrayOutputStream_FlushBeforeRetrieve",
   "category": "FSM",
+  "domain": "io",
   "ir": {
     "type": "fsm",
     "states": [

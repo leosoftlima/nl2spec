@@ -1,7 +1,7 @@
 {
   "category": "EVENT",
   "ir": {
-    "type": "single_event",
+    "type": "event",
     "events": [
       { "name": "open" }
     ],

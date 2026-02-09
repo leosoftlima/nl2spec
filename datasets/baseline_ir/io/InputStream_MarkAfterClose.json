@@ -1,6 +1,7 @@
 {
   "id": "InputStream_MarkAfterClose",
   "category": "ERE",
+  "domain": "io",
   "ir": {
     "type": "ere",
     "events": [

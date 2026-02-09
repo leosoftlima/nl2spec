@@ -1,6 +1,7 @@
 {
   "id": "Dictionary_Obsolete",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

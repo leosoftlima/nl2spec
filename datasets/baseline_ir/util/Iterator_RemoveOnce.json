@@ -1,6 +1,7 @@
 {
   "id": "Iterator_RemoveOnce",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

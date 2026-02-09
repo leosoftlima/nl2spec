@@ -1,49 +1,61 @@
-import json
 from pathlib import Path
-from typing import List
+import json
+from typing import List, Optional
+from nl2spec.logging_utils import get_logger
 
-# Diretórios base
-PROMPTS_DIR = Path(__file__).resolve().parent
-NL2SPEC_DIR = PROMPTS_DIR.parent
-DATASETS_DIR = NL2SPEC_DIR / "datasets"
+log = get_logger(__name__)
+
+PROMPT_DIR = Path(__file__).parent
+GENERATED_DIR = PROMPT_DIR / "generated"
 
 SUPPORTED_IR_TYPES = {"fsm", "ere", "event", "ltl"}
 
 
-
-# ---------- loaders ----------
-
-def load_text_from_prompts(relative_path: str) -> str:
-    path = PROMPTS_DIR / relative_path
+def _load(path: Path) -> str:
+    log.debug("Loading prompt file: %s", path)
     return path.read_text(encoding="utf-8")
 
 
-def load_json_from_dataset(relative_path: str):
-    path = DATASETS_DIR / relative_path
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+def _save_prompt(
+    prompt: str,
+    *,
+    scenario_id: str,
+    ir_type: str,
+    output_dir: Optional[Path] = None,
+) -> None:
+    """
+    Persist the generated prompt for inspection and reproducibility.
+    """
 
+    base_dir = output_dir or GENERATED_DIR
+    target_dir = base_dir / ir_type.upper()
+    target_dir.mkdir(parents=True, exist_ok=True)
 
-# ---------- formatting ----------
+    prompt_path = target_dir / f"{scenario_id}.txt"
+    prompt_path.write_text(prompt, encoding="utf-8")
 
-def format_fewshot_examples(examples: List[dict]) -> str:
-    blocks = []
-    for i, ex in enumerate(examples, start=1):
-        blocks.append(
-            f"Example {i}:\n{json.dumps(ex, indent=2)}"
-        )
-    return "\n\n".join(blocks)
+    log.info("Prompt saved to: %s", prompt_path)
 
-
-# ---------- builder ----------
 
 def build_prompt(
     ir_type: str,
-    scenario_text: str,
-    fewshot_files: List[str]
+    nl_text: str,
+    fewshot_files: List[Path],
+    *,
+    scenario_id: Optional[str] = None,
+    save: bool = False,
+    output_dir: Optional[Path] = None,
 ) -> str:
     """
-    Build a prompt for a given IR type (fsm, ere, event).
+    Build a prompt for a given IR type (fsm, ere, event, ltl).
+
+    The prompt is composed of:
+      1) header.txt (global instructions)
+      2) template_<ir_type>.txt (IR-specific guidance)
+      3) few-shot examples (if any)
+      4) explicit task with the NL description
+
+    If save=True and scenario_id is provided, the prompt is saved to disk.
     """
 
     ir_type = ir_type.lower()
@@ -53,30 +65,74 @@ def build_prompt(
             f"Supported types: {SUPPORTED_IR_TYPES}"
         )
 
-    # fixed files
-    header = load_text_from_prompts("base/header.txt")
-    template = load_text_from_prompts(f"{ir_type}/template.txt")
+    log.info("Building prompt for IR type: %s", ir_type)
 
-    # few-shot examples
-    fewshot_examples = [
-        load_json_from_dataset(p) for p in fewshot_files
-    ]
-    fewshot_block = format_fewshot_examples(fewshot_examples)
+    # ---------- fixed prompt parts ----------
+    header_path = PROMPT_DIR / "base" / "header.txt"
+    template_path = PROMPT_DIR / ir_type / "template.txt"
 
-    # inject examples
+    if not header_path.exists():
+        raise FileNotFoundError(f"Prompt header not found: {header_path}")
+
+    if not template_path.exists():
+        raise FileNotFoundError(f"Prompt template not found: {template_path}")
+
+    header = _load(header_path)
+    template = _load(template_path)
+
+    # ---------- few-shot examples ----------
+    examples = []
+    for fs in fewshot_files:
+        log.debug("Loading few-shot example: %s", fs)
+        data = json.loads(fs.read_text(encoding="utf-8"))
+        examples.append(json.dumps(data, indent=2))
+
+    if examples:
+        fewshot_block = "\n\n".join(
+            f"Example {i + 1}:\n{ex}"
+            for i, ex in enumerate(examples)
+        )
+    else:
+        fewshot_block = "None"
+
+    # inject few-shot block into template
     template = template.replace(
         "{{FEW_SHOT_EXAMPLES}}",
         fewshot_block
     )
 
+    # ---------- explicit task (GENERIC) ----------
     task = f"""
 Task:
-Generate a {ir_type.upper()} IR in JSON for the following natural language rule.
+Generate a {ir_type.upper()} runtime verification IR in JSON format
+that captures the behavior described below.
 
 Natural language description:
 \"\"\"
-{scenario_text}
+{nl_text}
 \"\"\"
-"""
+""".strip()
 
-    return "\n\n".join([header, template, task])
+    log.info(
+        "Prompt parts -> NL chars: %d | few-shot examples: %d",
+        len(nl_text),
+        len(examples),
+    )
+
+    # ---------- final prompt ----------
+    prompt = "\n\n".join([
+        header,
+        template,
+        task
+    ])
+
+    # ---------- optional persistence ----------
+    if save and scenario_id:
+        _save_prompt(
+            prompt,
+            scenario_id=scenario_id,
+            ir_type=ir_type,
+            output_dir=output_dir,
+        )
+
+    return prompt

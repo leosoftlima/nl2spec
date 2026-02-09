@@ -1,6 +1,7 @@
 {
   "id": "ShutdownHook_LateRegister",
   "category": "ERE",
+  "domain": "lang",
   "ir": {
     "type": "ere",
     "events": [

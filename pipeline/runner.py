@@ -7,7 +7,8 @@ from nl2spec.pipeline.stages import (
     stage_generate,
     stage_compare,
     stage_export_csv,
-    stage_tests
+    stage_tests,
+    stage_stats
 )
 from nl2spec.pipeline_types import PipelineContext, PipelineFlags
 from nl2spec.logging_utils import get_logger

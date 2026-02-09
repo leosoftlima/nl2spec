@@ -1,6 +1,7 @@
 {
   "id": "RandomAccessFile_ManipulateAfterClose",
   "category": "ERE",
+  "domain": "io",
   "ir": {
     "type": "ere",
     "events": [

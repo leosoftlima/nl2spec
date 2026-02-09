@@ -1,8 +1,9 @@
 {
   "id": "StringTokenizer_HasMoreElements",
   "category": "EVENT",
+  "domain": "util",
   "ir": {
-    "type": "single_event",
+    "type": "event",
     "events": [
       {
         "name": "hasnexttrue",

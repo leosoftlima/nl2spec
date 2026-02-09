@@ -1,6 +1,7 @@
 {
   "id": "Deque_OfferRatherThanAdd",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

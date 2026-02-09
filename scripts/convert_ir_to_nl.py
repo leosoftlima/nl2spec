@@ -8,6 +8,10 @@ Key policy:
 - If output directory exists, ask confirmation before deleting/regenerating.
 """
 
+# executed
+# python.exe -m nl2spec.scripts.convert_ir_to_nl
+#
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -38,33 +42,20 @@ def ask_overwrite(path: Path) -> bool:
     ).strip().lower()
     return answer in {"y", "yes"}
 
-def classify_domain(spec_id: str) -> str:
-    name = spec_id.lower()
 
-    # NET
-    if any(k in name for k in [
-        "http", "https", "url", "uri", "socket", "ssl",
-        "idn", "dns", "cookie"
-    ]):
-        return "net"
+def infer_domain(data: dict, ir_file: Path) -> str:
+    # 1) Prefer domain stored in JSON
+    dom = data.get("domain")
+    if isinstance(dom, str) and dom.strip():
+        return dom.strip().lower()
 
-    # IO
-    if any(k in name for k in [
-        "stream", "file", "input", "output", "reader",
-        "writer", "buffer", "bytearray", "flush", "close"
-    ]):
-        return "io"
+    # 2) Fallback: infer from IR path (baseline_ir/<domain>/...)
+    parts = [p.lower() for p in ir_file.parts]
+    for d in ("io", "lang", "util", "net", "concurrent"):
+        if d in parts:
+            return d
 
-    # UTIL
-    if any(k in name for k in [
-        "collection", "collections", "iterator", "iterable",
-        "list", "map", "set", "queue", "deque"
-    ]):
-        return "util"
-
-    # LANG (fallback FINAL)
-    return "lang"
-
+    return "other"
 
 
 def safe_read_json(path: Path) -> dict:
@@ -72,6 +63,22 @@ def safe_read_json(path: Path) -> dict:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception as e:
         raise RuntimeError(f"Failed to read JSON: {path}\nReason: {e}") from e
+
+
+def unique_out_path(out_dir: Path, spec_id: str) -> Path:
+    """
+    Avoid overwriting when multiple IR files share the same id in the same domain.
+    """
+    out_file = out_dir / f"{spec_id}.txt"
+    if not out_file.exists():
+        return out_file
+
+    i = 2
+    while True:
+        candidate = out_dir / f"{spec_id}__{i}.txt"
+        if not candidate.exists():
+            return candidate
+        i += 1
 
 
 # ==========================================================
@@ -84,6 +91,7 @@ def pick_violation_message(data: dict) -> str | None:
         msg = msg.strip()
         if msg:
             return msg
+
     # Some IRs store message inside ir
     ir = data.get("ir", {})
     msg2 = ir.get("violation_message")
@@ -91,6 +99,7 @@ def pick_violation_message(data: dict) -> str | None:
         msg2 = msg2.strip()
         if msg2:
             return msg2
+
     return None
 
 
@@ -106,7 +115,6 @@ def fallback_nl(data: dict) -> str:
     t = (ir.get("type") or "").lower()
 
     if cat == "EVENT":
-        # common structure: ir.type=single_event, ir.events=[{name, timing}]
         events = ir.get("events", [])
         if events and isinstance(events, list):
             e0 = events[0] or {}
@@ -115,17 +123,16 @@ def fallback_nl(data: dict) -> str:
             if timing:
                 return f"[{spec_id}] Forbidden event: {name} ({timing})."
             return f"[{spec_id}] Forbidden event: {name}."
-
         return f"[{spec_id}] Forbidden event specification."
 
     if cat == "ERE":
-        expr = ir.get("expression")
-        if isinstance(expr, str) and expr.strip():
-            return f"[{spec_id}] The execution must match the event pattern: {expr.strip()}."
+        # ✅ no schema/conversor é "pattern", não "expression"
+        pattern = ir.get("pattern")
+        if isinstance(pattern, str) and pattern.strip():
+            return f"[{spec_id}] The execution must match the event pattern: {pattern.strip()}."
         return f"[{spec_id}] Event pattern constraint (ERE)."
 
     if cat == "FSM":
-        # avoid trying to explain full FSM; too risky without message
         events = set()
         for tr in ir.get("transitions", []) or []:
             if isinstance(tr, dict) and "event" in tr:
@@ -141,18 +148,12 @@ def fallback_nl(data: dict) -> str:
             return f"[{spec_id}] Temporal property (LTL): {formula.strip()}."
         return f"[{spec_id}] Temporal property (LTL)."
 
-    # Unknown
     if t:
         return f"[{spec_id}] Constraint of type: {t}."
     return f"[{spec_id}] Constraint (unknown category)."
 
 
 def ir_to_nl(data: dict) -> str:
-    """
-    Main policy:
-    1) Use violation_message whenever possible (lowest error risk).
-    2) Otherwise, use a minimal fallback template.
-    """
     msg = pick_violation_message(data)
     if msg:
         return msg
@@ -191,16 +192,15 @@ def main() -> None:
         data = safe_read_json(ir_file)
 
         spec_id = data.get("id") or ir_file.stem
-        domain = classify_domain(spec_id)
+        domain = infer_domain(data, ir_file)
 
         out_dir = NL_ROOT / domain
         out_dir.mkdir(parents=True, exist_ok=True)
 
-        nl_text = ir_to_nl(data)
+        nl_text = ir_to_nl(data).strip() + "\n"
 
-        # include category header? you asked textual only, so keep pure message.
-        out_file = out_dir / f"{spec_id}.txt"
-        out_file.write_text(nl_text.strip() + "\n", encoding="utf-8")
+        out_file = unique_out_path(out_dir, spec_id)
+        out_file.write_text(nl_text, encoding="utf-8")
 
         total += 1
         by_domain[domain] = by_domain.get(domain, 0) + 1

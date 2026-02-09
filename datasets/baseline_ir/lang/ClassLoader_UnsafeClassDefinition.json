@@ -1,8 +1,9 @@
 {
   "id": "ClassLoader_UnsafeClassDefinition",
   "category": "EVENT",
+  "domain": "lang",
   "ir": {
-    "type": "single_event",
+    "type": "event",
     "events": [
       {
         "name": "defineClass",

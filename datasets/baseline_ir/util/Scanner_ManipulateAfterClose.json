@@ -1,6 +1,7 @@
 {
   "id": "Scanner_ManipulateAfterClose",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

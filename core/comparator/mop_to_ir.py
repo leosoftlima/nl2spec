@@ -83,7 +83,7 @@ def _extract_guard(text: str) -> str:
     """
     Best-effort guard extraction:
     - captures condition(...) inside event pointcut lines: && condition(...)
-    If not found, returns "true" (schema requires guard for single_event).
+    If not found, returns "true" (schema requires guard for event).
     """
     m = re.search(r"\bcondition\s*\(\s*(.*?)\s*\)", text, flags=re.DOTALL | re.IGNORECASE)
     if m:
@@ -96,7 +96,7 @@ def _extract_ere_pattern(text: str) -> Optional[str]:
     m = re.search(r"\bere\s*:\s*(.+)", text, flags=re.IGNORECASE)
     if not m:
         return None
-    # pattern is usually single-line; cut at line end
+    # pattern is usually line; cut at line end
     pat = m.group(1).strip()
     pat = pat.splitlines()[0].strip()
     return pat if pat else None
@@ -182,7 +182,14 @@ def _parse_fsm_block(text: str) -> Tuple[List[str], Optional[str], List[Dict[str
 
     return states, start_state, transitions
 
+def _infer_domain_from_path(mop_path: Path) -> str:
+    parts = [p.lower() for p in mop_path.parts]
 
+    for domain in ("io", "lang", "util", "net", "concurrent"):
+        if domain in parts:
+            return domain
+
+    return "other"
 # -----------------------------
 # Public API
 # -----------------------------
@@ -193,26 +200,27 @@ def mop_text_to_ir(mop_text: str, spec_id: Optional[str] = None) -> Dict[str, An
     raw = mop_text
     text = _strip_comments(raw)
 
-    category = _detect_category(text)
+    
     violation_message = _extract_violation_message(text)
+    spec_type = _detect_category(text)
 
-    if category == "EVENT":
+    if spec_type == "EVENT":
         events = _extract_events(text)
         guard = _extract_guard(text)
 
-        # EVENT must be "single_event" in our IR schema
+        # EVENT must be "event" in our IR schema
         return {
             "id": spec_id,
             "category": "EVENT",
             "ir": {
-                "type": "single_event",
+                "type": "event",
                 "events": events if events else [{"name": "UNKNOWN_EVENT", "timing": "before"}],
                 "guard": guard,
                 "violation_message": violation_message
             }
         }
 
-    if category == "ERE":
+    if spec_type == "ERE":
         events = _extract_events(text)
         pattern = _extract_ere_pattern(text) or ""
         return {
@@ -226,7 +234,7 @@ def mop_text_to_ir(mop_text: str, spec_id: Optional[str] = None) -> Dict[str, An
             }
         }
 
-    if category == "LTL":
+    if spec_type == "LTL":
         events = _extract_events(text)
         formula = _extract_ltl_formula(text) or ""
         return {
@@ -254,14 +262,23 @@ def mop_text_to_ir(mop_text: str, spec_id: Optional[str] = None) -> Dict[str, An
         }
     }
 
-
 def mop_file_to_ir(mop_path: str) -> Dict[str, Any]:
-    """
-    Convert a .mop file into canonical IR.
-    """
     p = Path(mop_path)
     text = p.read_text(encoding="utf-8", errors="ignore")
-    return mop_text_to_ir(text, spec_id=p.stem)
+
+    base = mop_text_to_ir(text, spec_id=p.stem)
+    domain = _infer_domain_from_path(p)
+
+    # reordena explicitamente os campos
+    ordered_ir = {
+        "id": base.get("id"),
+        "category": base.get("category"),
+        "domain": domain,
+        "ir": base.get("ir"),
+    }
+
+    return ordered_ir
+
 
 
 def convert_mop_dir_to_ir(

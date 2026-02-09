@@ -1,8 +1,9 @@
 {
   "id": "PriorityQueue_NonComparable",
   "category": "EVENT",
+  "domain": "util",
   "ir": {
-    "type": "single_event",
+    "type": "event",
     "events": [
       {
         "name": "insertnull",

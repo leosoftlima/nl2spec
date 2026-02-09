@@ -1,8 +1,9 @@
 {
   "id": "ServerSocket_Timeout",
   "category": "EVENT",
+  "domain": "net",
   "ir": {
-    "type": "single_event",
+    "type": "event",
     "events": [
       {
         "name": "set",

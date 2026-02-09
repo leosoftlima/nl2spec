@@ -1,6 +1,7 @@
 {
   "id": "File_DeleteTempFile",
   "category": "LTL",
+  "domain": "io",
   "ir": {
     "type": "ltl",
     "events": [

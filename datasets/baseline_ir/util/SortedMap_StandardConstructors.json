@@ -1,8 +1,9 @@
 {
   "id": "SortedMap_StandardConstructors",
   "category": "EVENT",
+  "domain": "util",
   "ir": {
-    "type": "single_event",
+    "type": "event",
     "events": [
       {
         "name": "staticinit",

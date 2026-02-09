@@ -1,6 +1,7 @@
 {
   "id": "StreamTokenizer_AccessInvalidField",
   "category": "FSM",
+  "domain": "io",
   "ir": {
     "type": "fsm",
     "states": [

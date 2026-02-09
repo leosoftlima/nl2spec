@@ -1,6 +1,7 @@
 {
   "id": "Scanner_SearchAfterClose",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

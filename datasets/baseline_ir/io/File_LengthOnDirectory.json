@@ -1,8 +1,9 @@
 {
   "id": "File_LengthOnDirectory",
   "category": "EVENT",
+  "domain": "io",
   "ir": {
-    "type": "single_event",
+    "type": "event",
     "events": [
       {
         "name": "bad_length",

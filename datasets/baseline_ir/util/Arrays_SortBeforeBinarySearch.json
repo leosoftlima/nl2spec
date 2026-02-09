@@ -1,6 +1,7 @@
 {
   "id": "Arrays_SortBeforeBinarySearch",
   "category": "FSM",
+  "domain": "util",
   "ir": {
     "type": "fsm",
     "states": [

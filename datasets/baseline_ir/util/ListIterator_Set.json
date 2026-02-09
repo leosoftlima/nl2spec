@@ -1,6 +1,7 @@
 {
   "id": "ListIterator_Set",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

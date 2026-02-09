@@ -1,6 +1,7 @@
 {
   "id": "HttpURLConnection_SetBeforeConnect",
   "category": "ERE",
+  "domain": "net",
   "ir": {
     "type": "ere",
     "events": [

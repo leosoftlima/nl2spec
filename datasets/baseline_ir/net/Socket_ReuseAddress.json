@@ -1,6 +1,7 @@
 {
   "id": "Socket_ReuseAddress",
   "category": "ERE",
+  "domain": "net",
   "ir": {
     "type": "ere",
     "events": [

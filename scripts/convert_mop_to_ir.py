@@ -16,6 +16,11 @@ This script should be executed manually whenever the JavaMOP corpus
 or the IR mapping rules are updated.
 """
 
+# executed 
+# C:/Python39/python.exe -m nl2spec.scripts.convert_mop_to_ir
+# python.exe -m nl2spec.scripts.convert_mop_to_ir
+#
+
 from pathlib import Path
 import shutil
 import sys

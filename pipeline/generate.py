@@ -19,10 +19,18 @@ def generate_one(
 ) -> Dict[str, Any]:
 
     # 1. Build prompt
+   # prompt = build_prompt(
+   #   ir_type=ir_type,
+   #   nl_text=scenario["natural_language"],
+   #   fewshot_files=fewshot_files
+   # )
+
     prompt = build_prompt(
-        ir_type=ir_type,
-        scenario_text=scenario["natural_language"],
-        fewshot_files=fewshot_files
+      ir_type=ir_type,
+      nl_text=scenario["natural_language"],
+      fewshot_files=fewshot_files,
+      scenario_id=scenario["id"],
+      save=True,
     )
 
     # 2. Call LLM

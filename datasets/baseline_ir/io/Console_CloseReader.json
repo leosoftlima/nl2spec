@@ -1,6 +1,7 @@
 {
   "id": "Console_CloseReader",
   "category": "ERE",
+  "domain": "io",
   "ir": {
     "type": "ere",
     "events": [

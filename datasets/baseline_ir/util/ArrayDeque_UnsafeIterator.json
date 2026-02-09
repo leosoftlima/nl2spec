@@ -1,6 +1,7 @@
 {
   "id": "ArrayDeque_UnsafeIterator",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

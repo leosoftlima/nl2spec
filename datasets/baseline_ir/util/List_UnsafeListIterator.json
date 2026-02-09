@@ -1,6 +1,7 @@
 {
   "id": "List_UnsafeListIterator",
   "category": "ERE",
+  "domain": "util",
   "ir": {
     "type": "ere",
     "events": [

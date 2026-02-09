@@ -1,6 +1,7 @@
 {
   "id": "Socket_SetTimeoutBeforeBlockingInput",
   "category": "FSM",
+  "domain": "net",
   "ir": {
     "type": "fsm",
     "states": [
