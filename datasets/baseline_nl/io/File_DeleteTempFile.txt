@@ -1,1 +1,26 @@
-A temporary file has not been deleted.
+The following events are monitored:
+
+1) Event name: explicit
+   Timing: before
+   Parameters: File f
+   Pointcut: call(* File+.delete(..)) && target(f)
+
+2) Event name: implicit
+   Timing: before
+   Parameters: File f
+   Pointcut: call(* File+.deleteOnExit(..)) && target(f)
+
+3) Event name: endProg
+   Timing: before
+   Parameters: none
+   Pointcut: endProgram()
+
+The temporal property that must hold during execution is defined by the following formula:
+
+[](create => o (explicit or implicit))
+
+If this temporal property is violated at any point during execution, it constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"A temporary file has not been deleted."

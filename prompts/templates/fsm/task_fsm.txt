@@ -1,0 +1,15 @@
+The system behavior is defined in terms of explicit states and transitions.
+
+The monitored events are:
+
+{{EVENT_BLOCK}}
+
+The finite state behavior is defined as follows:
+
+{{FSM_BLOCK}}
+
+Any execution that deviates from the state transition behavior described above constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"{{VIOLATION_SEMANTICS}}"

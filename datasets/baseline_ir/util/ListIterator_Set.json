@@ -1,36 +1,133 @@
 {
   "id": "ListIterator_Set",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "ListIterator_Set",
+    "parameters": [
+      {
+        "type": "ListIterator",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut": {
+          "raw": "call(ListIterator Iterable+.listIterator())",
+          "calls": [
+            "ListIterator Iterable+.listIterator()"
+          ]
+        },
+        "returning": {
+          "type": "ListIterator",
+          "name": "i"
+        }
       },
       {
+        "kind": "event",
         "name": "remove",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ListIterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(void Iterator+.remove()) && target(i)",
+          "calls": [
+            "void Iterator+.remove()"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "add",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ListIterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(void ListIterator+.add(..)) && target(i)",
+          "calls": [
+            "void ListIterator+.add(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "next",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ListIterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Iterator+.next()) && target(i)",
+          "calls": [
+            "* Iterator+.next()"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "previous",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ListIterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* ListIterator+.previous()) && target(i)",
+          "calls": [
+            "* ListIterator+.previous()"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "set",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ListIterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* ListIterator+.set(..)) && target(i)",
+          "calls": [
+            "* ListIterator+.set(..)"
+          ]
+        }
       }
     ],
-    "pattern": "create add* ((next | previous)+ set* (remove | add+ | epsilon))*",
-    "violation_message": "ListIterator.set() can be made only if neither remove() nor add() have been called after the last call to next() or previous()."
+    "formula": {
+      "raw": "create add* ((next | previous)+ set* (remove | add+ | epsilon))*",
+      "raw_lines": [
+        "create add* ((next | previous)+ set* (remove | add+ | epsilon))*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"ListIterator.set() can be made only if neither remove() nor add() have been called after the last call to next() or previous().\");"
+      ]
+    }
   }
 }

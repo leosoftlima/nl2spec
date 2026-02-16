@@ -1,1 +1,24 @@
-When using a capacity-restricted deque, it is generally preferable to use offerFirst(), offerLast() and offer() instead of addFirt(), addLast() and add().
+The following events are involved in this specification:
+
+1) Event name: create
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: Deque q
+   Pointcut: call(LinkedBlockingDeque+.new(int))
+
+2) Event name: add
+   Kind: event
+   Timing: before
+   Parameters: Deque q
+   Pointcut: ( call(* Deque+.addFirst(..)) || call(* Deque+.addLast(..)) || call(* Deque+.add(..)) || call(* Deque+.push(..)) ) && target(q)
+
+The required execution pattern is defined by the following regular expression:
+
+create add+
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"When using a capacity-restricted deque, it is generally preferable to use offerFirst(), offerLast() and offer() instead of addFirt(), addLast() and add()."

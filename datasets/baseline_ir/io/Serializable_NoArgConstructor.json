@@ -1,16 +1,56 @@
 {
   "id": "Serializable_NoArgConstructor",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "io",
+  "signature": {
+    "name": "Serializable_NoArgConstructor",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "staticinit",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "staticinitialization(Serializable+)",
+        "body": {
+          "raw_lines": [
+            "\t\torg.aspectj.lang.Signature initsig = __STATICSIG;",
+            "\t\tClass klass = initsig.getDeclaringType();",
+            "\t\tif (klass != null) {",
+            "\t\t\tClass nonserialzable = klass;",
+            "\t\t\twhile (Serializable.class.isAssignableFrom(nonserialzable)) {",
+            "\t\t\t\tnonserialzable = nonserialzable.getSuperclass();",
+            "\t\t\t\tif (nonserialzable == null)",
+            "\t\t\t\t\tbreak;",
+            "\t\t\t}",
+            "\t\t\tif (nonserialzable != null) {",
+            "\t\t\t\tboolean samepackage = klass.getClassLoader() == nonserialzable.getClassLoader() &&",
+            "\t\t\t\t\tgetPackageName(klass).equals(getPackageName(nonserialzable));",
+            "\t\t\t\tboolean inaccessible = true;",
+            "\t\t\t\ttry {",
+            "\t\t\t\t\tConstructor ctor = nonserialzable.getDeclaredConstructor((Class[]) null);",
+            "\t\t\t\t\tint mod = ctor.getModifiers();",
+            "\t\t\t\t\tinaccessible = (mod & Modifier.PRIVATE) != 0 ||",
+            "\t\t\t\t\t\t((mod & (Modifier.PUBLIC | Modifier.PROTECTED)) == 0 && !samepackage);",
+            "\t\t\t\t}",
+            "\t\t\t\tcatch (NoSuchMethodException e) {",
+            "\t\t\t\t}",
+            "\t\t\t\tif (inaccessible) {",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The superclass of \" + klass.getName() + \" does not have an accessible no-arg constructor.\");",
+            "\t\t\t\t}",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": ";\n\t}\n\n\tevent staticinit after() : staticinitialization(Serializable+) {\n\t\torg.aspectj.lang.Signature initsig = __STATICSIG;\n\t\tClass klass = initsig.getDeclaringType();\t\t\n\n\t\tif (klass != null) {\n\t\t\tClass nonserialzable = klass;\n\t\t\twhile (Serializable.class.isAssignableFrom(nonserialzable)) {\n\t\t\t\tnonserialzable = nonserialzable.getSuperclass();\n\t\t\t\tif (nonserialzable == null)\n\t\t\t\t\tbreak;\n\t\t\t}\n\n\t\t\tif (nonserialzable != null) {\n\t\t\t\tboolean samepackage = klass.getClassLoader() == nonserialzable.getClassLoader() &&\n\t\t\t\t\tgetPackageName(klass).equals(getPackageName(nonserialzable));\n\n\t\t\t\tboolean inaccessible = true;\n\t\t\t\ttry {\n\t\t\t\t\tConstructor ctor = nonserialzable.getDeclaredConstructor((Class[]) null);\n\t\t\t\t\tint mod = ctor.getModifiers();\n\t\t\t\t\tinaccessible = (mod & Modifier.PRIVATE) != 0 ||\n\t\t\t\t\t\t((mod & (Modifier.PUBLIC | Modifier.PROTECTED)) == 0 && !samepackage);\n\t\t\t\t}\n\t\t\t\tcatch (NoSuchMethodException e) {\n\t\t\t\t}\n\t\t\t\tif (inaccessible) {\n\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);\n\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL,"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

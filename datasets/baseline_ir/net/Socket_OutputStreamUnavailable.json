@@ -1,36 +1,139 @@
 {
   "id": "Socket_OutputStreamUnavailable",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "net",
+  "signature": {
+    "name": "Socket_OutputStreamUnavailable",
+    "parameters": [
+      {
+        "type": "Socket",
+        "name": "sock"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create_connected",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut": {
+          "raw": "( call(Socket.new(InetAddress, int)) || call(Socket.new(InetAddress, int, boolean)) || call(Socket.new(InetAddress, int, InetAddress, int)) || call(Socket.new(String, int)) || call(Socket.new(String, int, boolean)) || call(Socket.new(String, int, InetAddress, int)) )",
+          "calls": [
+            "Socket.new(InetAddress, int)",
+            "Socket.new(InetAddress, int, boolean)",
+            "Socket.new(InetAddress, int, InetAddress, int)",
+            "Socket.new(String, int)",
+            "Socket.new(String, int, boolean)",
+            "Socket.new(String, int, InetAddress, int)"
+          ]
+        },
+        "returning": {
+          "type": "Socket",
+          "name": "sock"
+        }
       },
       {
+        "kind": "creation",
         "name": "create_unconnected",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut": {
+          "raw": "( call(Socket.new()) || call(Socket.new(Proxy)) || call(Socket.new(SocketImpl)) )",
+          "calls": [
+            "Socket.new()",
+            "Socket.new(Proxy)",
+            "Socket.new(SocketImpl)"
+          ]
+        },
+        "returning": {
+          "type": "Socket",
+          "name": "sock"
+        }
       },
       {
+        "kind": "event",
         "name": "connect",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Socket",
+            "name": "sock"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Socket+.connect(..)) && target(sock)",
+          "calls": [
+            "* Socket+.connect(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "get",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Socket",
+            "name": "sock"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Socket+.getOutputStream(..)) && target(sock)",
+          "calls": [
+            "* Socket+.getOutputStream(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "close",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Socket",
+            "name": "sock"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Socket+.close()) && target(sock)",
+          "calls": [
+            "* Socket+.close()"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "shutdown",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Socket",
+            "name": "sock"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Socket+.shutdownOutput()) && target(sock)",
+          "calls": [
+            "* Socket+.shutdownOutput()"
+          ]
+        }
       }
     ],
-    "pattern": "(create_connected | create_unconnected connect) get* (close | shutdown)*",
-    "violation_message": "An output stream is unavailable if the socket is closed, is not connected, or the socket output has been shutdown."
+    "formula": {
+      "raw": "(create_connected | create_unconnected connect) get* (close | shutdown)*",
+      "raw_lines": [
+        "(create_connected | create_unconnected connect) get* (close | shutdown)*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"An output stream is unavailable if the socket is closed, is not connected, or the socket output has been shutdown.\");"
+      ]
+    }
   }
 }

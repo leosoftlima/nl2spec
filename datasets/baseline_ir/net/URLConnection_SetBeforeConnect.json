@@ -1,20 +1,78 @@
 {
   "id": "URLConnection_SetBeforeConnect",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "net",
+  "signature": {
+    "name": "URLConnection_SetBeforeConnect",
+    "parameters": [
+      {
+        "type": "URLConnection",
+        "name": "c"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "set",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "URLConnection",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* URLConnection+.set*(..)) && target(c)",
+          "calls": [
+            "* URLConnection+.set*(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "connect",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "URLConnection",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* URLConnection+.connect(..)) || call(* URLConnection+.getContent(..)) || call(* URLConnection+.getContentEncoding(..)) || call(* URLConnection+.getContentLength(..)) || call(* URLConnection+.getContentType(..)) || call(* URLConnection+.getDate(..)) || call(* URLConnection+.getExpiration(..)) || call(* URLConnection+.getHeaderField(..)) || call(* URLConnection+.getHeaderFieldInt(..)) || call(* URLConnection+.getHeaderFields(..)) || call(* URLConnection+.getInputStream(..)) || call(* URLConnection+.getLastModified(..)) || call(* URLConnection+.getOutputStream(..)) ) && target(c)",
+          "calls": [
+            "* URLConnection+.connect(..)",
+            "* URLConnection+.getContent(..)",
+            "* URLConnection+.getContentEncoding(..)",
+            "* URLConnection+.getContentLength(..)",
+            "* URLConnection+.getContentType(..)",
+            "* URLConnection+.getDate(..)",
+            "* URLConnection+.getExpiration(..)",
+            "* URLConnection+.getHeaderField(..)",
+            "* URLConnection+.getHeaderFieldInt(..)",
+            "* URLConnection+.getHeaderFields(..)",
+            "* URLConnection+.getInputStream(..)",
+            "* URLConnection+.getLastModified(..)",
+            "* URLConnection+.getOutputStream(..)"
+          ]
+        }
       }
     ],
-    "pattern": "set* connect*",
-    "violation_message": "Options were specified after the connection was made."
+    "formula": {
+      "raw": "set* connect*",
+      "raw_lines": [
+        "set* connect*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"Options were specified after the connection was made.\");"
+      ]
+    }
   }
 }

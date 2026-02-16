@@ -1,24 +1,69 @@
 {
   "id": "TreeMap_Comparable",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "TreeMap_Comparable",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "create",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "src"
+          }
+        ],
+        "pointcut_raw": "call(TreeMap.new(Map)) && args(src)",
+        "body": {
+          "raw_lines": [
+            "\t\tvalidateAll(src, __DEFAULT_MESSAGE);"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "put",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object",
+            "name": "key"
+          }
+        ],
+        "pointcut_raw": "call(* Map+.put(Object, Object)) && args(key, ..) && target(TreeMap)",
+        "body": {
+          "raw_lines": [
+            "\t\tvalidate(key, __DEFAULT_MESSAGE);"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "putall",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "src"
+          }
+        ],
+        "pointcut_raw": "call(* Map+.putAll(Map)) && args(src) &&target(TreeMap)",
+        "body": {
+          "raw_lines": [
+            "\t\tvalidateAll(src, __DEFAULT_MESSAGE);"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "A non-comparable object is being inserted into a TreeMap object."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

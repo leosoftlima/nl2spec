@@ -1,20 +1,60 @@
 {
   "id": "Collections_Comparable",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "Collections_Comparable",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "invalid_sort",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "List",
+            "name": "list"
+          },
+          {
+            "type": "Comparator",
+            "name": "comp"
+          }
+        ],
+        "pointcut_raw": "call(void Collections.sort(List, Comparator)) && args(list, comp)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.validate(list.toArray(), comp, __DEFAULT_MESSAGE);"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "invalid_minmax",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Collection",
+            "name": "col"
+          },
+          {
+            "type": "Comparator",
+            "name": "comp"
+          }
+        ],
+        "pointcut_raw": "( call(* Collections.min(Collection, Comparator)) || call(* Collections.max(Collection, Comparator)) ) && args(col, comp)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.validate(col.toArray(), comp, __DEFAULT_MESSAGE);"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "-th element and"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

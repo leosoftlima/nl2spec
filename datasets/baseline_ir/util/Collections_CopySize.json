@@ -1,16 +1,40 @@
 {
   "id": "Collections_CopySize",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "Collections_CopySize",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "bad_copy",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "List",
+            "name": "dest"
+          },
+          {
+            "type": "List",
+            "name": "src"
+          }
+        ],
+        "pointcut_raw": "call(void Collections.copy(List, List)) && args(dest, src) && condition(dest.size() < src.size())",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"The destination list must be at least as long as the source list.\");"
+          ]
+        }
       }
     ],
-    "guard": "dest.size(",
-    "violation_message": "The destination list must be at least as long as the source list."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

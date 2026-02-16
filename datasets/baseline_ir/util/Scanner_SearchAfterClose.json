@@ -1,20 +1,70 @@
 {
   "id": "Scanner_SearchAfterClose",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "Scanner_SearchAfterClose",
+    "parameters": [
+      {
+        "type": "Scanner",
+        "name": "s"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "close",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Scanner",
+            "name": "s"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Scanner+.close(..)) && target(s)",
+          "calls": [
+            "* Scanner+.close(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "search",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Scanner",
+            "name": "s"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Scanner+.find*(..)) || call(* Scanner+.has*(..)) || call(* Scanner+.match(..)) || call(* Scanner+.next*(..)) || call(* Scanner+.skip(..)) ) && target(s)",
+          "calls": [
+            "* Scanner+.find*(..)",
+            "* Scanner+.has*(..)",
+            "* Scanner+.match(..)",
+            "* Scanner+.next*(..)",
+            "* Scanner+.skip(..)"
+          ]
+        }
       }
     ],
-    "pattern": "close+ search+",
-    "violation_message": "A closed Scanner object attempted to perform search operations."
+    "formula": {
+      "raw": "close+ search+",
+      "raw_lines": [
+        "close+ search+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"A closed Scanner object attempted to perform search operations.\");"
+      ]
+    }
   }
 }

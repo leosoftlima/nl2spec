@@ -1,1 +1,17 @@
-Invoking close() on the object returned by Console.writer() does not close the underlying stream.
+The following events are involved in this specification:
+
+1) Event name: close
+   Kind: event
+   Timing: before
+   Parameters: Writer w
+   Pointcut: call(* Writer+.close(..)) && target(w)
+
+The required execution pattern is defined by the following regular expression:
+
+getwriter close+
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"Invoking close() on the object returned by Console.writer() does not close the underlying stream."

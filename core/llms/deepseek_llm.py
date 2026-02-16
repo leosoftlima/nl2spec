@@ -1,5 +1,5 @@
 import requests
-from nl2spec.llms.base import BaseLLM
+from nl2spec.core.llms.base import BaseLLM
 
 
 class DeepSeekLLM(BaseLLM):

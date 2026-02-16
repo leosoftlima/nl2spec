@@ -1,1 +1,23 @@
-BufferedReader and LineNumberReader allow reset() only after mark() has been invoked.
+The following events are involved in this specification:
+
+1) Event name: mark
+   Kind: event
+   Timing: before
+   Parameters: Reader r
+   Pointcut: call(* Reader+.mark(..)) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )
+
+2) Event name: reset
+   Kind: event
+   Timing: before
+   Parameters: Reader r
+   Pointcut: call(* Reader+.reset(..)) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )
+
+The required execution pattern is defined by the following regular expression:
+
+mark (mark | reset)*
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"BufferedReader and LineNumberReader allow reset() only after mark() has been invoked."

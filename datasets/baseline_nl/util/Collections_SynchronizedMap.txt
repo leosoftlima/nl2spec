@@ -1,1 +1,45 @@
-A collection view of a synchronized map was accessed in a thread-unsafe manner.
+The following events are involved in this specification:
+
+1) Event name: sync
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: Map syncMap
+   Pointcut: call(* Collections.synchronizedMap(Map)) || call(* Collections.synchronizedSortedMap(SortedMap))
+
+2) Event name: createSet
+   Kind: event
+   Timing: after
+   Parameters: Map syncMap
+   Returning: Collection col
+   Pointcut: ( call(Set Map+.keySet()) || call(Set Map+.entrySet()) || call(Collection Map+.values()) ) && target(syncMap)
+
+3) Event name: syncCreateIter
+   Kind: event
+   Timing: after
+   Parameters: Collection col
+   Returning: Iterator iter
+   Pointcut: call(* Collection+.iterator()) && target(col) && condition(Thread.holdsLock(map))
+
+4) Event name: asyncCreateIter
+   Kind: event
+   Timing: after
+   Parameters: Collection col
+   Returning: Iterator iter
+   Pointcut: call(* Collection+.iterator()) && target(col) && condition(!Thread.holdsLock(map))
+
+5) Event name: accessIter
+   Kind: event
+   Timing: before
+   Parameters: Iterator iter
+   Pointcut: call(* Iterator.*(..)) && target(iter) && condition(!Thread.holdsLock(map))
+
+The required execution pattern is defined by the following regular expression:
+
+sync createSet (asyncCreateIter | (syncCreateIter accessIter))
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"A collection view of a synchronized map was accessed in a thread-unsafe manner."

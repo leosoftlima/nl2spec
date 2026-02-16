@@ -1,16 +1,35 @@
 {
   "id": "Long_StaticFactory",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Long_StaticFactory",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "constructor_create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "call(Long+.new(long))",
+        "body": {
+          "raw_lines": [
+            "            RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "            RVMLogging.out.println(Level.CRITICAL, \"Using the constructor Long(long value) might be inefficient. Use valueOf(long) if it is appropriate.\");"
+          ]
+        },
+        "returning": {
+          "type": "Long",
+          "name": "l"
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "Using the constructor Long(long value) might be inefficient. Use valueOf(long) if it is appropriate."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

@@ -1,1 +1,62 @@
-An unconnected PipedOutputStream performed write() operation.
+The system behavior is defined in terms of explicit states and transitions.
+
+The monitored events are:
+
+1) Event name: create
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: PipedOutputStream o
+   Pointcut: call(PipedOutputStream+.new())
+
+2) Event name: create_io
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: PipedOutputStream o
+   Pointcut: call(PipedOutputStream+.new(PipedInputStream+))
+
+3) Event name: create_oi
+   Kind: event
+   Timing: before
+   Parameters: PipedOutputStream o
+   Pointcut: call(PipedInputStream+.new(PipedOutputStream+)) && args(o)
+
+4) Event name: connect1
+   Kind: event
+   Timing: before
+   Parameters: PipedOutputStream o
+   Pointcut: call(* PipedInputStream+.connect(PipedOutputStream+)) && args(o)
+
+5) Event name: connect2
+   Kind: event
+   Timing: before
+   Parameters: PipedOutputStream o
+   Pointcut: call(* PipedOutputStream+.connect(PipedInputStream+)) && target(o)
+
+6) Event name: write
+   Kind: event
+   Timing: before
+   Parameters: PipedOutputStream o
+   Pointcut: call(* PipedOutputStream+.write(..)) && target(o)
+
+The finite state behavior is defined as follows:
+
+		initial [
+			create -> unconnected
+			create_io -> connected
+		]
+		unconnected [
+			create_oi -> connected
+			connect1 -> connected
+			connect2 -> connected
+		]
+		connected [
+			write -> connected
+		]
+
+Any execution that deviates from the state transition behavior described above constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"An unconnected PipedOutputStream performed write() operation."

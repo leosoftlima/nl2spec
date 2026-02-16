@@ -1,24 +1,98 @@
 {
   "id": "ArrayDeque_UnsafeIterator",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "ArrayDeque_UnsafeIterator",
+    "parameters": [
+      {
+        "type": "ArrayDeque",
+        "name": "q"
+      },
+      {
+        "type": "Iterator",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "ArrayDeque",
+            "name": "q"
+          }
+        ],
+        "pointcut": {
+          "raw": "target(ArrayDeque) && ( call(Iterator Iterable+.iterator()) || call(Iterator Deque+.descendingIterator()) ) && target(q)",
+          "calls": [
+            "Iterator Iterable+.iterator()",
+            "Iterator Deque+.descendingIterator()"
+          ]
+        },
+        "returning": {
+          "type": "Iterator",
+          "name": "i"
+        }
       },
       {
+        "kind": "event",
         "name": "modify",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ArrayDeque",
+            "name": "q"
+          }
+        ],
+        "pointcut": {
+          "raw": "target(ArrayDeque) && ( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.offer*(..)) || call(* Collection+.pop(..)) || call(* Collection+.push(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(q)",
+          "calls": [
+            "* Collection+.add*(..)",
+            "* Collection+.clear(..)",
+            "* Collection+.offer*(..)",
+            "* Collection+.pop(..)",
+            "* Collection+.push(..)",
+            "* Collection+.remove*(..)",
+            "* Collection+.retain*(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "useiter",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Iterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Iterator.*(..)) && target(i)",
+          "calls": [
+            "* Iterator.*(..)"
+          ]
+        }
       }
     ],
-    "pattern": "create useiter* modify+ useiter",
-    "violation_message": "The deque was modified while an iterator is being used."
+    "formula": {
+      "raw": "create useiter* modify+ useiter",
+      "raw_lines": [
+        "create useiter* modify+ useiter"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The deque was modified while an iterator is being used.\");"
+      ]
+    }
   }
 }

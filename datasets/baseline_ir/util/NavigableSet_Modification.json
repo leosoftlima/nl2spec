@@ -1,36 +1,161 @@
 {
   "id": "NavigableSet_Modification",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "NavigableSet_Modification",
+    "parameters": [
+      {
+        "type": "NavigableSet",
+        "name": "s1"
+      },
+      {
+        "type": "NavigableSet",
+        "name": "s2"
+      },
+      {
+        "type": "Iterator",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "NavigableSet",
+            "name": "s1"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(NavigableSet NavigableSet+.descendingSet()) && target(s1)",
+          "calls": [
+            "NavigableSet NavigableSet+.descendingSet()"
+          ]
+        },
+        "returning": {
+          "type": "NavigableSet",
+          "name": "s2"
+        }
       },
       {
+        "kind": "event",
         "name": "getiter1",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "NavigableSet",
+            "name": "s1"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(Iterator Iterable+.iterator()) && target(s1)",
+          "calls": [
+            "Iterator Iterable+.iterator()"
+          ]
+        },
+        "returning": {
+          "type": "Iterator",
+          "name": "i"
+        }
       },
       {
+        "kind": "event",
         "name": "getiter2",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "NavigableSet",
+            "name": "s2"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(Iterator Iterable+.iterator()) && target(s2)",
+          "calls": [
+            "Iterator Iterable+.iterator()"
+          ]
+        },
+        "returning": {
+          "type": "Iterator",
+          "name": "i"
+        }
       },
       {
+        "kind": "event",
         "name": "modify1",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "NavigableSet",
+            "name": "s1"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(s1)",
+          "calls": [
+            "* Collection+.add*(..)",
+            "* Collection+.clear(..)",
+            "* Collection+.remove*(..)",
+            "* Collection+.retain*(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "modify2",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "NavigableSet",
+            "name": "s2"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(s2)",
+          "calls": [
+            "* Collection+.add*(..)",
+            "* Collection+.clear(..)",
+            "* Collection+.remove*(..)",
+            "* Collection+.retain*(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "useiter",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Iterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Iterator.hasNext(..)) || call(* Iterator.next(..)) ) && target(i)",
+          "calls": [
+            "* Iterator.hasNext(..)",
+            "* Iterator.next(..)"
+          ]
+        }
       }
     ],
-    "pattern": "create (modify1 | modify2)* (getiter1 | getiter2) useiter* (modify1 | modify2)+ useiter",
-    "violation_message": "The NavigableSet was modified while an iteration over a NavigableSet that shares the same storage."
+    "formula": {
+      "raw": "create (modify1 | modify2)* (getiter1 | getiter2) useiter* (modify1 | modify2)+ useiter",
+      "raw_lines": [
+        "create (modify1 | modify2)* (getiter1 | getiter2) useiter* (modify1 | modify2)+ useiter"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The NavigableSet was modified while an iteration over a NavigableSet that shares the same storage.\");"
+      ]
+    }
   }
 }

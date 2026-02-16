@@ -1,16 +1,45 @@
 {
   "id": "Collection_HashCode",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "Collection_HashCode",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "staticinit",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "staticinitialization(Collection+)",
+        "body": {
+          "raw_lines": [
+            "\t\tSignature initsig = __STATICSIG;",
+            "\t\tClass klass = initsig.getDeclaringType();",
+            "\t\tif (klass != null) {",
+            "\t\t\tMethod equalsmethod = null;",
+            "\t\t\tMethod hashcodemethod = null;",
+            "\t\t\ttry {",
+            "\t\t\t\tequalsmethod = klass.getDeclaredMethod(\"equals\", Object.class);",
+            "\t\t\t\thashcodemethod = klass.getDeclaredMethod(\"hashCode\", (Class[]) null);",
+            "\t\t\t}",
+            "\t\t\tcatch (NoSuchMethodException e) {",
+            "\t\t\t}",
+            "\t\t\tif (equalsmethod != null && hashcodemethod == null) {",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, klass.getName() + \" overrides equals() but does not override hashCode().\");",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "equals"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

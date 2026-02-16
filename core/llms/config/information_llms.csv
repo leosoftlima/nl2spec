@@ -1,0 +1,4 @@
+provider,model,api_key,base_url
+deepseek,deepseek-chat,YOUR_KEY_HERE,https://api.deepseek.com/chat/completions
+gemini,gemini-1.5-pro,AIzaSyDSo4GKxsVwyf9T_mycKdHjE2QizkgfHw8,https://generativelanguage.googleapis.com/v1beta/models
+openai,gpt-4.1-mini,ENV:OPENAI_API_KEY

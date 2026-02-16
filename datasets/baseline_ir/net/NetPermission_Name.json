@@ -1,16 +1,46 @@
 {
   "id": "NetPermission_Name",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "NetPermission_Name",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "construct",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "String",
+            "name": "name"
+          }
+        ],
+        "pointcut_raw": "( call(NetPermission.new(String)) || call(NetPermission.new(String, String)) ) && args(name, ..)",
+        "body": {
+          "raw_lines": [
+            "\t\tboolean valid = true;",
+            "\t\tfor (int i = 0; i < name.length() - 1; ++i) {",
+            "\t\t\tchar c = name.charAt(i);",
+            "\t\t\tif (c == '*') {",
+            "\t\t\t\tvalid = false;",
+            "\t\t\t\tbreak;",
+            "\t\t\t}",
+            "\t\t}",
+            "\t\tif (!valid) {",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The target name \" + name + \" does not conform to the naming convention.\");",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "The target name"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

@@ -1,1 +1,13 @@
--th element and
+The following events are monitored in this specification:
+
+1) Event name: invalid_sort
+   Kind: event
+   Timing: before
+   Parameters: Object[] arr, Comparator comp
+   Pointcut: ( call(void Arrays.sort(Object[], Comparator)) || call(void Arrays.sort(Object[], int, int, Comparator)) ) && args(arr, .., comp)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

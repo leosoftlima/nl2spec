@@ -1,16 +1,40 @@
 {
   "id": "Enum_NoExtraWhiteSpace",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Enum_NoExtraWhiteSpace",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "valueOf",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Class",
+            "name": "c"
+          },
+          {
+            "type": "String",
+            "name": "name"
+          }
+        ],
+        "pointcut_raw": "call(* Enum+.valueOf(Class, String)) && args(c, name) && condition(name.length() != name.trim().length())",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"Please use the exact name. No extraneous whitespace characters are permitted\");"
+          ]
+        }
       }
     ],
-    "guard": "name.length(",
-    "violation_message": "Please use the exact name. No extraneous whitespace characters are permitted"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

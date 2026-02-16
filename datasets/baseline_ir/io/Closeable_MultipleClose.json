@@ -1,16 +1,49 @@
 {
   "id": "Closeable_MultipleClose",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "io",
+  "signature": {
+    "name": "Closeable_MultipleClose",
+    "parameters": [
+      {
+        "type": "Closeable",
+        "name": "c"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "close",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Closeable",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Closeable+.close(..)) && target(c)",
+          "calls": [
+            "* Closeable+.close(..)"
+          ]
+        }
       }
     ],
-    "pattern": "close close+",
-    "violation_message": "close() was invoked multiple times."
+    "formula": {
+      "raw": "close close+",
+      "raw_lines": [
+        "close close+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"close() was invoked multiple times.\");"
+      ]
+    }
   }
 }

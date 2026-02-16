@@ -1,1 +1,24 @@
-The iterator returned by ServiceLoader.iterator() does not support removal.
+The following events are involved in this specification:
+
+1) Event name: create
+   Kind: creation
+   Timing: after
+   Parameters: ServiceLoader s
+   Returning: Iterator i
+   Pointcut: call(Iterator ServiceLoader.iterator()) && target(s)
+
+2) Event name: remove
+   Kind: event
+   Timing: before
+   Parameters: Iterator i
+   Pointcut: call(* Iterator+.remove(..)) && target(i)
+
+The required execution pattern is defined by the following regular expression:
+
+create remove
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The iterator returned by ServiceLoader.iterator() does not support removal."

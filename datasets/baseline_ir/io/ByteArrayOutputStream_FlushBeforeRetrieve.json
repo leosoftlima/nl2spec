@@ -1,89 +1,235 @@
 {
   "id": "ByteArrayOutputStream_FlushBeforeRetrieve",
-  "category": "FSM",
+  "formalism": "fsm",
   "domain": "io",
+  "signature": {
+    "name": "ByteArrayOutputStream_FlushBeforeRetrieve",
+    "parameters": [
+      {
+        "type": "ByteArrayOutputStream",
+        "name": "b"
+      },
+      {
+        "type": "OutputStream",
+        "name": "o"
+      }
+    ]
+  },
   "ir": {
     "type": "fsm",
-    "states": [
-      "initial",
-      "outputstreamcreated",
-      "writing",
-      "flushed",
-      "closed"
-    ],
-    "start_state": "initial",
-    "transitions": [
+    "events": [
       {
-        "from": "initial",
-        "event": "outputstreaminit",
-        "to": "outputstreamcreated"
+        "kind": "creation",
+        "name": "outputstreaminit",
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "ByteArrayOutputStream",
+            "name": "b"
+          }
+        ],
+        "pointcut_raw": "call(OutputStream+.new(..)) && args(b, ..)",
+        "returning": {
+          "type": "OutputStream",
+          "name": "o"
+        },
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "outputstreamcreated",
-        "event": "write",
-        "to": "writing"
+        "kind": "event",
+        "name": "write",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "OutputStream",
+            "name": "o"
+          }
+        ],
+        "pointcut_raw": "call(* OutputStream+.write*(..)) && target(o)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "outputstreamcreated",
-        "event": "flush",
-        "to": "flushed"
+        "kind": "event",
+        "name": "flush",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "OutputStream",
+            "name": "o"
+          }
+        ],
+        "pointcut_raw": "call(* OutputStream+.flush(..)) && target(o)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "outputstreamcreated",
-        "event": "close",
-        "to": "closed"
+        "kind": "event",
+        "name": "close",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "OutputStream",
+            "name": "o"
+          }
+        ],
+        "pointcut_raw": "call(* OutputStream+.close(..)) && target(o)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "writing",
-        "event": "write",
-        "to": "writing"
+        "kind": "event",
+        "name": "tobytearray",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ByteArrayOutputStream",
+            "name": "b"
+          }
+        ],
+        "pointcut_raw": "call(* ByteArrayOutputStream+.toByteArray(..)) && target(b)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "writing",
-        "event": "flush",
-        "to": "flushed"
-      },
-      {
-        "from": "writing",
-        "event": "close",
-        "to": "closed"
-      },
-      {
-        "from": "flushed",
-        "event": "flush",
-        "to": "flushed"
-      },
-      {
-        "from": "flushed",
-        "event": "write",
-        "to": "writing"
-      },
-      {
-        "from": "flushed",
-        "event": "tobytearray",
-        "to": "flushed"
-      },
-      {
-        "from": "flushed",
-        "event": "tostring",
-        "to": "flushed"
-      },
-      {
-        "from": "flushed",
-        "event": "close",
-        "to": "closed"
-      },
-      {
-        "from": "closed",
-        "event": "tobytearray",
-        "to": "closed"
-      },
-      {
-        "from": "closed",
-        "event": "tostring",
-        "to": "closed"
+        "kind": "event",
+        "name": "tostring",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ByteArrayOutputStream",
+            "name": "b"
+          }
+        ],
+        "pointcut_raw": "call(* ByteArrayOutputStream+.toString(..)) && target(b)",
+        "body": {
+          "raw_lines": []
+        }
       }
     ],
-    "violation_message": "flush() or close() should be invoked before toByteArray() or toString() to get the complete contents."
+    "fsm": {
+      "raw_block": "\t\tinitial [\n\t\t\toutputstreaminit -> outputstreamcreated\n\t\t]\n\t\toutputstreamcreated [\n\t\t\twrite -> writing\n\t\t\tflush -> flushed\n\t\t\tclose -> closed\n\t\t]\n\t\twriting [\n\t\t\twrite -> writing\n\t\t\tflush -> flushed\n\t\t\tclose -> closed\n\t\t]\n\t\tflushed [\n\t\t\tflush -> flushed\n\t\t\twrite -> writing\n\t\t\ttobytearray -> flushed\n\t\t\ttostring -> flushed\n\t\t\tclose -> closed\n\t\t]\n\t\tclosed [\n\t\t\ttobytearray -> closed\n\t\t\ttostring -> closed\n\t\t]",
+      "raw_lines": [
+        "\t\tinitial [",
+        "\t\t\toutputstreaminit -> outputstreamcreated",
+        "\t\t]",
+        "\t\toutputstreamcreated [",
+        "\t\t\twrite -> writing",
+        "\t\t\tflush -> flushed",
+        "\t\t\tclose -> closed",
+        "\t\t]",
+        "\t\twriting [",
+        "\t\t\twrite -> writing",
+        "\t\t\tflush -> flushed",
+        "\t\t\tclose -> closed",
+        "\t\t]",
+        "\t\tflushed [",
+        "\t\t\tflush -> flushed",
+        "\t\t\twrite -> writing",
+        "\t\t\ttobytearray -> flushed",
+        "\t\t\ttostring -> flushed",
+        "\t\t\tclose -> closed",
+        "\t\t]",
+        "\t\tclosed [",
+        "\t\t\ttobytearray -> closed",
+        "\t\t\ttostring -> closed",
+        "\t\t]"
+      ]
+    },
+    "analysis": {
+      "states": [
+        "closed",
+        "flushed",
+        "initial",
+        "outputstreamcreated",
+        "writing"
+      ],
+      "initial": "initial",
+      "transitions": [
+        {
+          "from": "initial",
+          "event": "outputstreaminit",
+          "to": "outputstreamcreated"
+        },
+        {
+          "from": "outputstreamcreated",
+          "event": "write",
+          "to": "writing"
+        },
+        {
+          "from": "outputstreamcreated",
+          "event": "flush",
+          "to": "flushed"
+        },
+        {
+          "from": "outputstreamcreated",
+          "event": "close",
+          "to": "closed"
+        },
+        {
+          "from": "writing",
+          "event": "write",
+          "to": "writing"
+        },
+        {
+          "from": "writing",
+          "event": "flush",
+          "to": "flushed"
+        },
+        {
+          "from": "writing",
+          "event": "close",
+          "to": "closed"
+        },
+        {
+          "from": "flushed",
+          "event": "flush",
+          "to": "flushed"
+        },
+        {
+          "from": "flushed",
+          "event": "write",
+          "to": "writing"
+        },
+        {
+          "from": "flushed",
+          "event": "tobytearray",
+          "to": "flushed"
+        },
+        {
+          "from": "flushed",
+          "event": "tostring",
+          "to": "flushed"
+        },
+        {
+          "from": "flushed",
+          "event": "close",
+          "to": "closed"
+        },
+        {
+          "from": "closed",
+          "event": "tobytearray",
+          "to": "closed"
+        },
+        {
+          "from": "closed",
+          "event": "tostring",
+          "to": "closed"
+        }
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"flush() or close() should be invoked before toByteArray() or toString() to get the complete contents.\" + __LOC);"
+      ]
+    }
   }
 }

@@ -1,20 +1,70 @@
 {
   "id": "ServiceLoaderIterator_Remove",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "ServiceLoaderIterator_Remove",
+    "parameters": [
+      {
+        "type": "Iterator",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "ServiceLoader",
+            "name": "s"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(Iterator ServiceLoader.iterator()) && target(s)",
+          "calls": [
+            "Iterator ServiceLoader.iterator()"
+          ]
+        },
+        "returning": {
+          "type": "Iterator",
+          "name": "i"
+        }
       },
       {
+        "kind": "event",
         "name": "remove",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Iterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Iterator+.remove(..)) && target(i)",
+          "calls": [
+            "* Iterator+.remove(..)"
+          ]
+        }
       }
     ],
-    "pattern": "create remove",
-    "violation_message": "The iterator returned by ServiceLoader.iterator() does not support removal."
+    "formula": {
+      "raw": "create remove",
+      "raw_lines": [
+        "create remove"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The iterator returned by ServiceLoader.iterator() does not support removal.\");"
+      ]
+    }
   }
 }

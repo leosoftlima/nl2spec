@@ -1,1 +1,19 @@
-The timeout value for InetAddress.isReachable() should not be a negative value.
+The following events are monitored in this specification:
+
+1) Event name: isreachable
+   Kind: event
+   Timing: before
+   Parameters: int timeout
+   Pointcut: call(* InetAddress+.isReachable(int)) && args(timeout)
+
+2) Event name: isreachable
+   Kind: event
+   Timing: before
+   Parameters: int ttl, int timeout
+   Pointcut: call(* InetAddress+.isReachable(NetworkInterface, int, int)) && args(*, ttl, timeout)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

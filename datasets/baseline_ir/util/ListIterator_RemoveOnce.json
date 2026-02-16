@@ -1,24 +1,83 @@
 {
   "id": "ListIterator_RemoveOnce",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "ListIterator_RemoveOnce",
+    "parameters": [
+      {
+        "type": "ListIterator",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "remove",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ListIterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(void Iterator+.remove()) && target(i)",
+          "calls": [
+            "void Iterator+.remove()"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "next",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ListIterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Iterator+.next()) && target(i)",
+          "calls": [
+            "* Iterator+.next()"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "previous",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ListIterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* ListIterator+.previous()) && target(i)",
+          "calls": [
+            "* ListIterator+.previous()"
+          ]
+        }
       }
     ],
-    "pattern": "((next | previous)+ (remove | epsilon))*",
-    "violation_message": "ListIterator.remove() can be called only once per call to next()/previous()."
+    "formula": {
+      "raw": "((next | previous)+ (remove | epsilon))*",
+      "raw_lines": [
+        "((next | previous)+ (remove | epsilon))*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"ListIterator.remove() can be called only once per call to next()/previous().\");"
+      ]
+    }
   }
 }

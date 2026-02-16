@@ -1,20 +1,62 @@
 {
   "id": "Character_ValidateChar",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Character_ValidateChar",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "charCount",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "int",
+            "name": "codePoint"
+          }
+        ],
+        "pointcut_raw": "call(* Character.charCount(int)) && args(codePoint)",
+        "body": {
+          "raw_lines": [
+            "            if(!Character.isValidCodePoint(codePoint)){",
+            "                RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "                RVMLogging.out.println(Level.CRITICAL, \"The code point used in charCount(int codePoint) is not valid.\");",
+            "            }"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "toCodePoint",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "char",
+            "name": "high"
+          },
+          {
+            "type": "char",
+            "name": "low"
+          }
+        ],
+        "pointcut_raw": "call(* Character.toCodePoint(char, char)) && args(high, low)",
+        "body": {
+          "raw_lines": [
+            "            if(!Character.isSurrogatePair(high, low)){",
+            "                RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "                RVMLogging.out.println(Level.CRITICAL, \"The surrogate pair used in toCodePoint(char high, char low) is not valid.\");",
+            "            }"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "The code point used in charCount(int codePoint) is not valid."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

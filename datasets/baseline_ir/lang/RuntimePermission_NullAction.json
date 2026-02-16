@@ -1,16 +1,44 @@
 {
   "id": "RuntimePermission_NullAction",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "RuntimePermission_NullAction",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "constructor_runtimeperm",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "String",
+            "name": "name"
+          },
+          {
+            "type": "String",
+            "name": "actions"
+          }
+        ],
+        "pointcut_raw": "call(RuntimePermission.new(String, String)) && args(name, actions) && condition(actions != null)",
+        "body": {
+          "raw_lines": [
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The actions string should be null.\");"
+          ]
+        },
+        "returning": {
+          "type": "RuntimePermission",
+          "name": "r"
+        }
       }
     ],
-    "guard": "actions != null",
-    "violation_message": "The actions string should be null."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

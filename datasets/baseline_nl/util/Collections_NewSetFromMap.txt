@@ -1,1 +1,29 @@
-The map used in Collections.newSetFromMap() must be empty before calling this method, and should not be accessed directly after this method returns.
+The following events are involved in this specification:
+
+1) Event name: create
+   Kind: creation
+   Timing: before
+   Parameters: Map map
+   Pointcut: call(* Collections.newSetFromMap(Map)) && args(map) && condition(map.size() == 0)
+
+2) Event name: bad_create
+   Kind: creation
+   Timing: before
+   Parameters: Map map
+   Pointcut: call(* Collections.newSetFromMap(Map)) && args(map) && condition(map.size() > 0)
+
+3) Event name: access
+   Kind: event
+   Timing: before
+   Parameters: Map map
+   Pointcut: call(* Map+.*(..)) && target(map)
+
+The required execution pattern is defined by the following regular expression:
+
+bad_create | (create access)
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The map used in Collections.newSetFromMap() must be empty before calling this method, and should not be accessed directly after this method returns."

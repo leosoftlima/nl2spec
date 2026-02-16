@@ -1,16 +1,39 @@
 {
   "id": "URL_SetURLStreamHandlerFactory",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "net",
+  "signature": {
+    "name": "URL_SetURLStreamHandlerFactory",
+    "parameters": []
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "set",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [],
+        "pointcut": {
+          "raw": "call(* URL.setURLStreamHandlerFactory(..))",
+          "calls": [
+            "* URL.setURLStreamHandlerFactory(..)"
+          ]
+        }
       }
     ],
-    "pattern": "set set+",
-    "violation_message": "URL.setURLStreamHandlerFactory() can be called at most once in a given Java Virtual Machine."
+    "formula": {
+      "raw": "set set+",
+      "raw_lines": [
+        "set set+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"URL.setURLStreamHandlerFactory() can be called at most once in a given Java Virtual Machine.\");"
+      ]
+    }
   }
 }

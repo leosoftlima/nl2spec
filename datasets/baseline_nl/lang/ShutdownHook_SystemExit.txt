@@ -1,1 +1,46 @@
-Invoking System.exit() in a shutdown hook was suppressed because it may lead to deadlocks.
+The system behavior is defined in terms of explicit states and transitions.
+
+The monitored events are:
+
+1) Event name: register
+   Kind: creation
+   Timing: before
+   Parameters: Thread t
+   Pointcut: call(* Runtime+.addShutdownHook(..)) && args(t)
+
+2) Event name: unregister
+   Kind: creation
+   Timing: before
+   Parameters: Thread t
+   Pointcut: call(* Runtime+.removeShutdownHook(..)) && args(t)
+
+3) Event name: start
+   Kind: event
+   Timing: before
+   Parameters: Thread t
+   Pointcut: startThread() && thread(t)
+
+The finite state behavior is defined as follows:
+
+		unregistered [
+			register -> registered
+		]
+		registered [
+			unregister -> unregistered
+			start -> started
+		]
+		started [
+			exit -> unsafe
+		]
+		unsafe [
+			exit -> unsafe
+		]
+	@unsafe {
+		RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+		RVMLogging.out.println(Level.CRITICAL, "Invoking System.exit() in a shutdown hook was suppressed because it may lead to deadlocks.");
+
+Any execution that deviates from the state transition behavior described above constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

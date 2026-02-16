@@ -1,16 +1,35 @@
 {
   "id": "String_UseStringBuilder",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "String_UseStringBuilder",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "constructor_create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "call(String.new(StringBuilder))",
+        "body": {
+          "raw_lines": [
+            "            RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "            RVMLogging.out.println(Level.CRITICAL, \"Using the constructor String(StringBuilder builder) is inefficient. Use toString() method on the StringBuilder.\");"
+          ]
+        },
+        "returning": {
+          "type": "String",
+          "name": "b"
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "Using the constructor String(StringBuilder builder) is inefficient. Use toString() method on the StringBuilder."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

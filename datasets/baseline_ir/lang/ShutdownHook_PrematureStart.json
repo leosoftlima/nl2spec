@@ -1,37 +1,131 @@
 {
   "id": "ShutdownHook_PrematureStart",
-  "category": "FSM",
+  "formalism": "fsm",
   "domain": "lang",
+  "signature": {
+    "name": "ShutdownHook_PrematureStart",
+    "parameters": [
+      {
+        "type": "Thread",
+        "name": "t"
+      }
+    ]
+  },
   "ir": {
     "type": "fsm",
-    "states": [
-      "unregistered",
-      "registered",
-      "err"
-    ],
-    "start_state": "unregistered",
-    "transitions": [
+    "events": [
       {
-        "from": "unregistered",
-        "event": "good_register",
-        "to": "registered"
+        "kind": "creation",
+        "name": "good_register",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut_raw": "call(* Runtime+.addShutdownHook(..)) && args(t) && condition(t.getState() == Thread.State.NEW)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "unregistered",
-        "event": "bad_register",
-        "to": "err"
+        "kind": "creation",
+        "name": "bad_register",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut_raw": "call(* Runtime+.addShutdownHook(..)) && args(t) && condition(t.getState() != Thread.State.NEW)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "registered",
-        "event": "unregister",
-        "to": "unregistered"
+        "kind": "event",
+        "name": "unregister",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut_raw": "call(* Runtime+.removeShutdownHook(..)) && args(t)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "registered",
-        "event": "userstart",
-        "to": "err"
+        "kind": "event",
+        "name": "userstart",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut_raw": "call(* Thread+.start(..)) && target(t)",
+        "body": {
+          "raw_lines": []
+        }
       }
     ],
-    "violation_message": "A virtual-machine shutdown hook has been started by the user code."
+    "fsm": {
+      "raw_block": "\t\tunregistered [\n\t\t\tgood_register -> registered\n\t\t\tbad_register -> err\n\t\t]\n\t\tregistered [\n\t\t\tunregister -> unregistered\n\t\t\tuserstart -> err\n\t\t]\n\t\terr [\n\t\t]\n\t@err {\n\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);\n\t\tRVMLogging.out.println(Level.CRITICAL, \"A virtual-machine shutdown hook has been started by the user code.\");",
+      "raw_lines": [
+        "\t\tunregistered [",
+        "\t\t\tgood_register -> registered",
+        "\t\t\tbad_register -> err",
+        "\t\t]",
+        "\t\tregistered [",
+        "\t\t\tunregister -> unregistered",
+        "\t\t\tuserstart -> err",
+        "\t\t]",
+        "\t\terr [",
+        "\t\t]",
+        "\t@err {",
+        "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "\t\tRVMLogging.out.println(Level.CRITICAL, \"A virtual-machine shutdown hook has been started by the user code.\");"
+      ]
+    },
+    "analysis": {
+      "states": [
+        "err",
+        "registered",
+        "unregistered"
+      ],
+      "initial": "unregistered",
+      "transitions": [
+        {
+          "from": "unregistered",
+          "event": "good_register",
+          "to": "registered"
+        },
+        {
+          "from": "unregistered",
+          "event": "bad_register",
+          "to": "err"
+        },
+        {
+          "from": "registered",
+          "event": "unregister",
+          "to": "unregistered"
+        },
+        {
+          "from": "registered",
+          "event": "userstart",
+          "to": "err"
+        }
+      ]
+    },
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

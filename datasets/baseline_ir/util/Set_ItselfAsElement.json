@@ -1,20 +1,66 @@
 {
   "id": "Set_ItselfAsElement",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "Set_ItselfAsElement",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "add",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Set",
+            "name": "s"
+          },
+          {
+            "type": "Object",
+            "name": "elem"
+          }
+        ],
+        "pointcut_raw": "call(* Set+.add(Object)) && target(s) && args(elem) && condition(elem == s)",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"A set cannot contain itself as an element.\");"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "addall",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Set",
+            "name": "s"
+          },
+          {
+            "type": "Collection",
+            "name": "src"
+          }
+        ],
+        "pointcut_raw": "call(* Set+.addAll(Collection)) && target(s) && args(src)",
+        "body": {
+          "raw_lines": [
+            "\t\tfor (Object elem : src) {",
+            "\t\t\tif (elem == s) {",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"A set cannot contain itself as an element.\");",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "elem == s",
-    "violation_message": "A set cannot contain itself as an element."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

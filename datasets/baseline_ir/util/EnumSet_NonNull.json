@@ -1,16 +1,58 @@
 {
   "id": "EnumSet_NonNull",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "EnumSet_NonNull",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "insertnull",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object",
+            "name": "e"
+          }
+        ],
+        "pointcut_raw": "call(* EnumSet+.add(Object)) && args(e) && condition(e == null)",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"EnumSet does not permit null.\");"
+          ]
+        }
+      },
+      {
+        "kind": "event",
+        "name": "insertnull",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Collection",
+            "name": "c"
+          }
+        ],
+        "pointcut_raw": "call(* EnumSet+.addAll(Collection)) && args(c)",
+        "body": {
+          "raw_lines": [
+            "\t\tfor (Object elem : c) {",
+            "\t\t\tif (elem == null){",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"EnumSet does not permit null.\");",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "e == null",
-    "violation_message": "EnumSet does not permit null."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

@@ -1,1 +1,19 @@
-EnumMap does not permit null.
+The following events are monitored in this specification:
+
+1) Event name: insertnull
+   Kind: event
+   Timing: before
+   Parameters: Object e
+   Pointcut: call(* EnumMap.put(Object, Object)) && args(e, ..) && condition(e == null)
+
+2) Event name: insertnull
+   Kind: event
+   Timing: before
+   Parameters: Map m
+   Pointcut: call(* EnumMap.putAll(Map)) && args(m)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

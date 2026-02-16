@@ -1,1 +1,80 @@
-ListIterator.hasNext()/hasPrevious() was not called before calling next()/previous().
+The system behavior is defined in terms of explicit states and transitions.
+
+The monitored events are:
+
+1) Event name: hasnexttrue
+   Kind: event
+   Timing: after
+   Parameters: ListIterator i
+   Returning: boolean b
+   Pointcut: call(* ListIterator.hasNext()) && target(i) && condition(b)
+
+2) Event name: hasnextfalse
+   Kind: event
+   Timing: after
+   Parameters: ListIterator i
+   Returning: boolean b
+   Pointcut: call(* ListIterator.hasNext()) && target(i) && condition(!b)
+
+3) Event name: next
+   Kind: event
+   Timing: before
+   Parameters: ListIterator i
+   Pointcut: call(* ListIterator.next()) && target(i)
+
+4) Event name: hasprevioustrue
+   Kind: event
+   Timing: after
+   Parameters: ListIterator i
+   Returning: boolean b
+   Pointcut: call(* ListIterator.hasPrevious()) && target(i) && condition(b)
+
+5) Event name: haspreviousfalse
+   Kind: event
+   Timing: after
+   Parameters: ListIterator i
+   Returning: boolean b
+   Pointcut: call(* ListIterator.hasPrevious()) && target(i) && condition(!b)
+
+6) Event name: previous
+   Kind: event
+   Timing: before
+   Parameters: ListIterator i
+   Pointcut: call(* ListIterator.previous()) && target(i)
+
+The finite state behavior is defined as follows:
+
+		na [
+			hasnexttrue -> nextavailable
+			hasnextfalse -> na
+			hasprevioustrue -> prevavailable
+			haspreviousfalse -> na
+		]
+		nextavailable [
+			hasprevioustrue -> bothavailable
+			haspreviousfalse -> nextavailable
+			hasnexttrue -> nextavailable
+			hasnextfalse -> na
+			next -> prevavailable
+		]
+		prevavailable [
+			hasnexttrue -> bothavailable
+			hasnextfalse -> prevavailable
+			hasprevioustrue -> prevavailable
+			haspreviousfalse -> na
+			previous -> nextavailable
+		]
+		bothavailable [
+			hasnexttrue -> bothavailable
+			hasnextfalse -> prevavailable
+			hasprevioustrue -> bothavailable
+			haspreviousfalse -> nextavailable
+			next -> prevavailable
+			previous -> nextavailable
+		]
+
+Any execution that deviates from the state transition behavior described above constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"ListIterator.hasNext()/hasPrevious() was not called before calling next()/previous()."

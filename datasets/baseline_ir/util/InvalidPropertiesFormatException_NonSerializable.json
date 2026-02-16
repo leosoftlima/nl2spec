@@ -1,20 +1,62 @@
 {
   "id": "InvalidPropertiesFormatException_NonSerializable",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "InvalidPropertiesFormatException_NonSerializable",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "serialize",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ObjectOutputStream",
+            "name": "out"
+          },
+          {
+            "type": "InvalidPropertiesFormatException",
+            "name": "obj"
+          }
+        ],
+        "pointcut_raw": "call(* ObjectOutputStream+.writeObject(..)) && target(out) && args(obj)",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"InvalidPropertiesFormatException is not intended to be Serialized.\");"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "deserialize",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "ObjectInputStream",
+            "name": "in"
+          }
+        ],
+        "pointcut_raw": "call(* ObjectInputStream+.readObject(..)) && target(in)",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"InvalidPropertiesFormatException is not intended to be Serialized.\");"
+          ]
+        },
+        "returning": {
+          "type": "InvalidPropertiesFormatException",
+          "name": "obj"
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "InvalidPropertiesFormatException is not intended to be Serialized."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

@@ -1,1 +1,27 @@
-An ObjectStreamClass object was instantiated, but was not initialized using initProxy(), initNonProxy() or readNonProxy()
+The following events are monitored:
+
+1) Event name: create
+   Timing: after
+   Parameters: none
+   Returning: ObjectStreamClass c
+   Pointcut: call(ObjectStreamClass+.new())
+
+2) Event name: init
+   Timing: before
+   Parameters: ObjectStreamClass c
+   Pointcut: ( call(* ObjectStreamClass+.initProxy(..)) || call(* ObjectStreamClass+.initNonProxy(..)) || call(* ObjectStreamClass+.readNonProxy(..)) ) && target(c)
+
+3) Event name: endProg
+   Timing: before
+   Parameters: none
+   Pointcut: endProgram()
+
+The temporal property that must hold during execution is defined by the following formula:
+
+[](create => o init)
+
+If this temporal property is violated at any point during execution, it constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"An ObjectStreamClass object was instantiated, but was not initialized using initProxy(), initNonProxy() or readNonProxy()"

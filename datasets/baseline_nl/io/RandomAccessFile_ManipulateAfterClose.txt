@@ -1,1 +1,23 @@
-A closed random access file cannot perform input or output operations.
+The following events are involved in this specification:
+
+1) Event name: manipulate
+   Kind: event
+   Timing: before
+   Parameters: RandomAccessFile f
+   Pointcut: ( call(* RandomAccessFile+.read*(..)) || call(* RandomAccessFile+.write*(..)) ) && target(f)
+
+2) Event name: close
+   Kind: creation
+   Timing: before
+   Parameters: RandomAccessFile f
+   Pointcut: call(* RandomAccessFile+.close(..)) && target(f)
+
+The required execution pattern is defined by the following regular expression:
+
+close+ manipulate+
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"A closed random access file cannot perform input or output operations."

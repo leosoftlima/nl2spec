@@ -1,28 +1,102 @@
 {
   "id": "ServerSocket_LargeReceiveBuffer",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "net",
+  "signature": {
+    "name": "ServerSocket_LargeReceiveBuffer",
+    "parameters": [
+      {
+        "type": "ServerSocket",
+        "name": "sock"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create_bound",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut": {
+          "raw": "call(ServerSocket.new(int, ..))",
+          "calls": [
+            "ServerSocket.new(int, ..)"
+          ]
+        },
+        "returning": {
+          "type": "ServerSocket",
+          "name": "sock"
+        }
       },
       {
+        "kind": "creation",
         "name": "create_unbound",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut": {
+          "raw": "call(ServerSocket.new())",
+          "calls": [
+            "ServerSocket.new()"
+          ]
+        },
+        "returning": {
+          "type": "ServerSocket",
+          "name": "sock"
+        }
       },
       {
+        "kind": "event",
         "name": "bind",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ServerSocket",
+            "name": "sock"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* ServerSocket+.bind(..)) && target(sock)",
+          "calls": [
+            "* ServerSocket+.bind(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "set",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ServerSocket",
+            "name": "sock"
+          },
+          {
+            "type": "int",
+            "name": "size"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* ServerSocket+.setReceiveBufferSize(int)) && target(sock) && args(size) && condition(size > 65536)",
+          "calls": [
+            "* ServerSocket+.setReceiveBufferSize(int)"
+          ]
+        }
       }
     ],
-    "pattern": "(create_bound | create_unbound set* bind+) set",
-    "violation_message": "A receive window large than 64K bytes must be set before the server socket is bound."
+    "formula": {
+      "raw": "(create_bound | create_unbound set* bind+) set",
+      "raw_lines": [
+        "(create_bound | create_unbound set* bind+) set"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"A receive window large than 64K bytes must be set before the server socket is bound.\");"
+      ]
+    }
   }
 }

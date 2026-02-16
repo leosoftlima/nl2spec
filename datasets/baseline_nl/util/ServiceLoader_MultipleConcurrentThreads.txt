@@ -1,1 +1,30 @@
-A ServiceLoader object has been used by multiple threads.
+The following events are involved in this specification:
+
+1) Event name: create
+   Kind: creation
+   Timing: after
+   Parameters: Thread t2
+   Returning: ServiceLoader s
+   Pointcut: call(ServiceLoader ServiceLoader+.load*(..)) && thread(t2)
+
+2) Event name: gooduse
+   Kind: event
+   Timing: before
+   Parameters: ServiceLoader s, Thread t2
+   Pointcut: ( call(* ServiceLoader+.iterator()) || call(* ServiceLoader+.reload()) ) && target(s) && thread(t2) && condition(this.t == t2)
+
+3) Event name: baduse
+   Kind: event
+   Timing: before
+   Parameters: ServiceLoader s, Thread t2
+   Pointcut: ( call(* ServiceLoader+.iterator()) || call(* ServiceLoader+.reload()) ) && target(s) && thread(t2) && condition(this.t != t2)
+
+The required execution pattern is defined by the following regular expression:
+
+create gooduse* baduse
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"A ServiceLoader object has been used by multiple threads."

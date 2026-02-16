@@ -1,0 +1,33 @@
+Context:
+The IR represents an event-based runtime monitor.
+
+Event-based semantics:
+- The specification defines constraints over individual events.
+- Events correspond to method calls, returns, creations, or destructions.
+- Each event must explicitly define its timing (before/after), parameters (if any), returning value (if any), and its pointcut definition.
+- Violations occur when the monitored event is triggered under the specified pointcut condition.
+- The monitor does not maintain explicit states or temporal formulas.
+
+Event-based IR structure:
+- "type" must be "event"
+- "events": list of monitored events, each including:
+    - name
+    - kind
+    - timing
+    - parameters (if any)
+    - returning (if any)
+    - pointcut_raw or pointcut.raw (must preserve the raw pointcut expression)
+    - body (if present)
+- "violation_message": message emitted when the event constraint is violated (if explicitly defined)
+- The violation condition is tied directly to the occurrence of the event itself.
+
+Constraints:
+- Do not invent events or methods not implied by the description.
+- Preserve event names exactly as described.
+- Preserve pointcut expressions exactly.
+- Keep the structure minimal and precise.
+- Do not introduce states, regular expressions, or temporal logic operators.
+- Follow exactly the structure shown in the examples.
+
+Examples:
+{{FEW_SHOT_EXAMPLES}}

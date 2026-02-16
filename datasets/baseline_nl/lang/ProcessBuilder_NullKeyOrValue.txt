@@ -1,1 +1,36 @@
-null key or value is not permitted in the map from ProcessBuilder.environment()
+The following events are involved in this specification:
+
+1) Event name: createMap
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: Map map
+   Pointcut: call(* ProcessBuilder.environment())
+
+2) Event name: nullPut
+   Kind: event
+   Timing: before
+   Parameters: Map map, Object key, Object value
+   Pointcut: call(* Map.put(..)) && args(key, value) && target(map) && condition(key == null || value == null)
+
+3) Event name: nullPut
+   Kind: event
+   Timing: before
+   Parameters: Map map, Map map2
+   Pointcut: call(* Map.putAll(Map)) && args(map2) && target(map) && condition(map2.containsKey(null) || map2.containsValue(null))
+
+4) Event name: nullQuery
+   Kind: event
+   Timing: before
+   Parameters: Map map, Object o
+   Pointcut: (call(* Map.containsKey(..)) || call(* Map.containsValue(..)) || call(* Map.get(..)) || call(* Map.remove(..))) && target(map) && args(o) && condition(o == null)
+
+The required execution pattern is defined by the following regular expression:
+
+createMap (nullPut | nullQuery)+
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"null key or value is not permitted in the map from ProcessBuilder.environment()"

@@ -1,24 +1,83 @@
 {
   "id": "Socket_ReuseSocket",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "net",
+  "signature": {
+    "name": "Socket_ReuseSocket",
+    "parameters": [
+      {
+        "type": "Socket",
+        "name": "sock"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "close",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Socket",
+            "name": "sock"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Socket+.close(..)) && target(sock)",
+          "calls": [
+            "* Socket+.close(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "bind",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Socket",
+            "name": "sock"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Socket+.bind(..)) && target(sock)",
+          "calls": [
+            "* Socket+.bind(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "connect",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Socket",
+            "name": "sock"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Socket+.connect(..)) && target(sock)",
+          "calls": [
+            "* Socket+.connect(..)"
+          ]
+        }
       }
     ],
-    "pattern": "close (bind | connect)+",
-    "violation_message": "Once a socket has been closed, it is not available for further networking use; a new socket needs to be created."
+    "formula": {
+      "raw": "close (bind | connect)+",
+      "raw_lines": [
+        "close (bind | connect)+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"Once a socket has been closed, it is not available for further networking use; a new socket needs to be created.\");"
+      ]
+    }
   }
 }

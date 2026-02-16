@@ -1,16 +1,35 @@
 {
   "id": "Character_StaticFactory",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Character_StaticFactory",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "constructor_create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "call(Character+.new(char))",
+        "body": {
+          "raw_lines": [
+            "            RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "            RVMLogging.out.println(Level.CRITICAL, \"Using the constructor Character(char value) might be inefficient. Use valueOf(char c) if it is appropriate.\");"
+          ]
+        },
+        "returning": {
+          "type": "Character",
+          "name": "b"
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "Using the constructor Character(char value) might be inefficient. Use valueOf(char c) if it is appropriate."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

@@ -1,20 +1,79 @@
 {
   "id": "Appendable_ThreadSafe",
-  "category": "EVENT",
+  "formalism": "ere",
   "domain": "lang",
+  "signature": {
+    "name": "Appendable_ThreadSafe",
+    "parameters": [
+      {
+        "type": "Appendable",
+        "name": "a"
+      }
+    ]
+  },
   "ir": {
-    "type": "event",
+    "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "safe_append",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Appendable",
+            "name": "a"
+          },
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Appendable+.append(..)) && target(a) && thread(t) && !target(StringBuffer) && condition(this.owner == null || this.owner == t)",
+          "calls": [
+            "* Appendable+.append(..)"
+          ]
+        },
+        "body": {
+          "raw_lines": [
+            "this.owner = t;"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "unsafe_append",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Appendable",
+            "name": "a"
+          },
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Appendable+.append(..)) && target(a) && thread(t) && !target(StringBuffer) && condition(this.owner != null && this.owner != t)",
+          "calls": [
+            "* Appendable+.append(..)"
+          ]
+        }
       }
     ],
-    "guard": "this.owner == null || this.owner == t",
-    "violation_message": "More than two threads attempted to use an Appendable instance, which may lead to a race condition"
+    "formula": {
+      "raw": "safe_append*",
+      "raw_lines": [
+        "safe_append*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"More than two threads attempted to use an Appendable instance, which may lead to a race condition\");"
+      ]
+    }
   }
 }

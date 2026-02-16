@@ -1,1 +1,38 @@
-A synchronized collection was accessed in a thread-unsafe manner.
+The following events are involved in this specification:
+
+1) Event name: sync
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: Collection col
+   Pointcut: call(* Collections.synchronizedCollection(Collection)) || call(* Collections.synchronizedSet(Set)) || call(* Collections.synchronizedSortedSet(SortedSet)) || call(* Collections.synchronizedList(List))
+
+2) Event name: syncCreateIter
+   Kind: event
+   Timing: after
+   Parameters: Collection col
+   Returning: Iterator iter
+   Pointcut: call(* Collection+.iterator()) && target(col) && condition(Thread.holdsLock(col))
+
+3) Event name: asyncCreateIter
+   Kind: event
+   Timing: after
+   Parameters: Collection col
+   Returning: Iterator iter
+   Pointcut: call(* Collection+.iterator()) && target(col) && condition(!Thread.holdsLock(col))
+
+4) Event name: accessIter
+   Kind: event
+   Timing: before
+   Parameters: Iterator iter
+   Pointcut: call(* Iterator.*(..)) && target(iter) && condition(!Thread.holdsLock(this.col))
+
+The required execution pattern is defined by the following regular expression:
+
+(sync asyncCreateIter) | (sync syncCreateIter accessIter)
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"A synchronized collection was accessed in a thread-unsafe manner."

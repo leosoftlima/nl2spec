@@ -1,20 +1,73 @@
 {
   "id": "SortedSet_Comparable",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "SortedSet_Comparable",
+    "parameters": [
+      {
+        "type": "SortedSet",
+        "name": "s"
+      }
+    ]
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "add",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "SortedSet",
+            "name": "s"
+          },
+          {
+            "type": "Object",
+            "name": "e"
+          }
+        ],
+        "pointcut_raw": "( call(* Collection+.add*(..)) || call(* Queue+.offer*(..)) ) && target(s) && args(e)",
+        "body": {
+          "raw_lines": [
+            "\t\tif (s.comparator() == null && !(e instanceof Comparable)) {",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"A non-comparable object is being inserted into a SortedSet object.\");",
+            "\t\t}"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "addall",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "SortedSet",
+            "name": "s"
+          },
+          {
+            "type": "Collection",
+            "name": "c"
+          }
+        ],
+        "pointcut_raw": "call(* Collection+.addAll(Collection)) && target(s) && args(c)",
+        "body": {
+          "raw_lines": [
+            "\t\tfor (Object elem : c) {",
+            "\t\t\tif (s.comparator() == null && !(elem instanceof Comparable)) {",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"A non-comparable object is being inserted into a SortedSet object.\");",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "A non-comparable object is being inserted into a SortedSet object."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

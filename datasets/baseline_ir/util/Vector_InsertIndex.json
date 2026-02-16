@@ -1,16 +1,42 @@
 {
   "id": "Vector_InsertIndex",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "Vector_InsertIndex",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "insert",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Vector",
+            "name": "v"
+          },
+          {
+            "type": "int",
+            "name": "index"
+          }
+        ],
+        "pointcut_raw": "call(* Vector+.insertElementAt(Object, int)) && target(v) && args(.., index)",
+        "body": {
+          "raw_lines": [
+            "\t\tif (!(0 <= index && index <= v.size())) {",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The index passed to insertElementAt() is invalid.\");",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "The index passed to insertElementAt() is invalid."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

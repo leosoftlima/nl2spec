@@ -1,1 +1,62 @@
-An unconnected PipedInputStream performed read() operation.
+The system behavior is defined in terms of explicit states and transitions.
+
+The monitored events are:
+
+1) Event name: create
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: PipedInputStream i
+   Pointcut: call(PipedInputStream+.new())
+
+2) Event name: create_oi
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: PipedInputStream i
+   Pointcut: call(PipedInputStream+.new(PipedOutputStream+))
+
+3) Event name: create_io
+   Kind: event
+   Timing: before
+   Parameters: PipedInputStream i
+   Pointcut: call(PipedOutputStream+.new(PipedInputStream+)) && args(i)
+
+4) Event name: connect1
+   Kind: event
+   Timing: before
+   Parameters: PipedInputStream i
+   Pointcut: call(* PipedOutputStream+.connect(PipedInputStream+)) && args(i)
+
+5) Event name: connect2
+   Kind: event
+   Timing: before
+   Parameters: PipedInputStream i
+   Pointcut: call(* PipedInputStream+.connect(PipedOutputStream+)) && target(i)
+
+6) Event name: read
+   Kind: event
+   Timing: before
+   Parameters: PipedInputStream i
+   Pointcut: ( call(* PipedInputStream+.read(..)) || call(* PipedInputStream+.receive(..)) || call(* PipedInputStream+.available(..)) ) && target(i)
+
+The finite state behavior is defined as follows:
+
+		initial [
+			create -> unconnected
+			create_oi -> connected
+		]
+		unconnected [
+			create_io -> connected
+			connect1 -> connected
+			connect2 -> connected
+		]
+		connected [
+			read -> connected
+		]
+
+Any execution that deviates from the state transition behavior described above constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"An unconnected PipedInputStream performed read() operation."

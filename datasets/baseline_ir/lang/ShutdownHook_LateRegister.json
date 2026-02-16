@@ -1,24 +1,86 @@
 {
   "id": "ShutdownHook_LateRegister",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "lang",
+  "signature": {
+    "name": "ShutdownHook_LateRegister",
+    "parameters": []
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "register",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Runtime+.addShutdownHook(..)) && args(t)",
+          "calls": [
+            "* Runtime+.addShutdownHook(..)"
+          ]
+        },
+        "body": {
+          "raw_lines": [
+            "threadSet.add(t);"
+          ]
+        }
       },
       {
+        "kind": "creation",
         "name": "unregister",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Runtime+.removeShutdownHook(..)) && args(t)",
+          "calls": [
+            "* Runtime+.removeShutdownHook(..)"
+          ]
+        },
+        "body": {
+          "raw_lines": [
+            "threadSet.remove(t);"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "start",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut": {
+          "raw": "startThread() && thread(t) && condition(threadSet.contains(t))",
+          "calls": []
+        }
       }
     ],
-    "pattern": "(register | unregister)* start+ (register | unregister)",
-    "violation_message": "A shutdown hook was registered/unregister after the shutdown sequence had begun."
+    "formula": {
+      "raw": "(register | unregister)* start+ (register | unregister)",
+      "raw_lines": [
+        "(register | unregister)* start+ (register | unregister)"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"A shutdown hook was registered/unregister after the shutdown sequence had begun.\");"
+      ]
+    }
   }
 }

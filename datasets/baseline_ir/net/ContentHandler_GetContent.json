@@ -1,16 +1,31 @@
 {
   "id": "ContentHandler_GetContent",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "ContentHandler_GetContent",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "get_content",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [],
+        "pointcut_raw": "call(* ContentHandler+.getContent(..))",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.WARNING, \"An application does not generally call ContentHandler.getContent().\");"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "An application does not generally call ContentHandler.getContent()."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

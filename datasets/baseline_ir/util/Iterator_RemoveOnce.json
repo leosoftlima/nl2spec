@@ -1,20 +1,66 @@
 {
   "id": "Iterator_RemoveOnce",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "Iterator_RemoveOnce",
+    "parameters": [
+      {
+        "type": "Iterator",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "remove",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Iterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(void Iterator+.remove()) && target(i)",
+          "calls": [
+            "void Iterator+.remove()"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "next",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Iterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Iterator+.next()) && target(i)",
+          "calls": [
+            "* Iterator+.next()"
+          ]
+        }
       }
     ],
-    "pattern": "(next+ (remove | epsilon))*",
-    "violation_message": "Iterator.remove() can be called only once per call to next()."
+    "formula": {
+      "raw": "(next+ (remove | epsilon))*",
+      "raw_lines": [
+        "(next+ (remove | epsilon))*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"Iterator.remove() can be called only once per call to next().\");"
+      ]
+    }
   }
 }

@@ -1,0 +1,23 @@
+Context:
+The IR represents an Extended Regular Expression (ERE) monitor.
+
+ERE semantics:
+- The specification defines allowed and forbidden event sequences.
+- Events correspond to method calls or returns.
+- The expression describes valid execution traces.
+- Violations occur when the execution deviates from the expression.
+
+ERE IR structure:
+- "type" must be "ere"
+- "events": list of relevant events
+- "expression": the ERE defining the allowed behavior
+- "violation_message": message emitted when the expression is violated
+
+Constraints:
+- Do not invent events or methods not implied by the description.
+- Keep the expression minimal and precise.
+- Use only constructs supported by the ERE formalism.
+- Follow exactly the structure shown in the examples.
+
+Examples:
+{{FEW_SHOT_EXAMPLES}}

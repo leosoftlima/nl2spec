@@ -1,24 +1,119 @@
 {
   "id": "Iterator_HasNext",
-  "category": "EVENT",
+  "formalism": "ltl",
   "domain": "util",
+  "signature": {
+    "parameters": [
+      {
+        "type": "Iterator",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
-    "type": "event",
+    "type": "ltl",
     "events": [
       {
         "name": "hasnexttrue",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Iterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Iterator+.hasNext()) && target(i) && condition(b)",
+          "joinpoints": [
+            {
+              "kind": "call",
+              "pattern": "* Iterator+.hasNext()",
+              "simple": "",
+              "declaring_type": "Iterator+"
+            }
+          ],
+          "bindings": [
+            {
+              "type": "target",
+              "variable": "i"
+            }
+          ],
+          "exclusions": []
+        },
+        "returning": {
+          "type": "boolean",
+          "name": "b"
+        }
       },
       {
         "name": "hasnextfalse",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Iterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Iterator+.hasNext()) && target(i) && condition(!b)",
+          "joinpoints": [
+            {
+              "kind": "call",
+              "pattern": "* Iterator+.hasNext()",
+              "simple": "",
+              "declaring_type": "Iterator+"
+            }
+          ],
+          "bindings": [
+            {
+              "type": "target",
+              "variable": "i"
+            }
+          ],
+          "exclusions": []
+        },
+        "returning": {
+          "type": "boolean",
+          "name": "b"
+        }
       },
       {
         "name": "next",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Iterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Iterator+.next()) && target(i)",
+          "joinpoints": [
+            {
+              "kind": "call",
+              "pattern": "* Iterator+.next()",
+              "simple": "",
+              "declaring_type": "Iterator+"
+            }
+          ],
+          "bindings": [
+            {
+              "type": "target",
+              "variable": "i"
+            }
+          ],
+          "exclusions": []
+        }
       }
     ],
-    "guard": "b",
-    "violation_message": "Iterator.hasNext() was not called before calling next()."
+    "formula": {
+      "raw": "[](next => (*) hasnexttrue)"
+    },
+    "violation": {
+      "raw_block": [
+        "RVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.WARNING, \"Iterator.hasNext() was not called before calling next().\");"
+      ]
+    }
   }
 }

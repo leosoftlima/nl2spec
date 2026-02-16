@@ -1,47 +1,156 @@
 {
   "id": "Socket_SetTimeoutBeforeBlockingOutput",
-  "category": "FSM",
+  "formalism": "fsm",
   "domain": "net",
+  "signature": {
+    "name": "Socket_SetTimeoutBeforeBlockingOutput",
+    "parameters": [
+      {
+        "type": "Socket",
+        "name": "sock"
+      },
+      {
+        "type": "OutputStream",
+        "name": "output"
+      }
+    ]
+  },
   "ir": {
     "type": "fsm",
-    "states": [
-      "start",
-      "unblocked",
-      "blocked"
-    ],
-    "start_state": "start",
-    "transitions": [
+    "events": [
       {
-        "from": "start",
-        "event": "getoutput",
-        "to": "unblocked"
+        "kind": "creation",
+        "name": "getoutput",
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Socket",
+            "name": "sock"
+          }
+        ],
+        "pointcut_raw": "call(OutputStream Socket+.getOutputStream()) && target(sock)",
+        "returning": {
+          "type": "OutputStream",
+          "name": "output"
+        },
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "unblocked",
-        "event": "getoutput",
-        "to": "unblocked"
+        "kind": "event",
+        "name": "enter",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "OutputStream",
+            "name": "output"
+          }
+        ],
+        "pointcut_raw": "call(* OutputStream+.write(..)) && target(output)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "unblocked",
-        "event": "set",
-        "to": "unblocked"
+        "kind": "event",
+        "name": "leave",
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "OutputStream",
+            "name": "output"
+          }
+        ],
+        "pointcut_raw": "call(* OutputStream+.write(..)) && target(output)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "unblocked",
-        "event": "enter",
-        "to": "blocked"
-      },
-      {
-        "from": "blocked",
-        "event": "getoutput",
-        "to": "blocked"
-      },
-      {
-        "from": "blocked",
-        "event": "leave",
-        "to": "unblocked"
+        "kind": "event",
+        "name": "set",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Socket",
+            "name": "sock"
+          },
+          {
+            "type": "int",
+            "name": "timeout"
+          }
+        ],
+        "pointcut_raw": "call(* Socket+.setSoTimeout(int)) && target(sock) && args(timeout) && condition(timeout != 0)",
+        "body": {
+          "raw_lines": []
+        }
       }
     ],
-    "violation_message": "Socket.setSoTimeout() should be set prior to entering the blocking operation."
+    "fsm": {
+      "raw_block": "\t\tstart [\n\t\t\tgetoutput -> unblocked\n\t\t]\n\t\tunblocked [\n\t\t\tgetoutput -> unblocked\n\t\t\tset -> unblocked\n\t\t\tenter -> blocked\n\t\t]\n\t\tblocked [\n\t\t\tgetoutput -> blocked\n\t\t\tleave -> unblocked\n\t\t]",
+      "raw_lines": [
+        "\t\tstart [",
+        "\t\t\tgetoutput -> unblocked",
+        "\t\t]",
+        "\t\tunblocked [",
+        "\t\t\tgetoutput -> unblocked",
+        "\t\t\tset -> unblocked",
+        "\t\t\tenter -> blocked",
+        "\t\t]",
+        "\t\tblocked [",
+        "\t\t\tgetoutput -> blocked",
+        "\t\t\tleave -> unblocked",
+        "\t\t]"
+      ]
+    },
+    "analysis": {
+      "states": [
+        "blocked",
+        "start",
+        "unblocked"
+      ],
+      "initial": "start",
+      "transitions": [
+        {
+          "from": "start",
+          "event": "getoutput",
+          "to": "unblocked"
+        },
+        {
+          "from": "unblocked",
+          "event": "getoutput",
+          "to": "unblocked"
+        },
+        {
+          "from": "unblocked",
+          "event": "set",
+          "to": "unblocked"
+        },
+        {
+          "from": "unblocked",
+          "event": "enter",
+          "to": "blocked"
+        },
+        {
+          "from": "blocked",
+          "event": "getoutput",
+          "to": "blocked"
+        },
+        {
+          "from": "blocked",
+          "event": "leave",
+          "to": "unblocked"
+        }
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"Socket.setSoTimeout() should be set prior to entering the blocking operation.\");",
+        "__RESET;"
+      ]
+    }
   }
 }

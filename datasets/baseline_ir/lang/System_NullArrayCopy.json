@@ -1,16 +1,52 @@
 {
   "id": "System_NullArrayCopy",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "System_NullArrayCopy",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "null_arraycopy",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object",
+            "name": "src"
+          },
+          {
+            "type": "int",
+            "name": "srcPos"
+          },
+          {
+            "type": "Object",
+            "name": "dest"
+          },
+          {
+            "type": "int",
+            "name": "destPos"
+          },
+          {
+            "type": "int",
+            "name": "length"
+          }
+        ],
+        "pointcut_raw": "call(* System.arraycopy(Object, int, Object, int, int)) && args(src, srcPos, dest, destPos, length) && condition(src == null || dest == null)",
+        "body": {
+          "raw_lines": [
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"src or dest should not be null.\");"
+          ]
+        }
       }
     ],
-    "guard": "src == null || dest == null",
-    "violation_message": "src or dest should not be null."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

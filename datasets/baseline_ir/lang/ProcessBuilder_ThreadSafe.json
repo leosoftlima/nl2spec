@@ -1,20 +1,80 @@
 {
   "id": "ProcessBuilder_ThreadSafe",
-  "category": "EVENT",
+  "formalism": "ere",
   "domain": "lang",
+  "signature": {
+    "name": "ProcessBuilder_ThreadSafe",
+    "parameters": [
+      {
+        "type": "ProcessBuilder",
+        "name": "p"
+      }
+    ]
+  },
   "ir": {
-    "type": "event",
+    "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "safe_oper",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ProcessBuilder",
+            "name": "p"
+          },
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* ProcessBuilder.*(..)) && target(p) && thread(t) && condition(this.owner == null || this.owner == t)",
+          "calls": [
+            "* ProcessBuilder.*(..)"
+          ]
+        },
+        "body": {
+          "raw_lines": [
+            "this.owner = t;"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "unsafe_oper",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ProcessBuilder",
+            "name": "p"
+          },
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* ProcessBuilder.*(..)) && target(p) && thread(t) && condition(this.owner != null && this.owner != t)",
+          "calls": [
+            "* ProcessBuilder.*(..)"
+          ]
+        }
       }
     ],
-    "guard": "this.owner == null || this.owner == t",
-    "violation_message": "More than two threads attempted to use a ProcessBuilder instance, which may lead to a race condition"
+    "formula": {
+      "raw": "safe_oper*",
+      "raw_lines": [
+        "safe_oper*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"More than two threads attempted to use a ProcessBuilder instance, which may lead to a race condition\");",
+        "__RESET;"
+      ]
+    }
   }
 }

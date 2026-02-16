@@ -1,1 +1,19 @@
-The backlog argument
+The following events are monitored in this specification:
+
+1) Event name: construct
+   Kind: event
+   Timing: before
+   Parameters: int backlog
+   Pointcut: ( call(ServerSocket.new(int, int)) || call(ServerSocket.new(int, int, InetAddress)) ) && args(*, backlog, ..)
+
+2) Event name: set
+   Kind: event
+   Timing: before
+   Parameters: int backlog
+   Pointcut: call(* ServerSocket+.bind(SocketAddress, int)) && args(*, backlog)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

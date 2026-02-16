@@ -1,1 +1,29 @@
-Once a socket has been closed, it is not available for further networking use; a new socket needs to be created.
+The following events are involved in this specification:
+
+1) Event name: close
+   Kind: creation
+   Timing: before
+   Parameters: Socket sock
+   Pointcut: call(* Socket+.close(..)) && target(sock)
+
+2) Event name: bind
+   Kind: event
+   Timing: before
+   Parameters: Socket sock
+   Pointcut: call(* Socket+.bind(..)) && target(sock)
+
+3) Event name: connect
+   Kind: event
+   Timing: before
+   Parameters: Socket sock
+   Pointcut: call(* Socket+.connect(..)) && target(sock)
+
+The required execution pattern is defined by the following regular expression:
+
+close (bind | connect)+
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"Once a socket has been closed, it is not available for further networking use; a new socket needs to be created."

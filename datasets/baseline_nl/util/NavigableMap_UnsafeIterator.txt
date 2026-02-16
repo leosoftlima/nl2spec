@@ -1,1 +1,43 @@
-The NavigableMap was modified while an iteration over the set is in progress.
+The following events are involved in this specification:
+
+1) Event name: getset
+   Kind: creation
+   Timing: after
+   Parameters: NavigableMap m
+   Returning: Set s
+   Pointcut: ( call(Set NavigableMap+.navigableKeySet()) || call(Set NavigableMap+.descendingKeySet()) ) && target(m)
+
+2) Event name: getiter
+   Kind: event
+   Timing: after
+   Parameters: Set s
+   Returning: Iterator i
+   Pointcut: call(Iterator Iterable+.iterator()) && target(s)
+
+3) Event name: modifyMap
+   Kind: event
+   Timing: before
+   Parameters: NavigableMap m
+   Pointcut: ( call(* Map+.clear*(..)) || call(* Map+.put*(..)) || call(* Map+.remove*(..)) ) && target(m)
+
+4) Event name: modifySet
+   Kind: event
+   Timing: before
+   Parameters: Set s
+   Pointcut: ( call(* Collection+.add(..)) || call(* Collection+.addAll(..)) ) && target(s)
+
+5) Event name: useiter
+   Kind: event
+   Timing: before
+   Parameters: Iterator i
+   Pointcut: ( call(* Iterator.hasNext(..)) || call(* Iterator.next(..)) ) && target(i)
+
+The required execution pattern is defined by the following regular expression:
+
+getset (modifyMap | modifySet)* getiter useiter* (modifyMap | modifySet)+ useiter
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The NavigableMap was modified while an iteration over the set is in progress."

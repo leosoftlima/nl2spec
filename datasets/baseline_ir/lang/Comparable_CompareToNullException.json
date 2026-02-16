@@ -1,20 +1,58 @@
 {
   "id": "Comparable_CompareToNullException",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Comparable_CompareToNullException",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "badexception",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Object o) throwing(Exception",
+            "name": "e"
+          }
+        ],
+        "pointcut_raw": "call(* Comparable+.compareTo(..)) && args(o) && if(o == null) && condition(!(e instanceof NullPointerException))",
+        "body": {
+          "raw_lines": [
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"NullPointerException should be thrown when an object is compared to null\");"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "badcompare",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Object",
+            "name": "o"
+          }
+        ],
+        "pointcut_raw": "call(* Comparable+.compareTo(..)) && args(o) && if(o == null)",
+        "body": {
+          "raw_lines": [
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"NullPointerException should be thrown when an object is compared to null\");"
+          ]
+        },
+        "returning": {
+          "type": "int",
+          "name": "i"
+        }
       }
     ],
-    "guard": "!(e instanceof NullPointerException",
-    "violation_message": "NullPointerException should be thrown when an object is compared to null"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

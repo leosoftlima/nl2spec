@@ -1,16 +1,39 @@
 {
   "id": "Arrays_DeepHashCode",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "Arrays_DeepHashCode",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "invalid_deephashcode",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object[]",
+            "name": "arr"
+          }
+        ],
+        "pointcut_raw": "call(int Arrays.deepHashCode(Object[])) && args(arr)",
+        "body": {
+          "raw_lines": [
+            "\t\tArrayList<Object[]> enclosing = new ArrayList<Object[]>();",
+            "\t\tif (cycle(enclosing, arr)){",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The specified array contains itself as an element.\");",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "The specified array contains itself as an element."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

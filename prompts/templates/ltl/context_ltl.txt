@@ -1,0 +1,31 @@
+Context:
+The IR represents a Linear Temporal Logic (LTL) runtime monitor.
+
+LTL semantics:
+- Specifications are expressed as temporal logic formulas.
+- Events correspond to monitored method calls, returns, creations, or destructions.
+- Each event must explicitly define its timing (before/after), parameters (if any), returning value (if any), and its pointcut definition.
+- Violations occur when the temporal formula is falsified during execution.
+
+LTL IR structure:
+- "type" must be "ltl"
+- "events": list of monitored events, each including:
+    - name
+    - timing
+    - parameters (if any)
+    - returning (if any)
+    - pointcut (with raw expression)
+- "formula": object containing:
+    - "raw": the LTL formula
+- "violation_message": message emitted when the formula is violated
+
+Constraints:
+- Use standard LTL operators (G, F, X, U).
+- Preserve event names and pointcut expressions exactly.
+- Preserve the formula exactly as defined.
+- Do not invent events not implied by the description.
+- Do not convert the specification into FSM or ERE.
+- Follow exactly the structure shown in the examples.
+
+Examples:
+{{FEW_SHOT_EXAMPLES}}

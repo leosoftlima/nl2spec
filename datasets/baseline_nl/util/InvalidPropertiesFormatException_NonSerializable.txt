@@ -1,1 +1,20 @@
-InvalidPropertiesFormatException is not intended to be Serialized.
+The following events are monitored in this specification:
+
+1) Event name: serialize
+   Kind: event
+   Timing: before
+   Parameters: ObjectOutputStream out, InvalidPropertiesFormatException obj
+   Pointcut: call(* ObjectOutputStream+.writeObject(..)) && target(out) && args(obj)
+
+2) Event name: deserialize
+   Kind: event
+   Timing: after
+   Parameters: ObjectInputStream in
+   Returning: InvalidPropertiesFormatException obj
+   Pointcut: call(* ObjectInputStream+.readObject(..)) && target(in)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

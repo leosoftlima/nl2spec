@@ -1,20 +1,66 @@
 {
   "id": "Math_ContendedRandom",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "lang",
+  "signature": {
+    "name": "Math_ContendedRandom",
+    "parameters": []
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "onethread_use",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Math.random(..)) && thread(t) && condition(this.th == null || this.th == t)",
+          "calls": [
+            "* Math.random(..)"
+          ]
+        },
+        "body": {
+          "raw_lines": [
+            "this.th = t;"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "otherthread_use",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Math.random(..)) && thread(t) && condition(this.th != null && this.th != t)",
+          "calls": [
+            "* Math.random(..)"
+          ]
+        }
       }
     ],
-    "pattern": "onethread_use*",
-    "violation_message": "Math.random() is used by multiple threads. If there is contention, we recommend you to use Random.nextDouble()."
+    "formula": {
+      "raw": "onethread_use*",
+      "raw_lines": [
+        "onethread_use*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"Math.random() is used by multiple threads. If there is contention, we recommend you to use Random.nextDouble().\");"
+      ]
+    }
   }
 }

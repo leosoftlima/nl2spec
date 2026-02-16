@@ -1,1 +1,37 @@
-The behavior of setting SO_REUSEADDR after a socket is bound is not defined.
+The following events are involved in this specification:
+
+1) Event name: create_connected
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: Socket sock
+   Pointcut: ( call(Socket.new(InetAddress, int)) || call(Socket.new(InetAddress, int, boolean)) || call(Socket.new(InetAddress, int, InetAddress, int)) || call(Socket.new(String, int)) || call(Socket.new(String, int, boolean)) || call(Socket.new(String, int, InetAddress, int)) )
+
+2) Event name: create_unconnected
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: Socket sock
+   Pointcut: ( call(Socket.new()) || call(Socket.new(Proxy)) || call(Socket.new(SocketImpl)) )
+
+3) Event name: bind
+   Kind: event
+   Timing: before
+   Parameters: Socket sock
+   Pointcut: call(* Socket+.bind(..)) && target(sock)
+
+4) Event name: set
+   Kind: event
+   Timing: before
+   Parameters: Socket sock
+   Pointcut: call(* Socket+.setReuseAddress(..)) && target(sock)
+
+The required execution pattern is defined by the following regular expression:
+
+(create_connected | create_unconnected set* bind+) set
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The behavior of setting SO_REUSEADDR after a socket is bound is not defined."

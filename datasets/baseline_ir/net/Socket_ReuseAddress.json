@@ -1,28 +1,105 @@
 {
   "id": "Socket_ReuseAddress",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "net",
+  "signature": {
+    "name": "Socket_ReuseAddress",
+    "parameters": [
+      {
+        "type": "Socket",
+        "name": "sock"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create_connected",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut": {
+          "raw": "( call(Socket.new(InetAddress, int)) || call(Socket.new(InetAddress, int, boolean)) || call(Socket.new(InetAddress, int, InetAddress, int)) || call(Socket.new(String, int)) || call(Socket.new(String, int, boolean)) || call(Socket.new(String, int, InetAddress, int)) )",
+          "calls": [
+            "Socket.new(InetAddress, int)",
+            "Socket.new(InetAddress, int, boolean)",
+            "Socket.new(InetAddress, int, InetAddress, int)",
+            "Socket.new(String, int)",
+            "Socket.new(String, int, boolean)",
+            "Socket.new(String, int, InetAddress, int)"
+          ]
+        },
+        "returning": {
+          "type": "Socket",
+          "name": "sock"
+        }
       },
       {
+        "kind": "creation",
         "name": "create_unconnected",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut": {
+          "raw": "( call(Socket.new()) || call(Socket.new(Proxy)) || call(Socket.new(SocketImpl)) )",
+          "calls": [
+            "Socket.new()",
+            "Socket.new(Proxy)",
+            "Socket.new(SocketImpl)"
+          ]
+        },
+        "returning": {
+          "type": "Socket",
+          "name": "sock"
+        }
       },
       {
+        "kind": "event",
         "name": "bind",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Socket",
+            "name": "sock"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Socket+.bind(..)) && target(sock)",
+          "calls": [
+            "* Socket+.bind(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "set",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Socket",
+            "name": "sock"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Socket+.setReuseAddress(..)) && target(sock)",
+          "calls": [
+            "* Socket+.setReuseAddress(..)"
+          ]
+        }
       }
     ],
-    "pattern": "(create_connected | create_unconnected set* bind+) set",
-    "violation_message": "The behavior of setting SO_REUSEADDR after a socket is bound is not defined."
+    "formula": {
+      "raw": "(create_connected | create_unconnected set* bind+) set",
+      "raw_lines": [
+        "(create_connected | create_unconnected set* bind+) set"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The behavior of setting SO_REUSEADDR after a socket is bound is not defined.\");"
+      ]
+    }
   }
 }

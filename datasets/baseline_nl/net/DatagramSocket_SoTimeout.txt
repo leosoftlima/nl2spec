@@ -1,1 +1,13 @@
-The timeout value
+The following events are monitored in this specification:
+
+1) Event name: settimeout
+   Kind: event
+   Timing: before
+   Parameters: int timeout
+   Pointcut: call(void DatagramSocket.setSoTimeout(int)) && args(timeout)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

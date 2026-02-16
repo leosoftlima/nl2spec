@@ -1,1 +1,25 @@
-A non-comparable object is being inserted into a TreeMap object.
+The following events are monitored in this specification:
+
+1) Event name: create
+   Kind: event
+   Timing: before
+   Parameters: Map src
+   Pointcut: call(TreeMap.new(Map)) && args(src)
+
+2) Event name: put
+   Kind: event
+   Timing: before
+   Parameters: Object key
+   Pointcut: call(* Map+.put(Object, Object)) && args(key, ..) && target(TreeMap)
+
+3) Event name: putall
+   Kind: event
+   Timing: before
+   Parameters: Map src
+   Pointcut: call(* Map+.putAll(Map)) && args(src) &&target(TreeMap)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

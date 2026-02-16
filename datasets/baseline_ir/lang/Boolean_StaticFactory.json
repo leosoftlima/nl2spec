@@ -1,16 +1,35 @@
 {
   "id": "Boolean_StaticFactory",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Boolean_StaticFactory",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "constructor_create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "call(Boolean+.new(boolean))",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"Using the constructor Boolean(boolean value) might be inefficient. Use valueOf(boolean) if it is appropriate.\");"
+          ]
+        },
+        "returning": {
+          "type": "Boolean",
+          "name": "b"
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "Using the constructor Boolean(boolean value) might be inefficient. Use valueOf(boolean) if it is appropriate."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

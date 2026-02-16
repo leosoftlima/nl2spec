@@ -1,1 +1,19 @@
-A set cannot contain itself as an element.
+The following events are monitored in this specification:
+
+1) Event name: add
+   Kind: event
+   Timing: before
+   Parameters: Set s, Object elem
+   Pointcut: call(* Set+.add(Object)) && target(s) && args(elem) && condition(elem == s)
+
+2) Event name: addall
+   Kind: event
+   Timing: before
+   Parameters: Set s, Collection src
+   Pointcut: call(* Set+.addAll(Collection)) && target(s) && args(src)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

@@ -1,1 +1,13 @@
-The input to IDN.toASCII() should not be used in an internationalized domain name.
+The following events are monitored in this specification:
+
+1) Event name: toascii
+   Kind: event
+   Timing: before
+   Parameters: String input
+   Pointcut: ( call(* IDN.toASCII(String)) || call(* IDN.toASCII(String, int)) ) && args(input, ..)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

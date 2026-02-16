@@ -1,16 +1,31 @@
 {
   "id": "InputStream_MarkReset",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "io",
+  "signature": {
+    "name": "InputStream_MarkReset",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "mark_or_reset",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [],
+        "pointcut_raw": "(call(* InputStream+.mark(..)) || call(* InputStream+.reset(..))) && ( target(FileInputStream) || target(PushbackInputStream) || target(ObjectInputStream) || target(PipedInputStream) || target(SequenceInputStream) )",
+        "body": {
+          "raw_lines": [
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"FileInputStream, PushbackInputStream, ObjectInputStream, PipedInputStream and SequenceInputStream do not support mark() and reset().\");"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "FileInputStream, PushbackInputStream, ObjectInputStream, PipedInputStream and SequenceInputStream do not support mark() and reset()."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

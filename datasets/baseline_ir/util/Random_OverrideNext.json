@@ -1,16 +1,40 @@
 {
   "id": "Random_OverrideNext",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "Random_OverrideNext",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "staticinit",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "staticinitialization(Random+)",
+        "body": {
+          "raw_lines": [
+            "\t\tSignature initsig = __STATICSIG;",
+            "\t\tClass klass = initsig.getDeclaringType();",
+            "\t\tif (klass != null) {",
+            "\t\t\ttry {",
+            "\t\t\t\tMethod nextmethod = klass.getDeclaredMethod(\"next\", Integer.class);",
+            "\t\t\t}",
+            "\t\t\tcatch (NoSuchMethodException e) {",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, klass.getName() + \" does not override int next(int bits).\");",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "next"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

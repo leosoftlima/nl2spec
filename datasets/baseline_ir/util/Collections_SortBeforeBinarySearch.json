@@ -1,72 +1,217 @@
 {
   "id": "Collections_SortBeforeBinarySearch",
-  "category": "FSM",
+  "formalism": "fsm",
   "domain": "util",
+  "signature": {
+    "name": "Collections_SortBeforeBinarySearch",
+    "parameters": [
+      {
+        "type": "List",
+        "name": "list"
+      }
+    ]
+  },
   "ir": {
     "type": "fsm",
-    "states": [
-      "unsorted",
-      "sorted1",
-      "sorted2"
-    ],
-    "start_state": "unsorted",
-    "transitions": [
+    "events": [
       {
-        "from": "unsorted",
-        "event": "sort1",
-        "to": "sorted1"
+        "kind": "event",
+        "name": "sort1",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "List",
+            "name": "list"
+          }
+        ],
+        "pointcut_raw": "call(void Collections.sort(List)) && args(list)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "unsorted",
-        "event": "sort2",
-        "to": "sorted2"
+        "kind": "event",
+        "name": "sort2",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "List",
+            "name": "list"
+          },
+          {
+            "type": "Comparator",
+            "name": "comp2"
+          }
+        ],
+        "pointcut_raw": "call(void Collections.sort(List, Comparator)) && args(list, comp2)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.comp = comp2;"
+          ]
+        }
       },
       {
-        "from": "unsorted",
-        "event": "modify",
-        "to": "unsorted"
+        "kind": "event",
+        "name": "modify",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "List",
+            "name": "list"
+          }
+        ],
+        "pointcut_raw": "( call(* Collection+.add*(..)) || call(* Collection+.remove*(..)) || call(* Collection+.clear(..)) || call(* Collection+.retain*(..)) || call(* List+.set(..)) ) && target(list)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "sorted1",
-        "event": "sort1",
-        "to": "sorted1"
+        "kind": "event",
+        "name": "bsearch1",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "List",
+            "name": "list"
+          }
+        ],
+        "pointcut_raw": "call(int Collections.binarySearch(List, Object)) && args(list, ..)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "sorted1",
-        "event": "sort2",
-        "to": "sorted2"
+        "kind": "event",
+        "name": "bsearch2",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "List",
+            "name": "list"
+          },
+          {
+            "type": "Comparator",
+            "name": "comp2"
+          }
+        ],
+        "pointcut_raw": "call(int Collections.binarySearch(List, Object, Comparator)) && args(list, .., comp2) && condition(this.comp == comp2)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "sorted1",
-        "event": "modify",
-        "to": "unsorted"
-      },
-      {
-        "from": "sorted1",
-        "event": "bsearch1",
-        "to": "sorted1"
-      },
-      {
-        "from": "sorted2",
-        "event": "sort1",
-        "to": "sorted1"
-      },
-      {
-        "from": "sorted2",
-        "event": "sort2",
-        "to": "sorted2"
-      },
-      {
-        "from": "sorted2",
-        "event": "modify",
-        "to": "unsorted"
-      },
-      {
-        "from": "sorted2",
-        "event": "bsearch2",
-        "to": "sorted2"
+        "kind": "event",
+        "name": "bad_bsearch2",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "List",
+            "name": "list"
+          },
+          {
+            "type": "Comparator",
+            "name": "comp2"
+          }
+        ],
+        "pointcut_raw": "call(int Collections.binarySearch(List, Object, Comparator)) && args(list, .., comp2) && condition(this.comp != comp2)",
+        "body": {
+          "raw_lines": []
+        }
       }
     ],
-    "violation_message": "The list must be sorted prior to making binarySearch() call."
+    "fsm": {
+      "raw_block": "\t\tunsorted [\n\t\t\tsort1 -> sorted1\n\t\t\tsort2 -> sorted2\n\t\t\tmodify -> unsorted\n\t\t]\n\t\tsorted1 [\n\t\t\tsort1 -> sorted1\n\t\t\tsort2 -> sorted2\n\t\t\tmodify -> unsorted\n\t\t\tbsearch1 -> sorted1\n\t\t]\n\t\tsorted2 [\n\t\t\tsort1 -> sorted1\n\t\t\tsort2 -> sorted2\n\t\t\tmodify -> unsorted\n\t\t\tbsearch2 -> sorted2\n\t\t]",
+      "raw_lines": [
+        "\t\tunsorted [",
+        "\t\t\tsort1 -> sorted1",
+        "\t\t\tsort2 -> sorted2",
+        "\t\t\tmodify -> unsorted",
+        "\t\t]",
+        "\t\tsorted1 [",
+        "\t\t\tsort1 -> sorted1",
+        "\t\t\tsort2 -> sorted2",
+        "\t\t\tmodify -> unsorted",
+        "\t\t\tbsearch1 -> sorted1",
+        "\t\t]",
+        "\t\tsorted2 [",
+        "\t\t\tsort1 -> sorted1",
+        "\t\t\tsort2 -> sorted2",
+        "\t\t\tmodify -> unsorted",
+        "\t\t\tbsearch2 -> sorted2",
+        "\t\t]"
+      ]
+    },
+    "analysis": {
+      "states": [
+        "sorted1",
+        "sorted2",
+        "unsorted"
+      ],
+      "initial": "unsorted",
+      "transitions": [
+        {
+          "from": "unsorted",
+          "event": "sort1",
+          "to": "sorted1"
+        },
+        {
+          "from": "unsorted",
+          "event": "sort2",
+          "to": "sorted2"
+        },
+        {
+          "from": "unsorted",
+          "event": "modify",
+          "to": "unsorted"
+        },
+        {
+          "from": "sorted1",
+          "event": "sort1",
+          "to": "sorted1"
+        },
+        {
+          "from": "sorted1",
+          "event": "sort2",
+          "to": "sorted2"
+        },
+        {
+          "from": "sorted1",
+          "event": "modify",
+          "to": "unsorted"
+        },
+        {
+          "from": "sorted1",
+          "event": "bsearch1",
+          "to": "sorted1"
+        },
+        {
+          "from": "sorted2",
+          "event": "sort1",
+          "to": "sorted1"
+        },
+        {
+          "from": "sorted2",
+          "event": "sort2",
+          "to": "sorted2"
+        },
+        {
+          "from": "sorted2",
+          "event": "modify",
+          "to": "unsorted"
+        },
+        {
+          "from": "sorted2",
+          "event": "bsearch2",
+          "to": "sorted2"
+        }
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The list must be sorted prior to making binarySearch() call.\");"
+      ]
+    }
   }
 }

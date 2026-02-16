@@ -1,1 +1,29 @@
-The source collection of addAll() has been modified.
+The following events are involved in this specification:
+
+1) Event name: enter
+   Kind: creation
+   Timing: before
+   Parameters: Collection t, Collection s
+   Pointcut: call(boolean Collection+.addAll(..)) && target(t) && args(s)
+
+2) Event name: modify
+   Kind: event
+   Timing: before
+   Parameters: Collection s
+   Pointcut: ( call(* Collection+.add*(..)) || call(* Collection+.remove*(..)) || call(* Collection+.clear(..)) || call(* Collection+.retain*(..)) ) && target(s)
+
+3) Event name: leave
+   Kind: event
+   Timing: after
+   Parameters: Collection t, Collection s
+   Pointcut: call(boolean Collection+.addAll(..)) && target(t) && args(s)
+
+The required execution pattern is defined by the following regular expression:
+
+(enter leave modify*)*
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The source collection of addAll() has been modified."

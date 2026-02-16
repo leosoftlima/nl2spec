@@ -1,72 +1,312 @@
 {
   "id": "Arrays_SortBeforeBinarySearch",
-  "category": "FSM",
+  "formalism": "fsm",
   "domain": "util",
+  "signature": {
+    "name": "Arrays_SortBeforeBinarySearch",
+    "parameters": [
+      {
+        "type": "Object[]",
+        "name": "arr"
+      }
+    ]
+  },
   "ir": {
     "type": "fsm",
-    "states": [
-      "unsorted",
-      "sorted1",
-      "sorted2"
-    ],
-    "start_state": "unsorted",
-    "transitions": [
+    "events": [
       {
-        "from": "unsorted",
-        "event": "sort1",
-        "to": "sorted1"
+        "kind": "event",
+        "name": "sort1",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object[]",
+            "name": "arr"
+          }
+        ],
+        "pointcut_raw": "call(void Arrays.sort(Object[])) && args(arr)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.fromIndex = 0;",
+            "\t\tthis.toIndex = arr.length;"
+          ]
+        }
       },
       {
-        "from": "unsorted",
-        "event": "sort2",
-        "to": "sorted2"
+        "kind": "event",
+        "name": "sort1",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object[]",
+            "name": "arr"
+          },
+          {
+            "type": "int",
+            "name": "from"
+          },
+          {
+            "type": "int",
+            "name": "to"
+          }
+        ],
+        "pointcut_raw": "call(void Arrays.sort(Object[], int, int)) && args(arr, from, to)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.fromIndex = from;",
+            "\t\tthis.toIndex = to;"
+          ]
+        }
       },
       {
-        "from": "unsorted",
-        "event": "modify",
-        "to": "unsorted"
+        "kind": "event",
+        "name": "sort2",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object[]",
+            "name": "arr"
+          },
+          {
+            "type": "Comparator",
+            "name": "comp2"
+          }
+        ],
+        "pointcut_raw": "call(void Arrays.sort(Object[], Comparator)) && args(arr, comp2)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.fromIndex = 0;",
+            "\t\tthis.toIndex = arr.length;",
+            "\t\tthis.comp = comp2;"
+          ]
+        }
       },
       {
-        "from": "sorted1",
-        "event": "sort1",
-        "to": "sorted1"
+        "kind": "event",
+        "name": "sort2",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object[]",
+            "name": "arr"
+          },
+          {
+            "type": "int",
+            "name": "from"
+          },
+          {
+            "type": "int",
+            "name": "to"
+          },
+          {
+            "type": "Comparator",
+            "name": "comp2"
+          }
+        ],
+        "pointcut_raw": "call(void Arrays.sort(Object[], int, int, Comparator)) && args(arr, from, to, comp2)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.fromIndex = from;",
+            "\t\tthis.toIndex = to;",
+            "\t\tthis.comp = comp2;"
+          ]
+        }
       },
       {
-        "from": "sorted1",
-        "event": "sort2",
-        "to": "sorted2"
+        "kind": "event",
+        "name": "modify",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object[]",
+            "name": "arr"
+          }
+        ],
+        "pointcut_raw": "set(Object[] *) && args(arr)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.toIndex = 0;"
+          ]
+        }
       },
       {
-        "from": "sorted1",
-        "event": "modify",
-        "to": "unsorted"
+        "kind": "event",
+        "name": "bsearch1",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object[]",
+            "name": "arr"
+          }
+        ],
+        "pointcut_raw": "call(int Arrays.binarySearch(Object[], Object)) && args(arr, ..) && condition(this.fromIndex <= 0 && arr.length <= this.toIndex)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "sorted1",
-        "event": "bsearch1",
-        "to": "sorted1"
+        "kind": "event",
+        "name": "bsearch1",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object[]",
+            "name": "arr"
+          },
+          {
+            "type": "int",
+            "name": "from"
+          },
+          {
+            "type": "int",
+            "name": "to"
+          }
+        ],
+        "pointcut_raw": "call(int Arrays.binarySearch(Object[], int, int, Object)) && args(arr, from, to, ..) && condition(this.fromIndex <= from && to <= this.toIndex)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "sorted2",
-        "event": "sort1",
-        "to": "sorted1"
+        "kind": "event",
+        "name": "bsearch2",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object[]",
+            "name": "arr"
+          },
+          {
+            "type": "Comparator",
+            "name": "comp2"
+          }
+        ],
+        "pointcut_raw": "call(int Arrays.binarySearch(Object[], Object, Comparator)) && args(arr, .., comp2) && condition(this.fromIndex <= 0 && arr.length <= this.toIndex && this.comp == comp2)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "sorted2",
-        "event": "sort2",
-        "to": "sorted2"
-      },
-      {
-        "from": "sorted2",
-        "event": "modify",
-        "to": "unsorted"
-      },
-      {
-        "from": "sorted2",
-        "event": "bsearch2",
-        "to": "sorted2"
+        "kind": "event",
+        "name": "bsearch2",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object[]",
+            "name": "arr"
+          },
+          {
+            "type": "int",
+            "name": "from"
+          },
+          {
+            "type": "int",
+            "name": "to"
+          },
+          {
+            "type": "Comparator",
+            "name": "comp2"
+          }
+        ],
+        "pointcut_raw": "call(int Arrays.binarySearch(Object[], int, int, Object, Comparator)) && args(arr, from, to, .., comp2) && condition(this.fromIndex <= from && to <= this.toIndex && this.comp == comp2)",
+        "body": {
+          "raw_lines": []
+        }
       }
     ],
-    "violation_message": "The array or part of the array must be sorted prior to making binarySearch() call."
+    "fsm": {
+      "raw_block": "\t\tunsorted [\n\t\t\tsort1 -> sorted1\n\t\t\tsort2 -> sorted2\n\t\t\tmodify -> unsorted\n\t\t]\n\t\tsorted1 [\n\t\t\tsort1 -> sorted1\n\t\t\tsort2 -> sorted2\n\t\t\tmodify -> unsorted\n\t\t\tbsearch1 -> sorted1\n\t\t]\n\t\tsorted2 [\n\t\t\tsort1 -> sorted1\n\t\t\tsort2 -> sorted2\n\t\t\tmodify -> unsorted\n\t\t\tbsearch2 -> sorted2\n\t\t]",
+      "raw_lines": [
+        "\t\tunsorted [",
+        "\t\t\tsort1 -> sorted1",
+        "\t\t\tsort2 -> sorted2",
+        "\t\t\tmodify -> unsorted",
+        "\t\t]",
+        "\t\tsorted1 [",
+        "\t\t\tsort1 -> sorted1",
+        "\t\t\tsort2 -> sorted2",
+        "\t\t\tmodify -> unsorted",
+        "\t\t\tbsearch1 -> sorted1",
+        "\t\t]",
+        "\t\tsorted2 [",
+        "\t\t\tsort1 -> sorted1",
+        "\t\t\tsort2 -> sorted2",
+        "\t\t\tmodify -> unsorted",
+        "\t\t\tbsearch2 -> sorted2",
+        "\t\t]"
+      ]
+    },
+    "analysis": {
+      "states": [
+        "sorted1",
+        "sorted2",
+        "unsorted"
+      ],
+      "initial": "unsorted",
+      "transitions": [
+        {
+          "from": "unsorted",
+          "event": "sort1",
+          "to": "sorted1"
+        },
+        {
+          "from": "unsorted",
+          "event": "sort2",
+          "to": "sorted2"
+        },
+        {
+          "from": "unsorted",
+          "event": "modify",
+          "to": "unsorted"
+        },
+        {
+          "from": "sorted1",
+          "event": "sort1",
+          "to": "sorted1"
+        },
+        {
+          "from": "sorted1",
+          "event": "sort2",
+          "to": "sorted2"
+        },
+        {
+          "from": "sorted1",
+          "event": "modify",
+          "to": "unsorted"
+        },
+        {
+          "from": "sorted1",
+          "event": "bsearch1",
+          "to": "sorted1"
+        },
+        {
+          "from": "sorted2",
+          "event": "sort1",
+          "to": "sorted1"
+        },
+        {
+          "from": "sorted2",
+          "event": "sort2",
+          "to": "sorted2"
+        },
+        {
+          "from": "sorted2",
+          "event": "modify",
+          "to": "unsorted"
+        },
+        {
+          "from": "sorted2",
+          "event": "bsearch2",
+          "to": "sorted2"
+        }
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The array or part of the array must be sorted prior to making binarySearch() call.\");"
+      ]
+    }
   }
 }

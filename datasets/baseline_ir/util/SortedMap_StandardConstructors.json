@@ -1,16 +1,43 @@
 {
   "id": "SortedMap_StandardConstructors",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "SortedMap_StandardConstructors",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "staticinit",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "staticinitialization(SortedMap+)",
+        "body": {
+          "raw_lines": [
+            "\t\tSignature initsig = __STATICSIG;",
+            "\t\tClass klass = initsig.getDeclaringType();",
+            "\t\tif (klass != null) {",
+            "\t\t\ttry {",
+            "\t\t\t\tConstructor ctor1 = klass.getDeclaredConstructor((Class[]) null);",
+            "\t\t\t\tConstructor ctor2 = klass.getDeclaredConstructor(Comparator.class);",
+            "\t\t\t\tConstructor ctor3 = klass.getDeclaredConstructor(Map.class);",
+            "\t\t\t\tConstructor ctor4 = klass.getDeclaredConstructor(SortedMap.class);",
+            "\t\t\t}",
+            "\t\t\tcatch (NoSuchMethodException e) {",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, klass.getName() + \" does not define the 'standard' SortedMap constructors.\");",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "does not define the 'standard' SortedMap constructors."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

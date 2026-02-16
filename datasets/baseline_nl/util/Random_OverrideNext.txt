@@ -1,1 +1,13 @@
-next
+The following events are monitored in this specification:
+
+1) Event name: staticinit
+   Kind: event
+   Timing: after
+   Parameters: none
+   Pointcut: staticinitialization(Random+)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

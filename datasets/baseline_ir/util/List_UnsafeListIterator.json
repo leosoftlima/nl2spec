@@ -1,24 +1,99 @@
 {
   "id": "List_UnsafeListIterator",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "List_UnsafeListIterator",
+    "parameters": [
+      {
+        "type": "List",
+        "name": "l"
+      },
+      {
+        "type": "ListIterator",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "List",
+            "name": "l"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(ListIterator List+.listIterator()) && target(l)",
+          "calls": [
+            "ListIterator List+.listIterator()"
+          ]
+        },
+        "returning": {
+          "type": "ListIterator",
+          "name": "i"
+        }
       },
       {
+        "kind": "event",
         "name": "modify",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "List",
+            "name": "l"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(l)",
+          "calls": [
+            "* Collection+.add*(..)",
+            "* Collection+.clear(..)",
+            "* Collection+.remove*(..)",
+            "* Collection+.retain*(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "useiter",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ListIterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Iterator+.hasNext(..)) || call(* ListIterator+.hasPrevious(..)) || call(* Iterator+.next(..)) || call(* ListIterator+.previous(..)) || call(* ListIterator+.nextIndex(..)) || call(* ListIterator+.previousIndex(..)) ) && target(i)",
+          "calls": [
+            "* Iterator+.hasNext(..)",
+            "* ListIterator+.hasPrevious(..)",
+            "* Iterator+.next(..)",
+            "* ListIterator+.previous(..)",
+            "* ListIterator+.nextIndex(..)",
+            "* ListIterator+.previousIndex(..)"
+          ]
+        }
       }
     ],
-    "pattern": "create useiter* modify+ useiter",
-    "violation_message": "The list was modified while a list iterator is being used."
+    "formula": {
+      "raw": "create useiter* modify+ useiter",
+      "raw_lines": [
+        "create useiter* modify+ useiter"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The list was modified while a list iterator is being used.\");"
+      ]
+    }
   }
 }

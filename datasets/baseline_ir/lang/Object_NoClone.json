@@ -1,16 +1,36 @@
 {
   "id": "Object_NoClone",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Object_NoClone",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "clone",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object",
+            "name": "o"
+          }
+        ],
+        "pointcut_raw": "call(* Object.clone()) && !within(org.apache.xerces.dom.NodeImpl) && !within(org.apache.batik.bridge.UpdateManager) && !within(org.codehaus.janino.ScriptEvaluator) && !within(org.apache.batik.ext.awt.image.codec.png.PNGEncodeParam) && !within(org.apache.batik.ext.awt.image.spi.MagicNumberRegistryEntry) && !within(org.apache.xerces.util.XMLCatalogResolver) && target(o) && condition(o.getClass().getCanonicalName().equals(\"java.lang.Object\"))",
+        "body": {
+          "raw_lines": [
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"Using the clone method on an Object instance will result in throwing an exception.\");"
+          ]
+        }
       }
     ],
-    "guard": "o.getClass(",
-    "violation_message": "java.lang.Object"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

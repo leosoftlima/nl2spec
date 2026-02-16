@@ -1,16 +1,58 @@
 {
   "id": "HttpCookie_Name",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "HttpCookie_Name",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "construct",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "String",
+            "name": "name"
+          }
+        ],
+        "pointcut_raw": "call(HttpCookie.new(String, String)) && args(name, ..)",
+        "body": {
+          "raw_lines": [
+            "\t\tString separators = \"()<>@,;:\\\\\\\"/[]?={} \\t\";",
+            "\t\tchar ch = '0';",
+            "\t\tboolean outofrange = false;",
+            "\t\tboolean hasctrl = false;",
+            "\t\tboolean hassep = false;",
+            "\t\tfor (int i = 0; i < name.length(); ++i) {",
+            "\t\t\tch = name.charAt(i);",
+            "\t\t\tif (!(0 <= ch && ch <= 127)) {",
+            "\t\t\t\toutofrange = true;",
+            "\t\t\t\tbreak;",
+            "\t\t\t}",
+            "\t\t\telse if (ch <= 31 || ch == 127) {",
+            "\t\t\t\thasctrl = true;",
+            "\t\t\t\tbreak;",
+            "\t\t\t}",
+            "\t\t\telse if (separators.indexOf(ch) != -1) {",
+            "\t\t\t\thassep = true;",
+            "\t\t\t\tbreak;",
+            "\t\t\t}",
+            "\t\t}",
+            "\t\tif (outofrange || hasctrl || hassep) {",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The specified cookie name '\" + name + \"' is invalid; it cannot contain '\" + ch + \"'.\");",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "()<>@,;:\\\\\\"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

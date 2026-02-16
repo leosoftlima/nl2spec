@@ -1,20 +1,76 @@
 {
   "id": "SecurityManager_Permission",
-  "category": "EVENT",
+  "formalism": "ere",
   "domain": "lang",
-  "ir": {
-    "type": "event",
-    "events": [
+  "signature": {
+    "name": "SecurityManager_Permission",
+    "parameters": [
       {
-        "name": "get",
-        "timing": "after"
+        "type": "SecurityManager",
+        "name": "manager"
       },
       {
+        "type": "Object",
+        "name": "context"
+      }
+    ]
+  },
+  "ir": {
+    "type": "ere",
+    "events": [
+      {
+        "kind": "event",
+        "name": "get",
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "SecurityManager",
+            "name": "manager"
+          }
+        ],
+        "pointcut": {
+          "raw": "call (* SecurityManager.getSecurityContext(..)) && target(manager)",
+          "calls": []
+        },
+        "returning": {
+          "type": "Object",
+          "name": "context"
+        }
+      },
+      {
+        "kind": "event",
         "name": "check",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "SecurityManager",
+            "name": "manager"
+          },
+          {
+            "type": "Object",
+            "name": "context"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* SecurityManager.checkPermission(Permission, Object)) && target(manager) && args(.., context)",
+          "calls": [
+            "* SecurityManager.checkPermission(Permission, Object)"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "The context argument to checkPermission must come from getSecurityContext method call."
+    "formula": {
+      "raw": "get (get | check)*",
+      "raw_lines": [
+        "get (get | check)*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The context argument to checkPermission must come from getSecurityContext method call.\");"
+      ]
+    }
   }
 }

@@ -1,1 +1,17 @@
-BufferedInputStream.fill() is being called by a non-synchronized method.
+The following events are involved in this specification:
+
+1) Event name: fill
+   Kind: event
+   Timing: before
+   Parameters: BufferedInputStream i
+   Pointcut: call(* BufferedInputStream.fill(..)) && target(i) && !cflow(call(synchronized * *.*(..)))
+
+The required execution pattern is defined by the following regular expression:
+
+fill
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"BufferedInputStream.fill() is being called by a non-synchronized method."

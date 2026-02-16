@@ -1,16 +1,38 @@
 {
   "id": "NetPermission_Actions",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "NetPermission_Actions",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "construct",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "String",
+            "name": "actions"
+          }
+        ],
+        "pointcut_raw": "call(NetPermission.new(String, String)) && args(.., actions)",
+        "body": {
+          "raw_lines": [
+            "\t\tif (actions != null) {",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The 'actions' value should be null.\");",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "The 'actions' value should be null."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

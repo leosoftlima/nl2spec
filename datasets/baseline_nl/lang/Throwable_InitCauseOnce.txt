@@ -1,1 +1,31 @@
-initCause should not be called more than once.
+The following events are involved in this specification:
+
+1) Event name: createWithoutThrowable
+   Kind: event
+   Timing: after
+   Parameters: none
+   Returning: Throwable t
+   Pointcut: call(Throwable+.new()) || call(Throwable+.new(String))
+
+2) Event name: createWithThrowable
+   Kind: event
+   Timing: after
+   Parameters: none
+   Returning: Throwable t
+   Pointcut: call(Throwable+.new(String, Throwable)) || call(Throwable+.new(Throwable))
+
+3) Event name: initCause
+   Kind: event
+   Timing: before
+   Parameters: Throwable t
+   Pointcut: call(* Throwable+.initCause(..)) && target(t)
+
+The required execution pattern is defined by the following regular expression:
+
+(createWithoutThrowable initCause initCause+) | (createWithThrowable initCause+)
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"initCause should not be called more than once."

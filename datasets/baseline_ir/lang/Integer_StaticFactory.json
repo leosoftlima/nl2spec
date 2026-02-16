@@ -1,16 +1,35 @@
 {
   "id": "Integer_StaticFactory",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Integer_StaticFactory",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "constructor_create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "call(Integer+.new(int))",
+        "body": {
+          "raw_lines": [
+            "            RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "            RVMLogging.out.println(Level.CRITICAL, \"Using the constructor Integer(int value) might be inefficient. Use valueOf(int) if it is appropriate.\");"
+          ]
+        },
+        "returning": {
+          "type": "Integer",
+          "name": "i"
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "Using the constructor Integer(int value) might be inefficient. Use valueOf(int) if it is appropriate."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

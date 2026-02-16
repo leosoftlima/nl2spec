@@ -1,47 +1,171 @@
 {
   "id": "PipedOutputStream_UnconnectedWrite",
-  "category": "FSM",
+  "formalism": "fsm",
   "domain": "io",
+  "signature": {
+    "name": "PipedOutputStream_UnconnectedWrite",
+    "parameters": [
+      {
+        "type": "PipedOutputStream",
+        "name": "o"
+      }
+    ]
+  },
   "ir": {
     "type": "fsm",
-    "states": [
-      "initial",
-      "unconnected",
-      "connected"
-    ],
-    "start_state": "initial",
-    "transitions": [
+    "events": [
       {
-        "from": "initial",
-        "event": "create",
-        "to": "unconnected"
+        "kind": "creation",
+        "name": "create",
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "call(PipedOutputStream+.new())",
+        "returning": {
+          "type": "PipedOutputStream",
+          "name": "o"
+        },
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "initial",
-        "event": "create_io",
-        "to": "connected"
+        "kind": "creation",
+        "name": "create_io",
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "call(PipedOutputStream+.new(PipedInputStream+))",
+        "returning": {
+          "type": "PipedOutputStream",
+          "name": "o"
+        },
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "unconnected",
-        "event": "create_oi",
-        "to": "connected"
+        "kind": "event",
+        "name": "create_oi",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PipedOutputStream",
+            "name": "o"
+          }
+        ],
+        "pointcut_raw": "call(PipedInputStream+.new(PipedOutputStream+)) && args(o)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "unconnected",
-        "event": "connect1",
-        "to": "connected"
+        "kind": "event",
+        "name": "connect1",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PipedOutputStream",
+            "name": "o"
+          }
+        ],
+        "pointcut_raw": "call(* PipedInputStream+.connect(PipedOutputStream+)) && args(o)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "unconnected",
-        "event": "connect2",
-        "to": "connected"
+        "kind": "event",
+        "name": "connect2",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PipedOutputStream",
+            "name": "o"
+          }
+        ],
+        "pointcut_raw": "call(* PipedOutputStream+.connect(PipedInputStream+)) && target(o)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "connected",
-        "event": "write",
-        "to": "connected"
+        "kind": "event",
+        "name": "write",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PipedOutputStream",
+            "name": "o"
+          }
+        ],
+        "pointcut_raw": "call(* PipedOutputStream+.write(..)) && target(o)",
+        "body": {
+          "raw_lines": []
+        }
       }
     ],
-    "violation_message": "An unconnected PipedOutputStream performed write() operation."
+    "fsm": {
+      "raw_block": "\t\tinitial [\n\t\t\tcreate -> unconnected\n\t\t\tcreate_io -> connected\n\t\t]\n\t\tunconnected [\n\t\t\tcreate_oi -> connected\n\t\t\tconnect1 -> connected\n\t\t\tconnect2 -> connected\n\t\t]\n\t\tconnected [\n\t\t\twrite -> connected\n\t\t]",
+      "raw_lines": [
+        "\t\tinitial [",
+        "\t\t\tcreate -> unconnected",
+        "\t\t\tcreate_io -> connected",
+        "\t\t]",
+        "\t\tunconnected [",
+        "\t\t\tcreate_oi -> connected",
+        "\t\t\tconnect1 -> connected",
+        "\t\t\tconnect2 -> connected",
+        "\t\t]",
+        "\t\tconnected [",
+        "\t\t\twrite -> connected",
+        "\t\t]"
+      ]
+    },
+    "analysis": {
+      "states": [
+        "connected",
+        "initial",
+        "unconnected"
+      ],
+      "initial": "initial",
+      "transitions": [
+        {
+          "from": "initial",
+          "event": "create",
+          "to": "unconnected"
+        },
+        {
+          "from": "initial",
+          "event": "create_io",
+          "to": "connected"
+        },
+        {
+          "from": "unconnected",
+          "event": "create_oi",
+          "to": "connected"
+        },
+        {
+          "from": "unconnected",
+          "event": "connect1",
+          "to": "connected"
+        },
+        {
+          "from": "unconnected",
+          "event": "connect2",
+          "to": "connected"
+        },
+        {
+          "from": "connected",
+          "event": "write",
+          "to": "connected"
+        }
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"An unconnected PipedOutputStream performed write() operation.\");"
+      ]
+    }
   }
 }

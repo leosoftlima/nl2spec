@@ -1,1 +1,24 @@
-The list returned by ResourceBundle.Control.getFormats() or getCandidateLocales() was mutated.
+The following events are involved in this specification:
+
+1) Event name: create
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: List l
+   Pointcut: ( call(List ResourceBundle.Control.getFormats(..)) || call(List ResourceBundle.Control.getCandidateLocales(..)) )
+
+2) Event name: mutate
+   Kind: event
+   Timing: before
+   Parameters: List l
+   Pointcut: ( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(l)
+
+The required execution pattern is defined by the following regular expression:
+
+create mutate
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The list returned by ResourceBundle.Control.getFormats() or getCandidateLocales() was mutated."

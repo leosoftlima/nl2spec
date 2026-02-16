@@ -1,1 +1,20 @@
-NullPointerException should be thrown when an object is compared to null
+The following events are monitored in this specification:
+
+1) Event name: badexception
+   Kind: event
+   Timing: after
+   Parameters: Object o) throwing(Exception e
+   Pointcut: call(* Comparable+.compareTo(..)) && args(o) && if(o == null) && condition(!(e instanceof NullPointerException))
+
+2) Event name: badcompare
+   Kind: event
+   Timing: after
+   Parameters: Object o
+   Returning: int i
+   Pointcut: call(* Comparable+.compareTo(..)) && args(o) && if(o == null)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

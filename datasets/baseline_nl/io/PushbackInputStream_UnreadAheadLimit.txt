@@ -1,1 +1,87 @@
-unread() cannot be performed because the internal pushback buffer is full.
+The following events are involved in this specification:
+
+1) Event name: create
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: PushbackInputStream p
+   Pointcut: call(PushbackInputStream+.new(InputStream))
+
+2) Event name: create
+   Kind: creation
+   Timing: after
+   Parameters: int size
+   Returning: PushbackInputStream p
+   Pointcut: call(PushbackInputStream+.new(InputStream, int)) && args(.., size)
+
+3) Event name: read1
+   Kind: event
+   Timing: after
+   Parameters: PushbackInputStream p
+   Returning: int r
+   Pointcut: call(* PushbackInputStream+.read()) && target(p)
+
+4) Event name: read2
+   Kind: event
+   Timing: after
+   Parameters: PushbackInputStream p
+   Returning: int n
+   Pointcut: call(* PushbackInputStream+.read(byte[], int, int)) && target(p)
+
+5) Event name: safeunread
+   Kind: event
+   Timing: before
+   Parameters: PushbackInputStream p
+   Pointcut: call(* PushbackInputStream+.unread(int)) && target(p) && condition(pos > 0)
+
+6) Event name: unsafeunread
+   Kind: event
+   Timing: before
+   Parameters: PushbackInputStream p
+   Pointcut: call(* PushbackInputStream+.unread(int)) && target(p) && condition(pos == 0)
+
+7) Event name: safeunread
+   Kind: event
+   Timing: before
+   Parameters: PushbackInputStream p, byte[] b
+   Pointcut: call(* PushbackInputStream+.unread(byte[])) && target(p) && args(b) && condition(pos >= b.length)
+
+8) Event name: unsafeunread
+   Kind: event
+   Timing: before
+   Parameters: PushbackInputStream p, byte[] b
+   Pointcut: call(* PushbackInputStream+.unread(byte[])) && target(p) && args(b) && condition(pos < b.length)
+
+9) Event name: safeunread
+   Kind: event
+   Timing: before
+   Parameters: PushbackInputStream p, Object b
+   Pointcut: call(* PushbackInputStream+.unread(byte[])) && target(p) && args(b) && condition(pos >= ((byte[])b).length)
+
+10) Event name: unsafeunread
+   Kind: event
+   Timing: before
+   Parameters: PushbackInputStream p, Object b
+   Pointcut: call(* PushbackInputStream+.unread(byte[])) && target(p) && args(b) && condition(pos < ((byte[])b).length)
+
+11) Event name: safeunread
+   Kind: event
+   Timing: before
+   Parameters: PushbackInputStream p, int len
+   Pointcut: call(* PushbackInputStream+.unread(byte[], int, int)) && target(p) && args(.., len) && condition(pos >= len)
+
+12) Event name: unsafeunread
+   Kind: event
+   Timing: before
+   Parameters: PushbackInputStream p, int len
+   Pointcut: call(* PushbackInputStream+.unread(byte[], int, int)) && target(p) && args(.., len) && condition(pos < len)
+
+The required execution pattern is defined by the following regular expression:
+
+create (read1 | read2 | safeunread)*
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"unread() cannot be performed because the internal pushback buffer is full."

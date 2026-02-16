@@ -1,20 +1,60 @@
 {
   "id": "TreeSet_Comparable",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "TreeSet_Comparable",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "add",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object",
+            "name": "e"
+          }
+        ],
+        "pointcut_raw": "( call(* Collection+.add*(..)) ) && target(TreeSet) && args(e)",
+        "body": {
+          "raw_lines": [
+            "\t\tif (!(e instanceof Comparable)) {",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"A non-comparable object is being inserted into a TreeSet object.\");",
+            "\t\t}"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "addall",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Collection",
+            "name": "c"
+          }
+        ],
+        "pointcut_raw": "call(* Collection+.addAll(Collection)) && target(TreeSet) && args(c)",
+        "body": {
+          "raw_lines": [
+            "\t\tfor (Object elem : c) {",
+            "\t\t\tif (!(elem instanceof Comparable)) {",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"A non-comparable object is being inserted into a TreeSet object.\");",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "A non-comparable object is being inserted into a TreeSet object."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

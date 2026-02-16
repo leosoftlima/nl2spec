@@ -1,1 +1,65 @@
-The list must be sorted prior to making binarySearch() call.
+The system behavior is defined in terms of explicit states and transitions.
+
+The monitored events are:
+
+1) Event name: sort1
+   Kind: event
+   Timing: before
+   Parameters: List list
+   Pointcut: call(void Collections.sort(List)) && args(list)
+
+2) Event name: sort2
+   Kind: event
+   Timing: before
+   Parameters: List list, Comparator comp2
+   Pointcut: call(void Collections.sort(List, Comparator)) && args(list, comp2)
+
+3) Event name: modify
+   Kind: event
+   Timing: before
+   Parameters: List list
+   Pointcut: ( call(* Collection+.add*(..)) || call(* Collection+.remove*(..)) || call(* Collection+.clear(..)) || call(* Collection+.retain*(..)) || call(* List+.set(..)) ) && target(list)
+
+4) Event name: bsearch1
+   Kind: event
+   Timing: before
+   Parameters: List list
+   Pointcut: call(int Collections.binarySearch(List, Object)) && args(list, ..)
+
+5) Event name: bsearch2
+   Kind: event
+   Timing: before
+   Parameters: List list, Comparator comp2
+   Pointcut: call(int Collections.binarySearch(List, Object, Comparator)) && args(list, .., comp2) && condition(this.comp == comp2)
+
+6) Event name: bad_bsearch2
+   Kind: event
+   Timing: before
+   Parameters: List list, Comparator comp2
+   Pointcut: call(int Collections.binarySearch(List, Object, Comparator)) && args(list, .., comp2) && condition(this.comp != comp2)
+
+The finite state behavior is defined as follows:
+
+		unsorted [
+			sort1 -> sorted1
+			sort2 -> sorted2
+			modify -> unsorted
+		]
+		sorted1 [
+			sort1 -> sorted1
+			sort2 -> sorted2
+			modify -> unsorted
+			bsearch1 -> sorted1
+		]
+		sorted2 [
+			sort1 -> sorted1
+			sort2 -> sorted2
+			modify -> unsorted
+			bsearch2 -> sorted2
+		]
+
+Any execution that deviates from the state transition behavior described above constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The list must be sorted prior to making binarySearch() call."

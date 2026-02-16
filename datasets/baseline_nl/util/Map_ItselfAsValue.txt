@@ -1,1 +1,19 @@
-A map cannot contain itself as a value.
+The following events are monitored in this specification:
+
+1) Event name: put
+   Kind: event
+   Timing: before
+   Parameters: Map map, Object key, Object value
+   Pointcut: call(* Map+.put(Object, Object)) && target(map) && args(key, value)
+
+2) Event name: putall
+   Kind: event
+   Timing: before
+   Parameters: Map map, Map src
+   Pointcut: call(* Map+.putAll(Map)) && target(map) && args(src)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

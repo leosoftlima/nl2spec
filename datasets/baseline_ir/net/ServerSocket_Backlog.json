@@ -1,20 +1,52 @@
 {
   "id": "ServerSocket_Backlog",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "ServerSocket_Backlog",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "construct",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "int",
+            "name": "backlog"
+          }
+        ],
+        "pointcut_raw": "( call(ServerSocket.new(int, int)) || call(ServerSocket.new(int, int, InetAddress)) ) && args(*, backlog, ..)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.check(backlog, __DEFAULT_MESSAGE);"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "set",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "int",
+            "name": "backlog"
+          }
+        ],
+        "pointcut_raw": "call(* ServerSocket+.bind(SocketAddress, int)) && args(*, backlog)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.check(backlog, __DEFAULT_MESSAGE);"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "The backlog argument"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

@@ -1,1 +1,23 @@
-Math.random() is used by multiple threads. If there is contention, we recommend you to use Random.nextDouble().
+The following events are involved in this specification:
+
+1) Event name: onethread_use
+   Kind: event
+   Timing: before
+   Parameters: Thread t
+   Pointcut: call(* Math.random(..)) && thread(t) && condition(this.th == null || this.th == t)
+
+2) Event name: otherthread_use
+   Kind: event
+   Timing: before
+   Parameters: Thread t
+   Pointcut: call(* Math.random(..)) && thread(t) && condition(this.th != null && this.th != t)
+
+The required execution pattern is defined by the following regular expression:
+
+onethread_use*
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"Math.random() is used by multiple threads. If there is contention, we recommend you to use Random.nextDouble()."

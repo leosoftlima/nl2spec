@@ -1,1 +1,17 @@
-close() was invoked multiple times.
+The following events are involved in this specification:
+
+1) Event name: close
+   Kind: event
+   Timing: before
+   Parameters: Closeable c
+   Pointcut: call(* Closeable+.close(..)) && target(c)
+
+The required execution pattern is defined by the following regular expression:
+
+close close+
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"close() was invoked multiple times."

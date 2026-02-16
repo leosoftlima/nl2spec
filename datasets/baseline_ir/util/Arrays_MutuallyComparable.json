@@ -1,16 +1,52 @@
 {
   "id": "Arrays_MutuallyComparable",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "Arrays_MutuallyComparable",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "invalid_sort",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object[]",
+            "name": "arr"
+          },
+          {
+            "type": "Comparator",
+            "name": "comp"
+          }
+        ],
+        "pointcut_raw": "( call(void Arrays.sort(Object[], Comparator)) || call(void Arrays.sort(Object[], int, int, Comparator)) ) && args(arr, .., comp)",
+        "body": {
+          "raw_lines": [
+            "\t\tfor (int i = 0; i < arr.length; ++i) {",
+            "\t\t\tObject o1 = arr[i];",
+            "\t\t\tfor (int j = i + 1; j < arr.length; ++j) {",
+            "\t\t\t\tObject o2 = arr[j];",
+            "\t\t\t\ttry {",
+            "\t\t\t\t\tcomp.compare(o1, o2);",
+            "\t\t\t\t\tcomp.compare(o2, o1);",
+            "\t\t\t\t}",
+            "\t\t\t\tcatch (ClassCastException e) {",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, i + \"-th element and \" + j + \"-th element are not comparable.\");",
+            "\t\t\t\t}",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "-th element and"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

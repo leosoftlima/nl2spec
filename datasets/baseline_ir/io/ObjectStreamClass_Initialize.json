@@ -1,24 +1,100 @@
 {
   "id": "ObjectStreamClass_Initialize",
-  "category": "LTL",
+  "formalism": "ltl",
   "domain": "io",
+  "signature": {
+    "parameters": [
+      {
+        "type": "ObjectStreamClass",
+        "name": "c"
+      }
+    ]
+  },
   "ir": {
     "type": "ltl",
     "events": [
       {
         "name": "create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut": {
+          "raw": "call(ObjectStreamClass+.new())",
+          "joinpoints": [
+            {
+              "kind": "call",
+              "pattern": "ObjectStreamClass+.new()",
+              "simple": "",
+              "declaring_type": "ObjectStreamClass+"
+            }
+          ],
+          "bindings": [],
+          "exclusions": []
+        },
+        "returning": {
+          "type": "ObjectStreamClass",
+          "name": "c"
+        }
       },
       {
         "name": "init",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ObjectStreamClass",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* ObjectStreamClass+.initProxy(..)) || call(* ObjectStreamClass+.initNonProxy(..)) || call(* ObjectStreamClass+.readNonProxy(..)) ) && target(c)",
+          "joinpoints": [
+            {
+              "kind": "call",
+              "pattern": "* ObjectStreamClass+.initProxy(..)",
+              "simple": "initProxy(..)",
+              "declaring_type": "ObjectStreamClass+"
+            },
+            {
+              "kind": "call",
+              "pattern": "* ObjectStreamClass+.initNonProxy(..)",
+              "simple": "initNonProxy(..)",
+              "declaring_type": "ObjectStreamClass+"
+            },
+            {
+              "kind": "call",
+              "pattern": "* ObjectStreamClass+.readNonProxy(..)",
+              "simple": "readNonProxy(..)",
+              "declaring_type": "ObjectStreamClass+"
+            }
+          ],
+          "bindings": [
+            {
+              "type": "target",
+              "variable": "c"
+            }
+          ],
+          "exclusions": []
+        }
       },
       {
         "name": "endProg",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [],
+        "pointcut": {
+          "raw": "endProgram()",
+          "joinpoints": [],
+          "bindings": [],
+          "exclusions": []
+        }
       }
     ],
-    "formula": "[](create => o init)",
-    "violation_message": "An ObjectStreamClass object was instantiated, but was not initialized using initProxy(), initNonProxy() or readNonProxy()"
+    "formula": {
+      "raw": "[](create => o init)"
+    },
+    "violation": {
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"An ObjectStreamClass object was instantiated, but was not initialized using initProxy(), initNonProxy() or readNonProxy()\");"
+      ]
+    }
   }
 }

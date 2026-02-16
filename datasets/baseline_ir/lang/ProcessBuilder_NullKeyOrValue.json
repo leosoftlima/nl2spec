@@ -1,24 +1,118 @@
 {
   "id": "ProcessBuilder_NullKeyOrValue",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "lang",
+  "signature": {
+    "name": "ProcessBuilder_NullKeyOrValue",
+    "parameters": [
+      {
+        "type": "Map",
+        "name": "map"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "createMap",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut": {
+          "raw": "call(* ProcessBuilder.environment())",
+          "calls": [
+            "* ProcessBuilder.environment()"
+          ]
+        },
+        "returning": {
+          "type": "Map",
+          "name": "map"
+        }
       },
       {
+        "kind": "event",
         "name": "nullPut",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "map"
+          },
+          {
+            "type": "Object",
+            "name": "key"
+          },
+          {
+            "type": "Object",
+            "name": "value"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Map.put(..)) && args(key, value) && target(map) && condition(key == null || value == null)",
+          "calls": [
+            "* Map.put(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
+        "name": "nullPut",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "map"
+          },
+          {
+            "type": "Map",
+            "name": "map2"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Map.putAll(Map)) && args(map2) && target(map) && condition(map2.containsKey(null) || map2.containsValue(null))",
+          "calls": [
+            "* Map.putAll(Map)"
+          ]
+        }
+      },
+      {
+        "kind": "event",
         "name": "nullQuery",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "map"
+          },
+          {
+            "type": "Object",
+            "name": "o"
+          }
+        ],
+        "pointcut": {
+          "raw": "(call(* Map.containsKey(..)) || call(* Map.containsValue(..)) || call(* Map.get(..)) || call(* Map.remove(..))) && target(map) && args(o) && condition(o == null)",
+          "calls": [
+            "* Map.containsKey(..)",
+            "* Map.containsValue(..)",
+            "* Map.get(..)",
+            "* Map.remove(..)"
+          ]
+        }
       }
     ],
-    "pattern": "createMap (nullPut | nullQuery)+",
-    "violation_message": "null key or value is not permitted in the map from ProcessBuilder.environment()"
+    "formula": {
+      "raw": "createMap (nullPut | nullQuery)+",
+      "raw_lines": [
+        "createMap (nullPut | nullQuery)+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.WARNING, \"null key or value is not permitted in the map from ProcessBuilder.environment()\");"
+      ]
+    }
   }
 }

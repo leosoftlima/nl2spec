@@ -1,1 +1,19 @@
-It might not be safe to add a CharSequence instance into a set
+The following events are monitored in this specification:
+
+1) Event name: set_add
+   Kind: event
+   Timing: before
+   Parameters: none
+   Pointcut: call(* Set+.add(..)) && args(CharSequence) && !args(String) && !args(CharBuffer) && condition(!flag)
+
+2) Event name: set_addall
+   Kind: event
+   Timing: before
+   Parameters: Collection c
+   Pointcut: call(* Set+.addAll(Collection)) && args(c) && condition(!flag)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

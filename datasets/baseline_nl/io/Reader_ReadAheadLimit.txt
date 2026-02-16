@@ -1,1 +1,43 @@
-The position mark has been invalidated.
+The following events are involved in this specification:
+
+1) Event name: mark
+   Kind: event
+   Timing: before
+   Parameters: Reader r, int l
+   Pointcut: call(* Reader+.mark(int)) && target(r) && args(l) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )
+
+2) Event name: read1
+   Kind: event
+   Timing: after
+   Parameters: Reader r
+   Returning: int n
+   Pointcut: call(* Reader+.read()) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )
+
+3) Event name: readn
+   Kind: event
+   Timing: after
+   Parameters: Reader r
+   Returning: int n
+   Pointcut: call(* Reader+.read(char[], ..)) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )
+
+4) Event name: badreset
+   Kind: event
+   Timing: before
+   Parameters: Reader r
+   Pointcut: call(* Reader+.reset(..)) && target(r) && condition(rest < 0) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )
+
+5) Event name: goodreset
+   Kind: event
+   Timing: before
+   Parameters: Reader r
+   Pointcut: call(* Reader+.reset(..)) && target(r) && condition(rest >= 0) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )
+
+The required execution pattern is defined by the following regular expression:
+
+(mark | read1 | readn | goodreset)* badreset+
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The position mark has been invalidated."

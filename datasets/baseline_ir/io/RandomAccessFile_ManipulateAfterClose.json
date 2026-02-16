@@ -1,20 +1,67 @@
 {
   "id": "RandomAccessFile_ManipulateAfterClose",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "io",
+  "signature": {
+    "name": "RandomAccessFile_ManipulateAfterClose",
+    "parameters": [
+      {
+        "type": "RandomAccessFile",
+        "name": "f"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "manipulate",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "RandomAccessFile",
+            "name": "f"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* RandomAccessFile+.read*(..)) || call(* RandomAccessFile+.write*(..)) ) && target(f)",
+          "calls": [
+            "* RandomAccessFile+.read*(..)",
+            "* RandomAccessFile+.write*(..)"
+          ]
+        }
       },
       {
+        "kind": "creation",
         "name": "close",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "RandomAccessFile",
+            "name": "f"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* RandomAccessFile+.close(..)) && target(f)",
+          "calls": [
+            "* RandomAccessFile+.close(..)"
+          ]
+        }
       }
     ],
-    "pattern": "close+ manipulate+",
-    "violation_message": "A closed random access file cannot perform input or output operations."
+    "formula": {
+      "raw": "close+ manipulate+",
+      "raw_lines": [
+        "close+ manipulate+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"A closed random access file cannot perform input or output operations.\");"
+      ]
+    }
   }
 }

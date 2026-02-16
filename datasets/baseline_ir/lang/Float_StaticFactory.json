@@ -1,16 +1,35 @@
 {
   "id": "Float_StaticFactory",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Float_StaticFactory",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "constructor_create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "call(Float+.new(float))",
+        "body": {
+          "raw_lines": [
+            "            RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "            RVMLogging.out.println(Level.CRITICAL, \"Using the constructor Float(float value) might be inefficient. Use valueOf(float) if it is appropriate.\");"
+          ]
+        },
+        "returning": {
+          "type": "Float",
+          "name": "f"
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "Using the constructor Float(float value) might be inefficient. Use valueOf(float) if it is appropriate."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

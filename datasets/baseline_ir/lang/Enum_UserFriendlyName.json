@@ -1,16 +1,31 @@
 {
   "id": "Enum_UserFriendlyName",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Enum_UserFriendlyName",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "name",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [],
+        "pointcut_raw": "call(* Enum+.name())",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"Most programmers should use toString(). It gives a more user-friendly name.\");"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "Most programmers should use toString(). It gives a more user-friendly name."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

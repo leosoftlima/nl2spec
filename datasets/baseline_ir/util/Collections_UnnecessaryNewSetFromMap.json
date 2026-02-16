@@ -1,16 +1,31 @@
 {
   "id": "Collections_UnnecessaryNewSetFromMap",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "Collections_UnnecessaryNewSetFromMap",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "unnecessary",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [],
+        "pointcut_raw": "call(* Collections.newSetFromMap(Map)) && ( args(HashMap) || args(TreeMap) )",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"There is no need to use Collections.newSetFromMap() on HashMap or TreeMap.\");"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "There is no need to use Collections.newSetFromMap() on HashMap or TreeMap."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

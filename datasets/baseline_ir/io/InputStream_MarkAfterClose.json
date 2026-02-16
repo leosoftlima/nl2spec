@@ -1,20 +1,66 @@
 {
   "id": "InputStream_MarkAfterClose",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "io",
+  "signature": {
+    "name": "InputStream_MarkAfterClose",
+    "parameters": [
+      {
+        "type": "InputStream",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "mark",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "InputStream",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* InputStream+.mark(..)) && target(i)",
+          "calls": [
+            "* InputStream+.mark(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "close",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "InputStream",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* InputStream+.close(..)) && target(i)",
+          "calls": [
+            "* InputStream+.close(..)"
+          ]
+        }
       }
     ],
-    "pattern": "close+ mark+",
-    "violation_message": "mark() after close() had no effect."
+    "formula": {
+      "raw": "close+ mark+",
+      "raw_lines": [
+        "close+ mark+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"mark() after close() had no effect.\");"
+      ]
+    }
   }
 }

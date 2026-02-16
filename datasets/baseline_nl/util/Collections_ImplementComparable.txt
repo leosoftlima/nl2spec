@@ -1,1 +1,19 @@
--th element does not implement the Comparable interface.
+The following events are monitored in this specification:
+
+1) Event name: invalid_sort
+   Kind: event
+   Timing: before
+   Parameters: List list
+   Pointcut: call(void Collections.sort(List)) && args(list)
+
+2) Event name: invalid_minmax
+   Kind: event
+   Timing: before
+   Parameters: Collection col
+   Pointcut: ( call(* Collections.min(Collection)) || call(* Collections.max(Collection)) ) && args(col)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

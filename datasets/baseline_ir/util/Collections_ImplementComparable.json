@@ -1,20 +1,52 @@
 {
   "id": "Collections_ImplementComparable",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "Collections_ImplementComparable",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "invalid_sort",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "List",
+            "name": "list"
+          }
+        ],
+        "pointcut_raw": "call(void Collections.sort(List)) && args(list)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.validate(list.toArray(), __DEFAULT_MESSAGE);"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "invalid_minmax",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Collection",
+            "name": "col"
+          }
+        ],
+        "pointcut_raw": "( call(* Collections.min(Collection)) || call(* Collections.max(Collection)) ) && args(col)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.validate(col.toArray(), __DEFAULT_MESSAGE);"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "-th element does not implement the Comparable interface."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

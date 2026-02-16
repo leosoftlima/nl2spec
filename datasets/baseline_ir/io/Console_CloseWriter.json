@@ -1,20 +1,49 @@
 {
   "id": "Console_CloseWriter",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "io",
+  "signature": {
+    "name": "Console_CloseWriter",
+    "parameters": [
+      {
+        "type": "Writer",
+        "name": "w"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
-        "name": "getwriter",
-        "timing": "after"
-      },
-      {
+        "kind": "event",
         "name": "close",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Writer",
+            "name": "w"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Writer+.close(..)) && target(w)",
+          "calls": [
+            "* Writer+.close(..)"
+          ]
+        }
       }
     ],
-    "pattern": "getwriter close+",
-    "violation_message": "Invoking close() on the object returned by Console.writer() does not close the underlying stream."
+    "formula": {
+      "raw": "getwriter close+",
+      "raw_lines": [
+        "getwriter close+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.WARNING, \"Invoking close() on the object returned by Console.writer() does not close the underlying stream.\");"
+      ]
+    }
   }
 }

@@ -1,1 +1,28 @@
-StringTokenizer.hasMoreTokens()/hasMoreElements() did not return false before calling nextToken()/nextElement().
+The following events are monitored:
+
+1) Event name: hasnexttrue
+   Timing: after
+   Parameters: StringTokenizer i
+   Returning: boolean b
+   Pointcut: ( call(boolean StringTokenizer.hasMoreTokens()) || call(boolean StringTokenizer.hasMoreElements()) ) && target(i) && condition(b)
+
+2) Event name: hasnextfalse
+   Timing: after
+   Parameters: StringTokenizer i
+   Returning: boolean b
+   Pointcut: ( call(boolean StringTokenizer.hasMoreTokens()) || call(boolean StringTokenizer.hasMoreElements()) ) && target(i) && condition(!b)
+
+3) Event name: next
+   Timing: before
+   Parameters: StringTokenizer i
+   Pointcut: ( call(* StringTokenizer.nextToken()) || call(* StringTokenizer.nextElement()) ) && target(i)
+
+The temporal property that must hold during execution is defined by the following formula:
+
+[](next => (*) hasnexttrue)
+
+If this temporal property is violated at any point during execution, it constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"StringTokenizer.hasMoreTokens()/hasMoreElements() did not return false before calling nextToken()/nextElement()."

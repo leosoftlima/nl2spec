@@ -1,24 +1,98 @@
 {
   "id": "Scanner_ManipulateAfterClose",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "Scanner_ManipulateAfterClose",
+    "parameters": [
+      {
+        "type": "Scanner",
+        "name": "s"
+      },
+      {
+        "type": "Closeable",
+        "name": "c"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Closeable",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(Scanner+.new(InputStream, ..)) || call(Scanner+.new(Readable, ..)) || call(Scanner+.new(ReadableByteChannel, ..)) ) && args(c, ..)",
+          "calls": [
+            "Scanner+.new(InputStream, ..)",
+            "Scanner+.new(Readable, ..)",
+            "Scanner+.new(ReadableByteChannel, ..)"
+          ]
+        },
+        "returning": {
+          "type": "Scanner",
+          "name": "s"
+        }
       },
       {
+        "kind": "event",
         "name": "close",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Scanner",
+            "name": "s"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Scanner+.close()) && target(s) && !args(ByteArrayInputStream) && !args(StringBufferInputStream)",
+          "calls": [
+            "* Scanner+.close()"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "manipulate",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Closeable",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* InputStream+.read(..)) || call(* InputStream+.available(..)) || call(* InputStream+.reset(..)) || call(* InputStream+.skip(..)) || call(* Readable+.read(..)) || call(* ReadableByteChannel+.read(..)) ) && target(c) && !target(ByteArrayInputStream) && !target(StringBufferInputStream)",
+          "calls": [
+            "* InputStream+.read(..)",
+            "* InputStream+.available(..)",
+            "* InputStream+.reset(..)",
+            "* InputStream+.skip(..)",
+            "* Readable+.read(..)",
+            "* ReadableByteChannel+.read(..)"
+          ]
+        }
       }
     ],
-    "pattern": "create close+ manipulate",
-    "violation_message": "The source stream or reader was used after the Scanner had been closed."
+    "formula": {
+      "raw": "create close+ manipulate",
+      "raw_lines": [
+        "create close+ manipulate"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The source stream or reader was used after the Scanner had been closed.\");"
+      ]
+    }
   }
 }

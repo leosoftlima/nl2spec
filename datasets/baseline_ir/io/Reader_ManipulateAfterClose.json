@@ -1,20 +1,70 @@
 {
   "id": "Reader_ManipulateAfterClose",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "io",
+  "signature": {
+    "name": "Reader_ManipulateAfterClose",
+    "parameters": [
+      {
+        "type": "Reader",
+        "name": "r"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "manipulate",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Reader",
+            "name": "r"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Reader+.read(..)) || call(* Reader+.ready(..)) || call(* Reader+.mark(..)) || call(* Reader+.reset(..)) || call(* Reader+.skip(..)) ) && target(r)",
+          "calls": [
+            "* Reader+.read(..)",
+            "* Reader+.ready(..)",
+            "* Reader+.mark(..)",
+            "* Reader+.reset(..)",
+            "* Reader+.skip(..)"
+          ]
+        }
       },
       {
+        "kind": "creation",
         "name": "close",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Reader",
+            "name": "r"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Reader+.close(..)) && target(r)",
+          "calls": [
+            "* Reader+.close(..)"
+          ]
+        }
       }
     ],
-    "pattern": "close+ manipulate+",
-    "violation_message": "read(), ready(), mark(), reset() or skip() was invoked after close()."
+    "formula": {
+      "raw": "close+ manipulate+",
+      "raw_lines": [
+        "close+ manipulate+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"read(), ready(), mark(), reset() or skip() was invoked after close().\");"
+      ]
+    }
   }
 }

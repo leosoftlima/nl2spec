@@ -1,1 +1,0 @@
-A closed Scanner object attempted to perform search operations.

@@ -1,16 +1,38 @@
 {
   "id": "InetSocketAddress_Port",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "InetSocketAddress_Port",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "construct",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "int",
+            "name": "port"
+          }
+        ],
+        "pointcut_raw": "( call(InetSocketAddress.new(int)) || call(InetSocketAddress.new(InetAddress, int)) || call(InetSocketAddress.new(String, int)) || call(* InetSocketAddress.createUnresolved(String, int)) ) && args(.., port)",
+        "body": {
+          "raw_lines": [
+            "\t\tif (0 <= port && port <= 65535)",
+            "\t\t\treturn;",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"The specified port \" + port + \" is out of range; [0 ~ 65535]\");"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "The specified port"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

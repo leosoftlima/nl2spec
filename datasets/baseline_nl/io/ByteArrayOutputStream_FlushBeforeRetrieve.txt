@@ -1,1 +1,73 @@
-flush() or close() should be invoked before toByteArray() or toString() to get the complete contents.
+The system behavior is defined in terms of explicit states and transitions.
+
+The monitored events are:
+
+1) Event name: outputstreaminit
+   Kind: creation
+   Timing: after
+   Parameters: ByteArrayOutputStream b
+   Returning: OutputStream o
+   Pointcut: call(OutputStream+.new(..)) && args(b, ..)
+
+2) Event name: write
+   Kind: event
+   Timing: before
+   Parameters: OutputStream o
+   Pointcut: call(* OutputStream+.write*(..)) && target(o)
+
+3) Event name: flush
+   Kind: event
+   Timing: before
+   Parameters: OutputStream o
+   Pointcut: call(* OutputStream+.flush(..)) && target(o)
+
+4) Event name: close
+   Kind: event
+   Timing: before
+   Parameters: OutputStream o
+   Pointcut: call(* OutputStream+.close(..)) && target(o)
+
+5) Event name: tobytearray
+   Kind: event
+   Timing: before
+   Parameters: ByteArrayOutputStream b
+   Pointcut: call(* ByteArrayOutputStream+.toByteArray(..)) && target(b)
+
+6) Event name: tostring
+   Kind: event
+   Timing: before
+   Parameters: ByteArrayOutputStream b
+   Pointcut: call(* ByteArrayOutputStream+.toString(..)) && target(b)
+
+The finite state behavior is defined as follows:
+
+		initial [
+			outputstreaminit -> outputstreamcreated
+		]
+		outputstreamcreated [
+			write -> writing
+			flush -> flushed
+			close -> closed
+		]
+		writing [
+			write -> writing
+			flush -> flushed
+			close -> closed
+		]
+		flushed [
+			flush -> flushed
+			write -> writing
+			tobytearray -> flushed
+			tostring -> flushed
+			close -> closed
+		]
+		closed [
+			tobytearray -> closed
+			tostring -> closed
+		]
+
+Any execution that deviates from the state transition behavior described above constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"flush() or close() should be invoked before toByteArray() or toString() to get the complete contents."

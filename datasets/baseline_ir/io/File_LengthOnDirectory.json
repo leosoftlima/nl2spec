@@ -1,16 +1,36 @@
 {
   "id": "File_LengthOnDirectory",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "io",
+  "signature": {
+    "name": "File_LengthOnDirectory",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "bad_length",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "File",
+            "name": "f"
+          }
+        ],
+        "pointcut_raw": "call(* File+.length()) && target(f) && condition(f.isDirectory())",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"length() was invoked on a File instance that represents a directory.\");"
+          ]
+        }
       }
     ],
-    "guard": "f.isDirectory(",
-    "violation_message": "length() was invoked on a File instance that represents a directory."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

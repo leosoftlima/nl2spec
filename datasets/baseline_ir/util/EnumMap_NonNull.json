@@ -1,16 +1,58 @@
 {
   "id": "EnumMap_NonNull",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "EnumMap_NonNull",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "insertnull",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object",
+            "name": "e"
+          }
+        ],
+        "pointcut_raw": "call(* EnumMap.put(Object, Object)) && args(e, ..) && condition(e == null)",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"EnumMap does not permit null.\");"
+          ]
+        }
+      },
+      {
+        "kind": "event",
+        "name": "insertnull",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "m"
+          }
+        ],
+        "pointcut_raw": "call(* EnumMap.putAll(Map)) && args(m)",
+        "body": {
+          "raw_lines": [
+            "\t\tfor (Map.Entry entry : (Set<Map.Entry>)m.entrySet()) {",
+            "\t\t\tif (entry.getKey() == null) {",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"EnumMap does not permit null.\");",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "e == null",
-    "violation_message": "EnumMap does not permit null."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

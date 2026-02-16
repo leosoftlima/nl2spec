@@ -1,20 +1,67 @@
 {
   "id": "Writer_ManipulateAfterClose",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "io",
+  "signature": {
+    "name": "Writer_ManipulateAfterClose",
+    "parameters": [
+      {
+        "type": "Writer",
+        "name": "w"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "manipulate",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Writer",
+            "name": "w"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Writer+.write*(..)) || call(* Writer+.flush(..)) ) && target(w) && !target(CharArrayWriter) && !target(StringWriter)",
+          "calls": [
+            "* Writer+.write*(..)",
+            "* Writer+.flush(..)"
+          ]
+        }
       },
       {
+        "kind": "creation",
         "name": "close",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Writer",
+            "name": "w"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Writer+.close(..)) && target(w) && !target(CharArrayWriter) && !target(StringWriter)",
+          "calls": [
+            "* Writer+.close(..)"
+          ]
+        }
       }
     ],
-    "pattern": "close+ manipulate+",
-    "violation_message": "write() or flush() was invoked after close()."
+    "formula": {
+      "raw": "close+ manipulate+",
+      "raw_lines": [
+        "close+ manipulate+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"write() or flush() was invoked after close().\");"
+      ]
+    }
   }
 }

@@ -1,1 +1,27 @@
-close() was not called.
+The following events are monitored:
+
+1) Event name: create
+   Timing: after
+   Parameters: none
+   Returning: ObjectInput i
+   Pointcut: call(ObjectInput+.new(..))
+
+2) Event name: close
+   Timing: before
+   Parameters: ObjectInput i
+   Pointcut: call(* ObjectInput+.close(..)) && target(i)
+
+3) Event name: endProg
+   Timing: before
+   Parameters: none
+   Pointcut: endProgram()
+
+The temporal property that must hold during execution is defined by the following formula:
+
+[](create => o close)
+
+If this temporal property is violated at any point during execution, it constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"close() was not called."

@@ -1,24 +1,97 @@
 {
   "id": "Map_UnsynchronizedAddAll",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "Map_UnsynchronizedAddAll",
+    "parameters": [
+      {
+        "type": "Map",
+        "name": "t"
+      },
+      {
+        "type": "Map",
+        "name": "s"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "enter",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "t"
+          },
+          {
+            "type": "Map",
+            "name": "s"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(boolean Map+.putAll(..)) && target(t) && args(s)",
+          "calls": [
+            "boolean Map+.putAll(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "modify",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "s"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Map+.clear(..)) || call(* Map+.put*(..)) || call(* Map+.remove*(..)) ) && target(s)",
+          "calls": [
+            "* Map+.clear(..)",
+            "* Map+.put*(..)",
+            "* Map+.remove*(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "leave",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "t"
+          },
+          {
+            "type": "Map",
+            "name": "s"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(void Map+.putAll(..)) && target(t) && args(s)",
+          "calls": [
+            "void Map+.putAll(..)"
+          ]
+        }
       }
     ],
-    "pattern": "(enter leave modify*)*",
-    "violation_message": "The source map of putAll() has been modified."
+    "formula": {
+      "raw": "(enter leave modify*)*",
+      "raw_lines": [
+        "(enter leave modify*)*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The source map of putAll() has been modified.\");"
+      ]
+    }
   }
 }

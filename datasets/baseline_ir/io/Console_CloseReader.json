@@ -1,20 +1,49 @@
 {
   "id": "Console_CloseReader",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "io",
+  "signature": {
+    "name": "Console_CloseReader",
+    "parameters": [
+      {
+        "type": "Reader",
+        "name": "r"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
-        "name": "getreader",
-        "timing": "after"
-      },
-      {
+        "kind": "event",
         "name": "close",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Reader",
+            "name": "r"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Reader+.close(..)) && target(r)",
+          "calls": [
+            "* Reader+.close(..)"
+          ]
+        }
       }
     ],
-    "pattern": "getreader close+",
-    "violation_message": "Invoking close() on the object returned by Console.reader() does not close the underlying stream."
+    "formula": {
+      "raw": "getreader close+",
+      "raw_lines": [
+        "getreader close+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.WARNING, \"Invoking close() on the object returned by Console.reader() does not close the underlying stream.\");"
+      ]
+    }
   }
 }

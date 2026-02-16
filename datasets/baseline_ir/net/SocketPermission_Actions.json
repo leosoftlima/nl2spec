@@ -1,16 +1,55 @@
 {
   "id": "SocketPermission_Actions",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "SocketPermission_Actions",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "construct",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "String",
+            "name": "actions"
+          }
+        ],
+        "pointcut_raw": "call(SocketPermission.new(String, String)) && args(*, actions)",
+        "body": {
+          "raw_lines": [
+            "\t\tHashSet<String> possible = new HashSet<String>();",
+            "\t\tpossible.add(\"connect\");",
+            "\t\tpossible.add(\"listen\");",
+            "\t\tpossible.add(\"accept\");",
+            "\t\tpossible.add(\"resolve\");",
+            "\t\tboolean valid = true;",
+            "\t\tString[] split = actions.split(\",\");",
+            "\t\tif (split.length == 0)",
+            "\t\t\tvalid = false;",
+            "\t\telse {",
+            "\t\t\tfor (String act : split) {",
+            "\t\t\t\tif (!possible.contains(act)) {",
+            "\t\t\t\t\tvalid = false;",
+            "\t\t\t\t\tbreak;",
+            "\t\t\t\t}",
+            "\t\t\t}",
+            "\t\t}",
+            "\t\tif (!valid) {",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The 'actions' parameter '\" + actions + \"' is invalid.\");",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "connect"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

@@ -1,20 +1,77 @@
 {
   "id": "URLConnection_Connect",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "net",
+  "signature": {
+    "name": "URLConnection_Connect",
+    "parameters": [
+      {
+        "type": "URLConnection",
+        "name": "c"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "explicit",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "URLConnection",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* URLConnection+.connect(..)) && target(c)",
+          "calls": [
+            "* URLConnection+.connect(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "implicit",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "URLConnection",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* URLConnection+.getContent(..)) || call(* URLConnection+.getContentEncoding(..)) || call(* URLConnection+.getContentLength(..)) || call(* URLConnection+.getContentType(..)) || call(* URLConnection+.getDate(..)) || call(* URLConnection+.getExpiration(..)) || call(* URLConnection+.getHeaderField(..)) || call(* URLConnection+.getHeaderFieldInt(..)) || call(* URLConnection+.getHeaderFields(..)) || call(* URLConnection+.getInputStream(..)) || call(* URLConnection+.getLastModified(..)) || call(* URLConnection+.getOutputStream(..)) ) && target(c)",
+          "calls": [
+            "* URLConnection+.getContent(..)",
+            "* URLConnection+.getContentEncoding(..)",
+            "* URLConnection+.getContentLength(..)",
+            "* URLConnection+.getContentType(..)",
+            "* URLConnection+.getDate(..)",
+            "* URLConnection+.getExpiration(..)",
+            "* URLConnection+.getHeaderField(..)",
+            "* URLConnection+.getHeaderFieldInt(..)",
+            "* URLConnection+.getHeaderFields(..)",
+            "* URLConnection+.getInputStream(..)",
+            "* URLConnection+.getLastModified(..)",
+            "* URLConnection+.getOutputStream(..)"
+          ]
+        }
       }
     ],
-    "pattern": "(explicit | implicit) explicit+",
-    "violation_message": "URLConnection.connect() has been called multiple twice."
+    "formula": {
+      "raw": "(explicit | implicit) explicit+",
+      "raw_lines": [
+        "(explicit | implicit) explicit+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"URLConnection.connect() has been called multiple twice.\");"
+      ]
+    }
   }
 }

@@ -1,20 +1,85 @@
 {
   "id": "HttpURLConnection_SetBeforeConnect",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "net",
+  "signature": {
+    "name": "HttpURLConnection_SetBeforeConnect",
+    "parameters": [
+      {
+        "type": "HttpURLConnection",
+        "name": "c"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "set",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "HttpURLConnection",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* HttpURLConnection+.setFixedLengthStreamingMode(..)) || call(* HttpURLConnection+.setChunkedStreamingMode(..)) || call(* HttpURLConnection+.setRequestMethod(..)) ) && target(c)",
+          "calls": [
+            "* HttpURLConnection+.setFixedLengthStreamingMode(..)",
+            "* HttpURLConnection+.setChunkedStreamingMode(..)",
+            "* HttpURLConnection+.setRequestMethod(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "connect",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "HttpURLConnection",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* URLConnection+.connect(..)) || call(* URLConnection+.getContent(..)) || call(* URLConnection+.getContentEncoding(..)) || call(* URLConnection+.getContentLength(..)) || call(* URLConnection+.getContentType(..)) || call(* URLConnection+.getDate(..)) || call(* URLConnection+.getExpiration(..)) || call(* URLConnection+.getHeaderField(..)) || call(* URLConnection+.getHeaderFieldInt(..)) || call(* URLConnection+.getHeaderFields(..)) || call(* URLConnection+.getInputStream(..)) || call(* URLConnection+.getLastModified(..)) || call(* URLConnection+.getOutputStream(..)) || call(* HttpURLConnection+.getErrorStream(..)) || call(* HttpURLConnection+.getHeaderFieldDate(..)) || call(* HttpURLConnection+.getHeaderFieldKey(..)) || call(* HttpURLConnection+.getResponseCode(..)) || call(* HttpURLConnection+.getResponseMessage(..)) ) && target(c)",
+          "calls": [
+            "* URLConnection+.connect(..)",
+            "* URLConnection+.getContent(..)",
+            "* URLConnection+.getContentEncoding(..)",
+            "* URLConnection+.getContentLength(..)",
+            "* URLConnection+.getContentType(..)",
+            "* URLConnection+.getDate(..)",
+            "* URLConnection+.getExpiration(..)",
+            "* URLConnection+.getHeaderField(..)",
+            "* URLConnection+.getHeaderFieldInt(..)",
+            "* URLConnection+.getHeaderFields(..)",
+            "* URLConnection+.getInputStream(..)",
+            "* URLConnection+.getLastModified(..)",
+            "* URLConnection+.getOutputStream(..)",
+            "* HttpURLConnection+.getErrorStream(..)",
+            "* HttpURLConnection+.getHeaderFieldDate(..)",
+            "* HttpURLConnection+.getHeaderFieldKey(..)",
+            "* HttpURLConnection+.getResponseCode(..)",
+            "* HttpURLConnection+.getResponseMessage(..)"
+          ]
+        }
       }
     ],
-    "pattern": "set* connect*",
-    "violation_message": "setFixedLengthStreamingMode(), setChunkedStreamingMode() or setRequestMethod() should not be invoked after the connection was made."
+    "formula": {
+      "raw": "set* connect*",
+      "raw_lines": [
+        "set* connect*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"setFixedLengthStreamingMode(), setChunkedStreamingMode() or setRequestMethod() should not be invoked after the connection was made.\");"
+      ]
+    }
   }
 }

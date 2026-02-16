@@ -1,1 +1,49 @@
-Socket.setSoTimeout() should be set prior to entering the blocking operation.
+The system behavior is defined in terms of explicit states and transitions.
+
+The monitored events are:
+
+1) Event name: getoutput
+   Kind: creation
+   Timing: after
+   Parameters: Socket sock
+   Returning: OutputStream output
+   Pointcut: call(OutputStream Socket+.getOutputStream()) && target(sock)
+
+2) Event name: enter
+   Kind: event
+   Timing: before
+   Parameters: OutputStream output
+   Pointcut: call(* OutputStream+.write(..)) && target(output)
+
+3) Event name: leave
+   Kind: event
+   Timing: after
+   Parameters: OutputStream output
+   Pointcut: call(* OutputStream+.write(..)) && target(output)
+
+4) Event name: set
+   Kind: event
+   Timing: before
+   Parameters: Socket sock, int timeout
+   Pointcut: call(* Socket+.setSoTimeout(int)) && target(sock) && args(timeout) && condition(timeout != 0)
+
+The finite state behavior is defined as follows:
+
+		start [
+			getoutput -> unblocked
+		]
+		unblocked [
+			getoutput -> unblocked
+			set -> unblocked
+			enter -> blocked
+		]
+		blocked [
+			getoutput -> blocked
+			leave -> unblocked
+		]
+
+Any execution that deviates from the state transition behavior described above constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"Socket.setSoTimeout() should be set prior to entering the blocking operation."

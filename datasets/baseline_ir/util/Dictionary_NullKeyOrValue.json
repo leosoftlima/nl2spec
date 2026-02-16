@@ -1,16 +1,44 @@
 {
   "id": "Dictionary_NullKeyOrValue",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "Dictionary_NullKeyOrValue",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "putnull",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Dictionary",
+            "name": "d"
+          },
+          {
+            "type": "Object",
+            "name": "key"
+          },
+          {
+            "type": "Object",
+            "name": "value"
+          }
+        ],
+        "pointcut_raw": "call(* Dictionary+.put(..)) && args(key, value) && target(d) && condition(key == null || value == null)",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.WARNING, \"Dictionary allow neither null key nor null value.\");"
+          ]
+        }
       }
     ],
-    "guard": "key == null || value == null",
-    "violation_message": "Dictionary allow neither null key nor null value."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

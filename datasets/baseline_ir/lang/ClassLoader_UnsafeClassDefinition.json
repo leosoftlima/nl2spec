@@ -1,16 +1,36 @@
 {
   "id": "ClassLoader_UnsafeClassDefinition",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "ClassLoader_UnsafeClassDefinition",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "defineClass",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "String",
+            "name": "name"
+          }
+        ],
+        "pointcut_raw": "call(* ClassLoader+.defineClass(String, ..)) && args(name, ..) && condition(name.startsWith(\"java.\"))",
+        "body": {
+          "raw_lines": [
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"An invalid binary name is used\");"
+          ]
+        }
       }
     ],
-    "guard": "name.startsWith(\"java.\"",
-    "violation_message": "java."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

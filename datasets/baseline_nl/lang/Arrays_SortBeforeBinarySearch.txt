@@ -1,1 +1,0 @@
-The array or part of the array must be sorted prior to making binarySearch() call.

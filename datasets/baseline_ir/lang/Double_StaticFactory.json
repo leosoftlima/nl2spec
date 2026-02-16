@@ -1,16 +1,35 @@
 {
   "id": "Double_StaticFactory",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Double_StaticFactory",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "constructor_create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "call(Double+.new(double))",
+        "body": {
+          "raw_lines": [
+            "            RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "            RVMLogging.out.println(Level.CRITICAL, \"Using the constructor Double(double value) might be inefficient. Use valueOf(double) if it is appropriate.\");"
+          ]
+        },
+        "returning": {
+          "type": "Double",
+          "name": "d"
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "Using the constructor Double(double value) might be inefficient. Use valueOf(double) if it is appropriate."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

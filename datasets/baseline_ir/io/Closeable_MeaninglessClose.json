@@ -1,16 +1,31 @@
 {
   "id": "Closeable_MeaninglessClose",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "io",
+  "signature": {
+    "name": "Closeable_MeaninglessClose",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "close",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [],
+        "pointcut_raw": "call(* Closeable+.close()) && ( target(ByteArrayInputStream) || target(ByteArrayOutputStream) || target(CharArrayWriter) || target(StringWriter) )",
+        "body": {
+          "raw_lines": [
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"close() has no effect.\");"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "close() has no effect."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

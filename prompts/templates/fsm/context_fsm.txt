@@ -1,0 +1,31 @@
+Context:
+The IR represents a Finite State Machine (FSM) runtime monitor.
+
+FSM semantics:
+- The monitor behavior is defined by explicit states and transitions.
+- There is exactly one initial state.
+- Transitions occur when monitored events happen.
+- Events correspond to method calls, returns, creations, or destructions.
+- Violations occur when execution deviates from the FSM definition.
+
+FSM IR structure:
+- "type" must be "fsm"
+- "events": list of monitored events, each including:
+    - name
+    - timing
+    - parameters (if any)
+    - returning (if any)
+    - pointcut_raw or pointcut.raw (must preserve the raw pointcut expression)
+- "fsm": object containing:
+    - "raw_block": the FSM definition (must be preserved exactly as defined)
+- "violation_message": message emitted when the FSM behavior is violated (if explicitly defined)
+
+Constraints:
+- Do not invent events, methods, or states not implied by the description.
+- Preserve event names and pointcut expressions exactly.
+- Preserve the FSM definition exactly as provided.
+- Do not convert the specification into ERE or LTL.
+- Follow exactly the structure shown in the examples.
+
+Examples:
+{{FEW_SHOT_EXAMPLES}}

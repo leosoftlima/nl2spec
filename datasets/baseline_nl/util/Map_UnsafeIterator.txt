@@ -1,1 +1,43 @@
-The map was modified while an iteration over the set is in progress.
+The following events are involved in this specification:
+
+1) Event name: getset
+   Kind: creation
+   Timing: after
+   Parameters: Map m
+   Returning: Collection c
+   Pointcut: ( call(Set Map+.keySet()) || call(Set Map+.entrySet()) || call(Collection Map+.values()) ) && target(m)
+
+2) Event name: getiter
+   Kind: event
+   Timing: after
+   Parameters: Collection c
+   Returning: Iterator i
+   Pointcut: call(Iterator Iterable+.iterator()) && target(c)
+
+3) Event name: modifyMap
+   Kind: event
+   Timing: before
+   Parameters: Map m
+   Pointcut: ( call(* Map+.clear*(..)) || call(* Map+.put*(..)) || call(* Map+.remove(..)) ) && target(m)
+
+4) Event name: modifyCol
+   Kind: event
+   Timing: before
+   Parameters: Collection c
+   Pointcut: ( call(* Collection+.clear(..)) || call(* Collection+.offer*(..)) || call(* Collection+.pop(..)) || call(* Collection+.push(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(c)
+
+5) Event name: useiter
+   Kind: event
+   Timing: before
+   Parameters: Iterator i
+   Pointcut: ( call(* Iterator.hasNext(..)) || call(* Iterator.next(..)) ) && target(i)
+
+The required execution pattern is defined by the following regular expression:
+
+getset (modifyMap | modifyCol)* getiter useiter* (modifyMap | modifyCol)+ useiter
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The map was modified while an iteration over the set is in progress."

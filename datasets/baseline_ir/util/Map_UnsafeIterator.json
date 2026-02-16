@@ -1,32 +1,143 @@
 {
   "id": "Map_UnsafeIterator",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "Map_UnsafeIterator",
+    "parameters": [
+      {
+        "type": "Map",
+        "name": "m"
+      },
+      {
+        "type": "Collection",
+        "name": "c"
+      },
+      {
+        "type": "Iterator",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "getset",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "m"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(Set Map+.keySet()) || call(Set Map+.entrySet()) || call(Collection Map+.values()) ) && target(m)",
+          "calls": [
+            "Set Map+.keySet()",
+            "Set Map+.entrySet()",
+            "Collection Map+.values()"
+          ]
+        },
+        "returning": {
+          "type": "Collection",
+          "name": "c"
+        }
       },
       {
+        "kind": "event",
         "name": "getiter",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Collection",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(Iterator Iterable+.iterator()) && target(c)",
+          "calls": [
+            "Iterator Iterable+.iterator()"
+          ]
+        },
+        "returning": {
+          "type": "Iterator",
+          "name": "i"
+        }
       },
       {
+        "kind": "event",
         "name": "modifyMap",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "m"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Map+.clear*(..)) || call(* Map+.put*(..)) || call(* Map+.remove(..)) ) && target(m)",
+          "calls": [
+            "* Map+.clear*(..)",
+            "* Map+.put*(..)",
+            "* Map+.remove(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "modifyCol",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Collection",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Collection+.clear(..)) || call(* Collection+.offer*(..)) || call(* Collection+.pop(..)) || call(* Collection+.push(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(c)",
+          "calls": [
+            "* Collection+.clear(..)",
+            "* Collection+.offer*(..)",
+            "* Collection+.pop(..)",
+            "* Collection+.push(..)",
+            "* Collection+.remove*(..)",
+            "* Collection+.retain*(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "useiter",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Iterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Iterator.hasNext(..)) || call(* Iterator.next(..)) ) && target(i)",
+          "calls": [
+            "* Iterator.hasNext(..)",
+            "* Iterator.next(..)"
+          ]
+        }
       }
     ],
-    "pattern": "getset (modifyMap | modifyCol)* getiter useiter* (modifyMap | modifyCol)+ useiter",
-    "violation_message": "The map was modified while an iteration over the set is in progress."
+    "formula": {
+      "raw": "getset (modifyMap | modifyCol)* getiter useiter* (modifyMap | modifyCol)+ useiter",
+      "raw_lines": [
+        "getset (modifyMap | modifyCol)* getiter useiter* (modifyMap | modifyCol)+ useiter"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The map was modified while an iteration over the set is in progress.\");"
+      ]
+    }
   }
 }

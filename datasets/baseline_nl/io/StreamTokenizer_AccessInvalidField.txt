@@ -1,1 +1,74 @@
-The caller attempted to read an invalidated value.
+The system behavior is defined in terms of explicit states and transitions.
+
+The monitored events are:
+
+1) Event name: nexttoken_word
+   Kind: event
+   Timing: after
+   Parameters: StreamTokenizer s
+   Returning: int t
+   Pointcut: call(* StreamTokenizer+.nextToken(..)) && target(s) && condition(t == StreamTokenizer.TT_WORD)
+
+2) Event name: nexttoken_num
+   Kind: event
+   Timing: after
+   Parameters: StreamTokenizer s
+   Returning: int t
+   Pointcut: call(* StreamTokenizer+.nextToken(..)) && target(s) && condition(t == StreamTokenizer.TT_NUMBER)
+
+3) Event name: nexttoken_eol
+   Kind: event
+   Timing: after
+   Parameters: StreamTokenizer s
+   Returning: int t
+   Pointcut: call(* StreamTokenizer+.nextToken(..)) && target(s) && condition(t == StreamTokenizer.TT_EOL)
+
+4) Event name: nexttoken_eof
+   Kind: event
+   Timing: after
+   Parameters: StreamTokenizer s
+   Returning: int t
+   Pointcut: call(* StreamTokenizer+.nextToken(..)) && target(s) && condition(t == StreamTokenizer.TT_EOF)
+
+5) Event name: sval
+   Kind: event
+   Timing: before
+   Parameters: StreamTokenizer s
+   Pointcut: get(* StreamTokenizer.sval) && target(s)
+
+6) Event name: nval
+   Kind: event
+   Timing: before
+   Parameters: StreamTokenizer s
+   Pointcut: get(* StreamTokenizer.nval) && target(s)
+
+The finite state behavior is defined as follows:
+
+		valid [
+			nexttoken_word -> read_word
+			nexttoken_num -> read_num
+			nexttoken_eol -> valid
+			nexttoken_eof -> done
+		]
+		read_word [
+			sval -> read_word
+			nexttoken_word -> read_word
+			nexttoken_num -> read_num
+			nexttoken_eol -> valid
+			nexttoken_eof -> done
+		]
+		read_num [
+			nval -> read_num
+			nexttoken_word -> read_word
+			nexttoken_num -> read_num
+			nexttoken_eol -> valid
+			nexttoken_eof -> done
+		]
+		done [
+		]
+
+Any execution that deviates from the state transition behavior described above constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The caller attempted to read an invalidated value. "

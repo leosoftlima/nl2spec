@@ -1,16 +1,70 @@
 {
   "id": "InetAddress_IsReachable",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "InetAddress_IsReachable",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "isreachable",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "int",
+            "name": "timeout"
+          }
+        ],
+        "pointcut_raw": "call(* InetAddress+.isReachable(int)) && args(timeout)",
+        "body": {
+          "raw_lines": [
+            "\t\tif (timeout < 0) {",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The timeout value for InetAddress.isReachable() should not be a negative value.\");",
+            "\t\t}"
+          ]
+        }
+      },
+      {
+        "kind": "event",
+        "name": "isreachable",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "int",
+            "name": "ttl"
+          },
+          {
+            "type": "int",
+            "name": "timeout"
+          }
+        ],
+        "pointcut_raw": "call(* InetAddress+.isReachable(NetworkInterface, int, int)) && args(*, ttl, timeout)",
+        "body": {
+          "raw_lines": [
+            "\t\tif (ttl < 0 || timeout < 0) {",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tif (ttl < 0 && timeout < 0) {",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The ttl value and the timeout value for InetAddress.isReachable() should not be negative values.\");",
+            "\t\t\t}",
+            "\t\t\telse if (ttl < 0) {",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The ttl value for InetAddress.isReachable() should not be a negative value.\");",
+            "\t\t\t}",
+            "\t\t\telse {",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The timeout value for InetAddress.isReachable() should not be a negative value.\");",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "The timeout value for InetAddress.isReachable() should not be a negative value."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

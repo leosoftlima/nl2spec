@@ -1,44 +1,206 @@
 {
   "id": "NavigableMap_Modification",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "NavigableMap_Modification",
+    "parameters": [
+      {
+        "type": "NavigableMap",
+        "name": "m1"
+      },
+      {
+        "type": "NavigableMap",
+        "name": "m2"
+      },
+      {
+        "type": "Collection",
+        "name": "c"
+      },
+      {
+        "type": "Iterator",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "NavigableMap",
+            "name": "m1"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(NavigableMap NavigableMap+.descendingMap()) && target(m1)",
+          "calls": [
+            "NavigableMap NavigableMap+.descendingMap()"
+          ]
+        },
+        "returning": {
+          "type": "NavigableMap",
+          "name": "m2"
+        }
       },
       {
+        "kind": "event",
         "name": "getset1",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "NavigableMap",
+            "name": "m1"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(Set Map+.keySet()) || call(Set Map+.entrySet()) || call(Collection Map+.values()) ) && target(m1)",
+          "calls": [
+            "Set Map+.keySet()",
+            "Set Map+.entrySet()",
+            "Collection Map+.values()"
+          ]
+        },
+        "returning": {
+          "type": "Collection",
+          "name": "c"
+        }
       },
       {
+        "kind": "event",
         "name": "getset2",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "NavigableMap",
+            "name": "m2"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(Set Map+.keySet()) || call(Set Map+.entrySet()) || call(Collection Map+.values()) ) && target(m2)",
+          "calls": [
+            "Set Map+.keySet()",
+            "Set Map+.entrySet()",
+            "Collection Map+.values()"
+          ]
+        },
+        "returning": {
+          "type": "Collection",
+          "name": "c"
+        }
       },
       {
+        "kind": "event",
         "name": "getiter",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Collection",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(Iterator Iterable+.iterator()) && target(c)",
+          "calls": [
+            "Iterator Iterable+.iterator()"
+          ]
+        },
+        "returning": {
+          "type": "Iterator",
+          "name": "i"
+        }
       },
       {
+        "kind": "event",
         "name": "modify1",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "NavigableMap",
+            "name": "m1"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Map+.clear*(..)) || call(* Map+.put*(..)) || call(* Map+.remove(..)) ) && target(m1)",
+          "calls": [
+            "* Map+.clear*(..)",
+            "* Map+.put*(..)",
+            "* Map+.remove(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "modify2",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "NavigableMap",
+            "name": "m2"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Map+.clear*(..)) || call(* Map+.put*(..)) || call(* Map+.remove(..)) ) && target(m2)",
+          "calls": [
+            "* Map+.clear*(..)",
+            "* Map+.put*(..)",
+            "* Map+.remove(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "modify3",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Collection",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Collection+.add(..)) || call(* Collection+.addAll(..)) ) && target(c)",
+          "calls": [
+            "* Collection+.add(..)",
+            "* Collection+.addAll(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "useiter",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Iterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Iterator.hasNext(..)) || call(* Iterator.next(..)) ) && target(i)",
+          "calls": [
+            "* Iterator.hasNext(..)",
+            "* Iterator.next(..)"
+          ]
+        }
       }
     ],
-    "pattern": "create (modify1 | modify2)* (getset1 | getset2) (modify1 | modify2 | modify3)* getiter useiter* (modify1 | modify2 | modify3)+ useiter",
-    "violation_message": "The NavigableMap was modified while an iteration over a collection view of a NavigableMap that shares the same storage."
+    "formula": {
+      "raw": "create (modify1 | modify2)* (getset1 | getset2) (modify1 | modify2 | modify3)* getiter useiter* (modify1 | modify2 | modify3)+ useiter",
+      "raw_lines": [
+        "create (modify1 | modify2)* (getset1 | getset2) (modify1 | modify2 | modify3)* getiter useiter* (modify1 | modify2 | modify3)+ useiter"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The NavigableMap was modified while an iteration over a collection view of a NavigableMap that shares the same storage.\");"
+      ]
+    }
   }
 }

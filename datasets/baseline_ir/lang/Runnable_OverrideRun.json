@@ -1,16 +1,40 @@
 {
   "id": "Runnable_OverrideRun",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Runnable_OverrideRun",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "staticinit",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "staticinitialization(Runnable+)",
+        "body": {
+          "raw_lines": [
+            "\t\torg.aspectj.lang.Signature initsig = __STATICSIG;",
+            "\t\tClass klass = initsig.getDeclaringType();",
+            "\t\tif (klass != null) {",
+            "\t\t\tMethod m;",
+            "\t\t\ttry{",
+            "\t\t\t\tm = klass.getMethod(\"run\");",
+            "\t\t\t} catch (NoSuchMethodException e){",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"A Runnable class should provide/override run() method.\");",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "run"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

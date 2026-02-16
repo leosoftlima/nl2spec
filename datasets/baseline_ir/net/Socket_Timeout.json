@@ -1,16 +1,38 @@
 {
   "id": "Socket_Timeout",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "Socket_Timeout",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "set",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "int",
+            "name": "timeout"
+          }
+        ],
+        "pointcut_raw": "call(* Socket+.setSoTimeout(int)) && args(timeout)",
+        "body": {
+          "raw_lines": [
+            "\t\tif (timeout > 0)",
+            "\t\t\treturn;",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"An invalid timeout value \" + timeout + \" was set to a Socket object.\");"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "An invalid timeout value"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

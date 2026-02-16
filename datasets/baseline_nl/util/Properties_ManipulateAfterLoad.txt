@@ -1,1 +1,23 @@
-read(), available(), reset() or skip() was invoked after Properties.loadFromXML() closes the stream.
+The following events are involved in this specification:
+
+1) Event name: manipulate
+   Kind: event
+   Timing: before
+   Parameters: InputStream i
+   Pointcut: ( call(* InputStream+.read(..)) || call(* InputStream+.available(..)) || call(* InputStream+.reset(..)) || call(* InputStream+.skip(..)) ) && target(i) && !target(ByteArrayInputStream) && !target(StringBufferInputStream)
+
+2) Event name: close
+   Kind: creation
+   Timing: after
+   Parameters: InputStream i
+   Pointcut: call(* Properties+.loadFromXML(InputStream)) && args(i) && !args(ByteArrayInputStream) && !args(StringBufferInputStream)
+
+The required execution pattern is defined by the following regular expression:
+
+close+ manipulate
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"read(), available(), reset() or skip() was invoked after Properties.loadFromXML() closes the stream."

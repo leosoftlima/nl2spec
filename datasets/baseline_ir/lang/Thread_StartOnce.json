@@ -1,16 +1,49 @@
 {
   "id": "Thread_StartOnce",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "lang",
+  "signature": {
+    "name": "Thread_StartOnce",
+    "parameters": [
+      {
+        "type": "Thread",
+        "name": "t"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "start",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Thread+.start()) && target(t)",
+          "calls": [
+            "* Thread+.start()"
+          ]
+        }
       }
     ],
-    "pattern": "start start+",
-    "violation_message": "Thread should not be started more than once."
+    "formula": {
+      "raw": "start start+",
+      "raw_lines": [
+        "start start+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.WARNING, \"Thread should not be started more than once.\");"
+      ]
+    }
   }
 }

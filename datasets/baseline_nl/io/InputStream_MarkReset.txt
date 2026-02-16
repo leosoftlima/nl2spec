@@ -1,1 +1,13 @@
-FileInputStream, PushbackInputStream, ObjectInputStream, PipedInputStream and SequenceInputStream do not support mark() and reset().
+The following events are monitored in this specification:
+
+1) Event name: mark_or_reset
+   Kind: event
+   Timing: before
+   Parameters: none
+   Pointcut: (call(* InputStream+.mark(..)) || call(* InputStream+.reset(..))) && ( target(FileInputStream) || target(PushbackInputStream) || target(ObjectInputStream) || target(PipedInputStream) || target(SequenceInputStream) )
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

@@ -1,20 +1,72 @@
 {
   "id": "Map_ItselfAsKey",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "Map_ItselfAsKey",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "put",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "map"
+          },
+          {
+            "type": "Object",
+            "name": "key"
+          },
+          {
+            "type": "Object",
+            "name": "value"
+          }
+        ],
+        "pointcut_raw": "call(* Map+.put(Object, Object)) && target(map) && args(key, value)",
+        "body": {
+          "raw_lines": [
+            "\t\tif (key == map) {",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"A map cannot contain itself as a key.\");",
+            "\t\t}"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "putall",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "map"
+          },
+          {
+            "type": "Map",
+            "name": "src"
+          }
+        ],
+        "pointcut_raw": "call(* Map+.putAll(Map)) && target(map) && args(src)",
+        "body": {
+          "raw_lines": [
+            "\t\tfor (Map.Entry entry : (Set<Map.Entry>)src.entrySet()) {",
+            "\t\t\tif (entry.getKey() == map) {",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"A map cannot contain itself as a key.\");",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "A map cannot contain itself as a key."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

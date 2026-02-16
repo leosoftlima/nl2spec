@@ -1,16 +1,55 @@
 {
   "id": "Arrays_Comparable",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "util",
+  "signature": {
+    "name": "Arrays_Comparable",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "invalid_sort",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object[]",
+            "name": "arr"
+          }
+        ],
+        "pointcut_raw": "target(Arrays) && ( call(void Arrays.sort(Object[])) || call(void Arrays.sort(Object[], ..)) ) && args(arr, ..)",
+        "body": {
+          "raw_lines": [
+            "\t\tfor (int i = 0; i < arr.length; ++i) {",
+            "\t\t\t// Each element must implement the Comparable interface.",
+            "\t\t\tObject o1 = arr[i];",
+            "\t\t\tif (!(o1 instanceof Comparable)) {",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, i + \"-th element does not implement the Comparable interface.\");",
+            "\t\t\t}",
+            "\t\t\tComparable c1 = (Comparable)o1;",
+            "\t\t\t// All elements must be mutually comparable.",
+            "\t\t\tfor (int j = i + 1; j < arr.length; ++j) {",
+            "\t\t\t\ttry {",
+            "\t\t\t\t\tComparable c2 = (Comparable)arr[j];",
+            "\t\t\t\t\tc1.compareTo(c2);",
+            "\t\t\t\t\tc2.compareTo(c1);",
+            "\t\t\t\t}",
+            "\t\t\t\tcatch (ClassCastException e) {",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, i + \"-th element and \" + j + \"-th element are not comparable.\");",
+            "\t\t\t\t}",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "-th element does not implement the Comparable interface."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

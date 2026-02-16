@@ -1,16 +1,39 @@
 {
   "id": "IDN_ToAscii",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "IDN_ToAscii",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "toascii",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "String",
+            "name": "input"
+          }
+        ],
+        "pointcut_raw": "( call(* IDN.toASCII(String)) || call(* IDN.toASCII(String, int)) ) && args(input, ..)",
+        "body": {
+          "raw_lines": [
+            "\t\tboolean safe = this.isAsciiSafe(input);",
+            "\t\tif (!safe) {",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The input to IDN.toASCII() should not be used in an internationalized domain name.\");",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "The input to IDN.toASCII() should not be used in an internationalized domain name."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

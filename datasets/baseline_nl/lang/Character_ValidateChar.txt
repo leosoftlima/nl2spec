@@ -1,1 +1,19 @@
-The code point used in charCount(int codePoint) is not valid.
+The following events are monitored in this specification:
+
+1) Event name: charCount
+   Kind: event
+   Timing: before
+   Parameters: int codePoint
+   Pointcut: call(* Character.charCount(int)) && args(codePoint)
+
+2) Event name: toCodePoint
+   Kind: event
+   Timing: before
+   Parameters: char high, char low
+   Pointcut: call(* Character.toCodePoint(char, char)) && args(high, low)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

@@ -1,1 +1,24 @@
-The context argument to checkPermission must come from getSecurityContext method call.
+The following events are involved in this specification:
+
+1) Event name: get
+   Kind: event
+   Timing: after
+   Parameters: SecurityManager manager
+   Returning: Object context
+   Pointcut: call (* SecurityManager.getSecurityContext(..)) && target(manager)
+
+2) Event name: check
+   Kind: event
+   Timing: before
+   Parameters: SecurityManager manager, Object context
+   Pointcut: call(* SecurityManager.checkPermission(Permission, Object)) && target(manager) && args(.., context)
+
+The required execution pattern is defined by the following regular expression:
+
+get (get | check)*
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The context argument to checkPermission must come from getSecurityContext method call."

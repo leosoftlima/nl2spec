@@ -1,16 +1,49 @@
 {
   "id": "Dictionary_Obsolete",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "Dictionary_Obsolete",
+    "parameters": [
+      {
+        "type": "Dictionary",
+        "name": "d"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "use",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Dictionary",
+            "name": "d"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Dictionary+.*(..)) && target(d)",
+          "calls": [
+            "* Dictionary+.*(..)"
+          ]
+        }
       }
     ],
-    "pattern": "use",
-    "violation_message": "The Dictionary class is obsolete. New implementations should implement the Map interface."
+    "formula": {
+      "raw": "use",
+      "raw_lines": [
+        "use"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The Dictionary class is obsolete. New implementations should implement the Map interface.\");"
+      ]
+    }
   }
 }

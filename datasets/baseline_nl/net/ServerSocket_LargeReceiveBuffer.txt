@@ -1,1 +1,37 @@
-A receive window large than 64K bytes must be set before the server socket is bound.
+The following events are involved in this specification:
+
+1) Event name: create_bound
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: ServerSocket sock
+   Pointcut: call(ServerSocket.new(int, ..))
+
+2) Event name: create_unbound
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: ServerSocket sock
+   Pointcut: call(ServerSocket.new())
+
+3) Event name: bind
+   Kind: event
+   Timing: before
+   Parameters: ServerSocket sock
+   Pointcut: call(* ServerSocket+.bind(..)) && target(sock)
+
+4) Event name: set
+   Kind: event
+   Timing: before
+   Parameters: ServerSocket sock, int size
+   Pointcut: call(* ServerSocket+.setReceiveBufferSize(int)) && target(sock) && args(size) && condition(size > 65536)
+
+The required execution pattern is defined by the following regular expression:
+
+(create_bound | create_unbound set* bind+) set
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"A receive window large than 64K bytes must be set before the server socket is bound."

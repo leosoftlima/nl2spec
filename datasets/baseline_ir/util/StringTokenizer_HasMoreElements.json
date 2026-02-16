@@ -1,24 +1,137 @@
 {
   "id": "StringTokenizer_HasMoreElements",
-  "category": "EVENT",
+  "formalism": "ltl",
   "domain": "util",
+  "signature": {
+    "parameters": [
+      {
+        "type": "StringTokenizer",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
-    "type": "event",
+    "type": "ltl",
     "events": [
       {
         "name": "hasnexttrue",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "StringTokenizer",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(boolean StringTokenizer.hasMoreTokens()) || call(boolean StringTokenizer.hasMoreElements()) ) && target(i) && condition(b)",
+          "joinpoints": [
+            {
+              "kind": "call",
+              "pattern": "boolean StringTokenizer.hasMoreTokens()",
+              "simple": "",
+              "declaring_type": "StringTokenizer"
+            },
+            {
+              "kind": "call",
+              "pattern": "boolean StringTokenizer.hasMoreElements()",
+              "simple": "",
+              "declaring_type": "StringTokenizer"
+            }
+          ],
+          "bindings": [
+            {
+              "type": "target",
+              "variable": "i"
+            }
+          ],
+          "exclusions": []
+        },
+        "returning": {
+          "type": "boolean",
+          "name": "b"
+        }
       },
       {
         "name": "hasnextfalse",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "StringTokenizer",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(boolean StringTokenizer.hasMoreTokens()) || call(boolean StringTokenizer.hasMoreElements()) ) && target(i) && condition(!b)",
+          "joinpoints": [
+            {
+              "kind": "call",
+              "pattern": "boolean StringTokenizer.hasMoreTokens()",
+              "simple": "",
+              "declaring_type": "StringTokenizer"
+            },
+            {
+              "kind": "call",
+              "pattern": "boolean StringTokenizer.hasMoreElements()",
+              "simple": "",
+              "declaring_type": "StringTokenizer"
+            }
+          ],
+          "bindings": [
+            {
+              "type": "target",
+              "variable": "i"
+            }
+          ],
+          "exclusions": []
+        },
+        "returning": {
+          "type": "boolean",
+          "name": "b"
+        }
       },
       {
         "name": "next",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "StringTokenizer",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* StringTokenizer.nextToken()) || call(* StringTokenizer.nextElement()) ) && target(i)",
+          "joinpoints": [
+            {
+              "kind": "call",
+              "pattern": "* StringTokenizer.nextToken()",
+              "simple": "",
+              "declaring_type": "StringTokenizer"
+            },
+            {
+              "kind": "call",
+              "pattern": "* StringTokenizer.nextElement()",
+              "simple": "",
+              "declaring_type": "StringTokenizer"
+            }
+          ],
+          "bindings": [
+            {
+              "type": "target",
+              "variable": "i"
+            }
+          ],
+          "exclusions": []
+        }
       }
     ],
-    "guard": "b",
-    "violation_message": "StringTokenizer.hasMoreTokens()/hasMoreElements() did not return false before calling nextToken()/nextElement()."
+    "formula": {
+      "raw": "[](next => (*) hasnexttrue)"
+    },
+    "violation": {
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"StringTokenizer.hasMoreTokens()/hasMoreElements() did not return false before calling nextToken()/nextElement().\");"
+      ]
+    }
   }
 }

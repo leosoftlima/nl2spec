@@ -1,1 +1,23 @@
-Options were specified after the connection was made.
+The following events are involved in this specification:
+
+1) Event name: set
+   Kind: event
+   Timing: before
+   Parameters: URLConnection c
+   Pointcut: call(* URLConnection+.set*(..)) && target(c)
+
+2) Event name: connect
+   Kind: event
+   Timing: before
+   Parameters: URLConnection c
+   Pointcut: ( call(* URLConnection+.connect(..)) || call(* URLConnection+.getContent(..)) || call(* URLConnection+.getContentEncoding(..)) || call(* URLConnection+.getContentLength(..)) || call(* URLConnection+.getContentType(..)) || call(* URLConnection+.getDate(..)) || call(* URLConnection+.getExpiration(..)) || call(* URLConnection+.getHeaderField(..)) || call(* URLConnection+.getHeaderFieldInt(..)) || call(* URLConnection+.getHeaderFields(..)) || call(* URLConnection+.getInputStream(..)) || call(* URLConnection+.getLastModified(..)) || call(* URLConnection+.getOutputStream(..)) ) && target(c)
+
+The required execution pattern is defined by the following regular expression:
+
+set* connect*
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"Options were specified after the connection was made."

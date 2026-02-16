@@ -1,32 +1,318 @@
 {
   "id": "PushbackInputStream_UnreadAheadLimit",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "io",
+  "signature": {
+    "name": "PushbackInputStream_UnreadAheadLimit",
+    "parameters": [
+      {
+        "type": "PushbackInputStream",
+        "name": "p"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut": {
+          "raw": "call(PushbackInputStream+.new(InputStream))",
+          "calls": [
+            "PushbackInputStream+.new(InputStream)"
+          ]
+        },
+        "returning": {
+          "type": "PushbackInputStream",
+          "name": "p"
+        },
+        "body": {
+          "raw_lines": [
+            "this.limit = 1;",
+            "this.pos = 1;"
+          ]
+        }
       },
       {
+        "kind": "creation",
+        "name": "create",
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "int",
+            "name": "size"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(PushbackInputStream+.new(InputStream, int)) && args(.., size)",
+          "calls": [
+            "PushbackInputStream+.new(InputStream, int)"
+          ]
+        },
+        "returning": {
+          "type": "PushbackInputStream",
+          "name": "p"
+        },
+        "body": {
+          "raw_lines": [
+            "this.limit = size;",
+            "this.pos = size;"
+          ]
+        }
+      },
+      {
+        "kind": "event",
         "name": "read1",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "PushbackInputStream",
+            "name": "p"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* PushbackInputStream+.read()) && target(p)",
+          "calls": [
+            "* PushbackInputStream+.read()"
+          ]
+        },
+        "returning": {
+          "type": "int",
+          "name": "r"
+        },
+        "body": {
+          "raw_lines": [
+            "if (this.pos < this.limit)",
+            "this.pos++;"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "read2",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "PushbackInputStream",
+            "name": "p"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* PushbackInputStream+.read(byte[], int, int)) && target(p)",
+          "calls": [
+            "* PushbackInputStream+.read(byte[], int, int)"
+          ]
+        },
+        "returning": {
+          "type": "int",
+          "name": "n"
+        },
+        "body": {
+          "raw_lines": [
+            "int avail = this.limit - this.pos;",
+            "if (avail > 0) {",
+            "if (n < avail)",
+            "avail = n;",
+            "this.pos += avail;"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "safeunread",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PushbackInputStream",
+            "name": "p"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* PushbackInputStream+.unread(int)) && target(p) && condition(pos > 0)",
+          "calls": [
+            "* PushbackInputStream+.unread(int)"
+          ]
+        },
+        "body": {
+          "raw_lines": [
+            "--this.pos;"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "unsafeunread",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PushbackInputStream",
+            "name": "p"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* PushbackInputStream+.unread(int)) && target(p) && condition(pos == 0)",
+          "calls": [
+            "* PushbackInputStream+.unread(int)"
+          ]
+        }
+      },
+      {
+        "kind": "event",
+        "name": "safeunread",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PushbackInputStream",
+            "name": "p"
+          },
+          {
+            "type": "byte[]",
+            "name": "b"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* PushbackInputStream+.unread(byte[])) && target(p) && args(b) && condition(pos >= b.length)",
+          "calls": [
+            "* PushbackInputStream+.unread(byte[])"
+          ]
+        },
+        "body": {
+          "raw_lines": [
+            "this.pos -= b.length;"
+          ]
+        }
+      },
+      {
+        "kind": "event",
+        "name": "unsafeunread",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PushbackInputStream",
+            "name": "p"
+          },
+          {
+            "type": "byte[]",
+            "name": "b"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* PushbackInputStream+.unread(byte[])) && target(p) && args(b) && condition(pos < b.length)",
+          "calls": [
+            "* PushbackInputStream+.unread(byte[])"
+          ]
+        }
+      },
+      {
+        "kind": "event",
+        "name": "safeunread",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PushbackInputStream",
+            "name": "p"
+          },
+          {
+            "type": "Object",
+            "name": "b"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* PushbackInputStream+.unread(byte[])) && target(p) && args(b) && condition(pos >= ((byte[])b).length)",
+          "calls": [
+            "* PushbackInputStream+.unread(byte[])"
+          ]
+        },
+        "body": {
+          "raw_lines": [
+            "this.pos -= ((byte[])b).length;"
+          ]
+        }
+      },
+      {
+        "kind": "event",
+        "name": "unsafeunread",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PushbackInputStream",
+            "name": "p"
+          },
+          {
+            "type": "Object",
+            "name": "b"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* PushbackInputStream+.unread(byte[])) && target(p) && args(b) && condition(pos < ((byte[])b).length)",
+          "calls": [
+            "* PushbackInputStream+.unread(byte[])"
+          ]
+        }
+      },
+      {
+        "kind": "event",
+        "name": "safeunread",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PushbackInputStream",
+            "name": "p"
+          },
+          {
+            "type": "int",
+            "name": "len"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* PushbackInputStream+.unread(byte[], int, int)) && target(p) && args(.., len) && condition(pos >= len)",
+          "calls": [
+            "* PushbackInputStream+.unread(byte[], int, int)"
+          ]
+        },
+        "body": {
+          "raw_lines": [
+            "this.pos -= len;"
+          ]
+        }
+      },
+      {
+        "kind": "event",
+        "name": "unsafeunread",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PushbackInputStream",
+            "name": "p"
+          },
+          {
+            "type": "int",
+            "name": "len"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* PushbackInputStream+.unread(byte[], int, int)) && target(p) && args(.., len) && condition(pos < len)",
+          "calls": [
+            "* PushbackInputStream+.unread(byte[], int, int)"
+          ]
+        }
       }
     ],
-    "pattern": "create (read1 | read2 | safeunread)*",
-    "violation_message": "unread() cannot be performed because the internal pushback buffer is full."
+    "formula": {
+      "raw": "create (read1 | read2 | safeunread)*",
+      "raw_lines": [
+        "create (read1 | read2 | safeunread)*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"unread() cannot be performed because the internal pushback buffer is full.\");"
+      ]
+    }
   }
 }

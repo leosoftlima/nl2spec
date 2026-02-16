@@ -1,1 +1,13 @@
-close() has no effect.
+The following events are monitored in this specification:
+
+1) Event name: close
+   Kind: event
+   Timing: before
+   Parameters: none
+   Pointcut: call(* Closeable+.close()) && ( target(ByteArrayInputStream) || target(ByteArrayOutputStream) || target(CharArrayWriter) || target(StringWriter) )
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

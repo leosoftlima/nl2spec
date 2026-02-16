@@ -1,0 +1,13 @@
+The following events are monitored:
+
+{{EVENT_BLOCK}}
+
+The temporal property that must hold during execution is defined by the following formula:
+
+{{FORMULA}}
+
+If this temporal property is violated at any point during execution, it constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"{{VIOLATION_SEMANTICS}}"

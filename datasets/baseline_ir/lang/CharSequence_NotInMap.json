@@ -1,20 +1,69 @@
 {
   "id": "CharSequence_NotInMap",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "CharSequence_NotInMap",
+    "parameters": [
+      {
+        "type": "Map",
+        "name": "map"
+      }
+    ]
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "map_put",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "map"
+          }
+        ],
+        "pointcut_raw": "call(* Map+.put(..)) && target(map) && args(CharSequence, ..) && !args(String, ..) && !args(CharBuffer, ..) && condition(!flag)",
+        "body": {
+          "raw_lines": [
+            "\t\t\tflag = true;",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"It might not be safe to add a CharSequence instance into a map as a key\");"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "map_putall",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "map"
+          },
+          {
+            "type": "Map",
+            "name": "m"
+          }
+        ],
+        "pointcut_raw": "call(* Map+.putAll(Map)) && args(m) && target(map) && condition(!flag)",
+        "body": {
+          "raw_lines": [
+            "\t\t\tfor(Object o : m.keySet()){",
+            "\t\t\t\tif(o instanceof CharSequence && !(o instanceof String) && !(o instanceof CharBuffer)){",
+            "\t\t\t\t\tflag = true;",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"It might not be safe to add a CharSequence instance into a map as a key\");",
+            "\t\t\t\t}",
+            "\t\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "!flag",
-    "violation_message": "It might not be safe to add a CharSequence instance into a map as a key"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

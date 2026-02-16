@@ -1,1 +1,29 @@
-A shutdown hook was registered/unregister after the shutdown sequence had begun.
+The following events are involved in this specification:
+
+1) Event name: register
+   Kind: creation
+   Timing: after
+   Parameters: Thread t
+   Pointcut: call(* Runtime+.addShutdownHook(..)) && args(t)
+
+2) Event name: unregister
+   Kind: creation
+   Timing: after
+   Parameters: Thread t
+   Pointcut: call(* Runtime+.removeShutdownHook(..)) && args(t)
+
+3) Event name: start
+   Kind: event
+   Timing: after
+   Parameters: Thread t
+   Pointcut: startThread() && thread(t) && condition(threadSet.contains(t))
+
+The required execution pattern is defined by the following regular expression:
+
+(register | unregister)* start+ (register | unregister)
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"A shutdown hook was registered/unregister after the shutdown sequence had begun."

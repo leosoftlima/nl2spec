@@ -1,1 +1,0 @@
-setDaemon should not be set after the thread started

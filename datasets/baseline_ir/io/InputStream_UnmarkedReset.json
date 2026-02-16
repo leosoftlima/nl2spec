@@ -1,20 +1,66 @@
 {
   "id": "InputStream_UnmarkedReset",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "io",
+  "signature": {
+    "name": "InputStream_UnmarkedReset",
+    "parameters": [
+      {
+        "type": "InputStream",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "mark",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "InputStream",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* InputStream+.mark(..)) && target(i) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream )",
+          "calls": [
+            "* InputStream+.mark(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "reset",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "InputStream",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* InputStream+.reset(..)) && target(i) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream )",
+          "calls": [
+            "* InputStream+.reset(..)"
+          ]
+        }
       }
     ],
-    "pattern": "mark (mark | reset)*",
-    "violation_message": "BufferedInputStream, DataInputStream and LineNumberInputStream allow reset() only after mark() has been invoked."
+    "formula": {
+      "raw": "mark (mark | reset)*",
+      "raw_lines": [
+        "mark (mark | reset)*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"BufferedInputStream, DataInputStream and LineNumberInputStream allow reset() only after mark() has been invoked.\");"
+      ]
+    }
   }
 }

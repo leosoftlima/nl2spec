@@ -1,1 +1,30 @@
-The list was modified while a list iterator is being used.
+The following events are involved in this specification:
+
+1) Event name: create
+   Kind: creation
+   Timing: after
+   Parameters: List l
+   Returning: ListIterator i
+   Pointcut: call(ListIterator List+.listIterator()) && target(l)
+
+2) Event name: modify
+   Kind: event
+   Timing: before
+   Parameters: List l
+   Pointcut: ( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(l)
+
+3) Event name: useiter
+   Kind: event
+   Timing: before
+   Parameters: ListIterator i
+   Pointcut: ( call(* Iterator+.hasNext(..)) || call(* ListIterator+.hasPrevious(..)) || call(* Iterator+.next(..)) || call(* ListIterator+.previous(..)) || call(* ListIterator+.nextIndex(..)) || call(* ListIterator+.previousIndex(..)) ) && target(i)
+
+The required execution pattern is defined by the following regular expression:
+
+create useiter* modify+ useiter
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The list was modified while a list iterator is being used."

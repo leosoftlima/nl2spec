@@ -1,20 +1,69 @@
 {
   "id": "InputStream_ManipulateAfterClose",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "io",
+  "signature": {
+    "name": "InputStream_ManipulateAfterClose",
+    "parameters": [
+      {
+        "type": "InputStream",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "manipulate",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "InputStream",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* InputStream+.read(..)) || call(* InputStream+.available(..)) || call(* InputStream+.reset(..)) || call(* InputStream+.skip(..)) ) && target(i) && !target(ByteArrayInputStream) && !target(StringBufferInputStream)",
+          "calls": [
+            "* InputStream+.read(..)",
+            "* InputStream+.available(..)",
+            "* InputStream+.reset(..)",
+            "* InputStream+.skip(..)"
+          ]
+        }
       },
       {
+        "kind": "creation",
         "name": "close",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "InputStream",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* InputStream+.close(..)) && target(i) && !target(ByteArrayInputStream) && !target(StringBufferInputStream)",
+          "calls": [
+            "* InputStream+.close(..)"
+          ]
+        }
       }
     ],
-    "pattern": "close+ manipulate",
-    "violation_message": "read(), available(), reset() or skip() was invoked after close()."
+    "formula": {
+      "raw": "close+ manipulate",
+      "raw_lines": [
+        "close+ manipulate"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.err.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.err.println(Level.CRITICAL, \"read(), available(), reset() or skip() was invoked after close().\");"
+      ]
+    }
   }
 }

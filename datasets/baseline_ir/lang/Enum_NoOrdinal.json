@@ -1,16 +1,31 @@
 {
   "id": "Enum_NoOrdinal",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Enum_NoOrdinal",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "ordinal",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [],
+        "pointcut_raw": "call(* Enum+.ordinal())",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"Most programmers will have no use for ordinal() method.\");"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "Most programmers will have no use for ordinal() method."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

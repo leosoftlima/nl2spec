@@ -1,32 +1,164 @@
 {
   "id": "InputStream_ReadAheadLimit",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "io",
+  "signature": {
+    "name": "InputStream_ReadAheadLimit",
+    "parameters": [
+      {
+        "type": "InputStream",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "mark",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "InputStream",
+            "name": "i"
+          },
+          {
+            "type": "int",
+            "name": "l"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* InputStream+.mark(int)) && target(i) && args(l) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream )",
+          "calls": [
+            "* InputStream+.mark(int)"
+          ]
+        },
+        "body": {
+          "raw_lines": [
+            "this.limit = l;",
+            "this.rest = l;"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "read1",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "InputStream",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* InputStream+.read()) && target(i) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream )",
+          "calls": [
+            "* InputStream+.read()"
+          ]
+        },
+        "returning": {
+          "type": "int",
+          "name": "n"
+        },
+        "body": {
+          "raw_lines": [
+            "if (n != -1) {",
+            "this.rest -= 1;",
+            "if (this.rest < 0)",
+            "this.LOC = __LOC;"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "readn",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "InputStream",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* InputStream+.read(char[], ..)) && target(i) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream )",
+          "calls": [
+            "* InputStream+.read(char[], ..)"
+          ]
+        },
+        "returning": {
+          "type": "int",
+          "name": "n"
+        },
+        "body": {
+          "raw_lines": [
+            "if (n != -1) {",
+            "this.rest -= n;",
+            "if (this.rest < 0)",
+            "this.LOC = __LOC;"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "badreset",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "InputStream",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* InputStream+.reset(..)) && target(i) && condition(rest < 0) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream )",
+          "calls": [
+            "* InputStream+.reset(..)"
+          ]
+        },
+        "body": {
+          "raw_lines": [
+            "this.limit = 0;",
+            "this.rest = 0;"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "goodreset",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "InputStream",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* InputStream+.reset(..)) && target(i) && condition(rest >= 0) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream )",
+          "calls": [
+            "* InputStream+.reset(..)"
+          ]
+        },
+        "body": {
+          "raw_lines": [
+            "this.rest = this.limit;"
+          ]
+        }
       }
     ],
-    "pattern": "(mark | read1 | readn | goodreset)* badreset+",
-    "violation_message": "The position mark has been invalidated."
+    "formula": {
+      "raw": "(mark | read1 | readn | goodreset)* badreset+",
+      "raw_lines": [
+        "(mark | read1 | readn | goodreset)* badreset+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The position mark has been invalidated.\");",
+        "if (this.LOC != null) {",
+        "RVMLogging.out.println(Level.CRITICAL, \"read() at line \" + this.LOC + \" invalidated the mark.\");"
+      ]
+    }
   }
 }

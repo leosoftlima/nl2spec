@@ -1,24 +1,102 @@
 {
   "id": "ServiceLoader_MultipleConcurrentThreads",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "ServiceLoader_MultipleConcurrentThreads",
+    "parameters": [
+      {
+        "type": "ServiceLoader",
+        "name": "s"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Thread",
+            "name": "t2"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(ServiceLoader ServiceLoader+.load*(..)) && thread(t2)",
+          "calls": [
+            "ServiceLoader ServiceLoader+.load*(..)"
+          ]
+        },
+        "returning": {
+          "type": "ServiceLoader",
+          "name": "s"
+        },
+        "body": {
+          "raw_lines": [
+            "this.t = t2;"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "gooduse",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ServiceLoader",
+            "name": "s"
+          },
+          {
+            "type": "Thread",
+            "name": "t2"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* ServiceLoader+.iterator()) || call(* ServiceLoader+.reload()) ) && target(s) && thread(t2) && condition(this.t == t2)",
+          "calls": [
+            "* ServiceLoader+.iterator()",
+            "* ServiceLoader+.reload()"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "baduse",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ServiceLoader",
+            "name": "s"
+          },
+          {
+            "type": "Thread",
+            "name": "t2"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* ServiceLoader+.iterator()) || call(* ServiceLoader+.reload()) ) && target(s) && thread(t2) && condition(this.t != t2)",
+          "calls": [
+            "* ServiceLoader+.iterator()",
+            "* ServiceLoader+.reload()"
+          ]
+        }
       }
     ],
-    "pattern": "create gooduse* baduse",
-    "violation_message": "A ServiceLoader object has been used by multiple threads."
+    "formula": {
+      "raw": "create gooduse* baduse",
+      "raw_lines": [
+        "create gooduse* baduse"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"A ServiceLoader object has been used by multiple threads.\");"
+      ]
+    }
   }
 }

@@ -1,24 +1,88 @@
 {
   "id": "ServerSocket_SetTimeoutBeforeBlocking",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "net",
+  "signature": {
+    "name": "ServerSocket_SetTimeoutBeforeBlocking",
+    "parameters": [
+      {
+        "type": "ServerSocket",
+        "name": "sock"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "enter",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ServerSocket",
+            "name": "sock"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* ServerSocket+.accept(..)) && target(sock)",
+          "calls": [
+            "* ServerSocket+.accept(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "leave",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "ServerSocket",
+            "name": "sock"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* ServerSocket+.accept(..)) && target(sock)",
+          "calls": [
+            "* ServerSocket+.accept(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "set",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "ServerSocket",
+            "name": "sock"
+          },
+          {
+            "type": "int",
+            "name": "timeout"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* ServerSocket+.setSoTimeout(int)) && target(sock) && args(timeout) && condition(timeout != 0)",
+          "calls": [
+            "* ServerSocket+.setSoTimeout(int)"
+          ]
+        }
       }
     ],
-    "pattern": "set* (enter leave)* set*",
-    "violation_message": "ServerSocket.setSoTimeout() should be set prior to entering the blocking operation."
+    "formula": {
+      "raw": "set* (enter leave)* set*",
+      "raw_lines": [
+        "set* (enter leave)* set*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"ServerSocket.setSoTimeout() should be set prior to entering the blocking operation.\");",
+        "__RESET;"
+      ]
+    }
   }
 }

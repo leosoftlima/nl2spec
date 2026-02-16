@@ -1,16 +1,79 @@
 {
   "id": "Byte_BadDecodeArg",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Byte_BadDecodeArg",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "decode",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Byte",
+            "name": "b"
+          },
+          {
+            "type": "String",
+            "name": "nm"
+          }
+        ],
+        "pointcut_raw": "call(* Byte.decode(String)) && target(b) && args(nm)",
+        "body": {
+          "raw_lines": [
+            "\t\tif (nm == null || nm.length() == 0) {",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"Wrong argument to Byte.decode(String nm)\");",
+            "\t\t} else {",
+            "\t\t\t// whitespace check",
+            "\t\t\tfor (int j = 0; j < nm.length(); j++) {",
+            "\t\t\t\tif (Character.isWhitespace(nm.charAt(j))) {",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"Wrong argument to Byte.decode(String nm)\");",
+            "\t\t\t\t}",
+            "\t\t\t}",
+            "\t\t\t// formatcheck",
+            "\t\t\tString sub;",
+            "\t\t\tif (nm.charAt(0) == '-') {",
+            "\t\t\t\tsub = nm.substring(1);",
+            "\t\t\t} else {",
+            "\t\t\t\tsub = nm;",
+            "\t\t\t}",
+            "\t\t\tint radix = 0;",
+            "\t\t\tif (sub.startsWith(\"0x\") || sub.startsWith(\"0X\")) {",
+            "\t\t\t\tsub = sub.substring(2);",
+            "\t\t\t\tradix = 16;",
+            "\t\t\t} else if (sub.startsWith(\"#\")) {",
+            "\t\t\t\tsub = sub.substring(1);",
+            "\t\t\t\tradix = 16;",
+            "\t\t\t} else if (sub.startsWith(\"0\")) {",
+            "\t\t\t\tsub = sub.substring(1);",
+            "\t\t\t\tradix = 8;",
+            "\t\t\t} else {",
+            "\t\t\t\tradix = 10;",
+            "\t\t\t}",
+            "\t\t\ttry {",
+            "\t\t\t\tif (Byte.parseByte(sub, radix) < 0) {",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"Wrong argument to Byte.decode(String nm)\");",
+            "\t\t\t\t}",
+            "\t\t\t} catch (Exception e) {",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"Wrong argument to Byte.decode(String nm)\");",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "Wrong argument to Byte.decode(String nm)"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

@@ -1,1 +1,30 @@
-The source stream or reader was used after the Scanner had been closed.
+The following events are involved in this specification:
+
+1) Event name: create
+   Kind: creation
+   Timing: after
+   Parameters: Closeable c
+   Returning: Scanner s
+   Pointcut: ( call(Scanner+.new(InputStream, ..)) || call(Scanner+.new(Readable, ..)) || call(Scanner+.new(ReadableByteChannel, ..)) ) && args(c, ..)
+
+2) Event name: close
+   Kind: event
+   Timing: after
+   Parameters: Scanner s
+   Pointcut: call(* Scanner+.close()) && target(s) && !args(ByteArrayInputStream) && !args(StringBufferInputStream)
+
+3) Event name: manipulate
+   Kind: event
+   Timing: before
+   Parameters: Closeable c
+   Pointcut: ( call(* InputStream+.read(..)) || call(* InputStream+.available(..)) || call(* InputStream+.reset(..)) || call(* InputStream+.skip(..)) || call(* Readable+.read(..)) || call(* ReadableByteChannel+.read(..)) ) && target(c) && !target(ByteArrayInputStream) && !target(StringBufferInputStream)
+
+The required execution pattern is defined by the following regular expression:
+
+create close+ manipulate
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The source stream or reader was used after the Scanner had been closed."

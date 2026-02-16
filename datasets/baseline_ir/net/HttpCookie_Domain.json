@@ -1,16 +1,65 @@
 {
   "id": "HttpCookie_Domain",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "HttpCookie_Domain",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "setdomain",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "String",
+            "name": "domain"
+          }
+        ],
+        "pointcut_raw": "call(void HttpCookie.setDomain(String)) && args(domain)",
+        "body": {
+          "raw_lines": [
+            "\t\tString separators = \"()<>@,;:\\\\\\\"/[]?={} \\t\";",
+            "\t\tchar ch = '0';",
+            "\t\tboolean quoted = false;",
+            "\t\tboolean outofrange = false;",
+            "\t\tboolean hasctrl = false;",
+            "\t\tboolean hassep = false;",
+            "\t\tif (domain.length() >= 2 && domain.charAt(0) == '\"' && domain.charAt(domain.length() - 1) == '\"') {",
+            "\t\t\tquoted = true;",
+            "\t\t\tdomain = domain.substring(1, domain.length() - 1);",
+            "\t\t}",
+            "\t\tfor (int i = 0; i < domain.length(); ++i) {",
+            "\t\t\tch = domain.charAt(i);",
+            "\t\t\tif (!(0 <= ch && ch <= 127)) {",
+            "\t\t\t\toutofrange = true;",
+            "\t\t\t\tbreak;",
+            "\t\t\t}",
+            "\t\t\telse if (quoted) {",
+            "\t\t\t\tif (ch <= 31 || ch == 127) {",
+            "\t\t\t\t\thasctrl = true;",
+            "\t\t\t\t\tbreak;",
+            "\t\t\t\t}",
+            "\t\t\t\telse if (separators.indexOf(ch) != -1) {",
+            "\t\t\t\t\thassep = true;",
+            "\t\t\t\t\tbreak;",
+            "\t\t\t\t}",
+            "\t\t\t}",
+            "\t\t}",
+            "\t\tif (outofrange || hasctrl || hassep) {",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The specified domain '\" + domain + \"' is invalid; it cannot contain '\" + ch + \"'.\");",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "()<>@,;:\\\\\\"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

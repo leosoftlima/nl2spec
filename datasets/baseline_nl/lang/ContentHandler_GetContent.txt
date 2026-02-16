@@ -1,1 +1,0 @@
-An application does not generally call ContentHandler.getContent().

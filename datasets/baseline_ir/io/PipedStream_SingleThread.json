@@ -1,36 +1,166 @@
 {
   "id": "PipedStream_SingleThread",
-  "category": "EVENT",
+  "formalism": "ere",
   "domain": "io",
+  "signature": {
+    "name": "PipedStream_SingleThread",
+    "parameters": [
+      {
+        "type": "PipedInputStream",
+        "name": "i"
+      },
+      {
+        "type": "PipedOutputStream",
+        "name": "o"
+      },
+      {
+        "type": "Thread",
+        "name": "t"
+      }
+    ]
+  },
   "ir": {
-    "type": "event",
+    "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create1",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "PipedOutputStream",
+            "name": "o"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(PipedInputStream+.new(PipedOutputStream+)) && args(o)",
+          "calls": [
+            "PipedInputStream+.new(PipedOutputStream+)"
+          ]
+        },
+        "returning": {
+          "type": "PipedInputStream",
+          "name": "i"
+        }
       },
       {
+        "kind": "creation",
         "name": "create2",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PipedInputStream",
+            "name": "i"
+          },
+          {
+            "type": "PipedOutputStream",
+            "name": "o"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* PipedInputStream+.connect(PipedOutputStream+)) && target(i) && args(o)",
+          "calls": [
+            "* PipedInputStream+.connect(PipedOutputStream+)"
+          ]
+        }
       },
       {
+        "kind": "creation",
         "name": "create3",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "PipedInputStream",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(PipedOutputStream+.new(PipedInputStream+)) && args(i)",
+          "calls": [
+            "PipedOutputStream+.new(PipedInputStream+)"
+          ]
+        },
+        "returning": {
+          "type": "PipedOutputStream",
+          "name": "o"
+        }
       },
       {
+        "kind": "creation",
         "name": "create4",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PipedOutputStream",
+            "name": "o"
+          },
+          {
+            "type": "PipedInputStream",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* PipedOutputStream+.connect(PipedInputStream+)) && target(o) && args(i)",
+          "calls": [
+            "* PipedOutputStream+.connect(PipedInputStream+)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "write",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PipedOutputStream",
+            "name": "o"
+          },
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* OutputStream+.write(..)) && target(o) && thread(t)",
+          "calls": [
+            "* OutputStream+.write(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "read",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "PipedInputStream",
+            "name": "i"
+          },
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* InputStream+.read(..)) && target(i) && thread(t)",
+          "calls": [
+            "* InputStream+.read(..)"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "A single thread attempted to use both a PipedInputStream instance and a PipedOutputStream instance, which may deadlock the thread."
+    "formula": {
+      "raw": "(create1 | create2 | create3 | create4) (write* | read*)",
+      "raw_lines": [
+        "(create1 | create2 | create3 | create4) (write* | read*)"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"A single thread attempted to use both a PipedInputStream instance and a PipedOutputStream instance, which may deadlock the thread.\");"
+      ]
+    }
   }
 }

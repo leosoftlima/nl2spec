@@ -1,1 +1,30 @@
-The backing list was modified while a sub-list is being used.
+The following events are involved in this specification:
+
+1) Event name: createsublist
+   Kind: creation
+   Timing: after
+   Parameters: List b
+   Returning: List s
+   Pointcut: call(* List.subList(..)) && target(b)
+
+2) Event name: modifybackinglist
+   Kind: event
+   Timing: before
+   Parameters: List b
+   Pointcut: ( call(* Collection+.add*(..)) || call(* Collection+.remove*(..)) || call(* Collection+.clear(..)) || call(* Collection+.retain*(..)) ) && target(b)
+
+3) Event name: usesublist
+   Kind: event
+   Timing: before
+   Parameters: List s
+   Pointcut: call(* List.*(..)) && target(s)
+
+The required execution pattern is defined by the following regular expression:
+
+createsublist usesublist* modifybackinglist+ usesublist
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The backing list was modified while a sub-list is being used."

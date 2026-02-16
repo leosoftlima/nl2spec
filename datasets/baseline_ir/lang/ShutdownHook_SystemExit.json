@@ -1,43 +1,125 @@
 {
   "id": "ShutdownHook_SystemExit",
-  "category": "FSM",
+  "formalism": "fsm",
   "domain": "lang",
+  "signature": {
+    "name": "ShutdownHook_SystemExit",
+    "parameters": [
+      {
+        "type": "Thread",
+        "name": "t"
+      }
+    ]
+  },
   "ir": {
     "type": "fsm",
-    "states": [
-      "unregistered",
-      "registered",
-      "started",
-      "unsafe"
-    ],
-    "start_state": "unregistered",
-    "transitions": [
+    "events": [
       {
-        "from": "unregistered",
-        "event": "register",
-        "to": "registered"
+        "kind": "creation",
+        "name": "register",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut_raw": "call(* Runtime+.addShutdownHook(..)) && args(t)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "registered",
-        "event": "unregister",
-        "to": "unregistered"
+        "kind": "creation",
+        "name": "unregister",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut_raw": "call(* Runtime+.removeShutdownHook(..)) && args(t)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "registered",
-        "event": "start",
-        "to": "started"
-      },
-      {
-        "from": "started",
-        "event": "exit",
-        "to": "unsafe"
-      },
-      {
-        "from": "unsafe",
-        "event": "exit",
-        "to": "unsafe"
+        "kind": "event",
+        "name": "start",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut_raw": "startThread() && thread(t)",
+        "body": {
+          "raw_lines": []
+        }
       }
     ],
-    "violation_message": "Invoking System.exit() in a shutdown hook was suppressed because it may lead to deadlocks."
+    "fsm": {
+      "raw_block": "\t\tunregistered [\n\t\t\tregister -> registered\n\t\t]\n\t\tregistered [\n\t\t\tunregister -> unregistered\n\t\t\tstart -> started\n\t\t]\n\t\tstarted [\n\t\t\texit -> unsafe\n\t\t]\n\t\tunsafe [\n\t\t\texit -> unsafe\n\t\t]\n\t@unsafe {\n\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);\n\t\tRVMLogging.out.println(Level.CRITICAL, \"Invoking System.exit() in a shutdown hook was suppressed because it may lead to deadlocks.\");",
+      "raw_lines": [
+        "\t\tunregistered [",
+        "\t\t\tregister -> registered",
+        "\t\t]",
+        "\t\tregistered [",
+        "\t\t\tunregister -> unregistered",
+        "\t\t\tstart -> started",
+        "\t\t]",
+        "\t\tstarted [",
+        "\t\t\texit -> unsafe",
+        "\t\t]",
+        "\t\tunsafe [",
+        "\t\t\texit -> unsafe",
+        "\t\t]",
+        "\t@unsafe {",
+        "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "\t\tRVMLogging.out.println(Level.CRITICAL, \"Invoking System.exit() in a shutdown hook was suppressed because it may lead to deadlocks.\");"
+      ]
+    },
+    "analysis": {
+      "states": [
+        "registered",
+        "started",
+        "unregistered",
+        "unsafe"
+      ],
+      "initial": "unregistered",
+      "transitions": [
+        {
+          "from": "unregistered",
+          "event": "register",
+          "to": "registered"
+        },
+        {
+          "from": "registered",
+          "event": "unregister",
+          "to": "unregistered"
+        },
+        {
+          "from": "registered",
+          "event": "start",
+          "to": "started"
+        },
+        {
+          "from": "started",
+          "event": "exit",
+          "to": "unsafe"
+        },
+        {
+          "from": "unsafe",
+          "event": "exit",
+          "to": "unsafe"
+        }
+      ]
+    },
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

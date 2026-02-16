@@ -1,20 +1,54 @@
 {
   "id": "Reader_MarkReset",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "io",
+  "signature": {
+    "name": "Reader_MarkReset",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "mark",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Reader+",
+            "name": "r"
+          }
+        ],
+        "pointcut_raw": "call(* Reader+.mark(..)) && target(r) && (target(PushbackReader) || target(InputStreamReader) || target(FileReader) || target(PipedReader))",
+        "body": {
+          "raw_lines": [
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"PushbackReader, InputStreamReader, FileReader and PipedReader do not support mark() and reset().\");"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "reset",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Reader+",
+            "name": "r"
+          }
+        ],
+        "pointcut_raw": "call(* Reader+.reset(..)) && target(r) && (target(PushbackReader) || target(InputStreamReader) || target(FileReader) || target(PipedReader))",
+        "body": {
+          "raw_lines": [
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"PushbackReader, InputStreamReader, FileReader and PipedReader do not support mark() and reset().\");"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "PushbackReader, InputStreamReader, FileReader and PipedReader do not support mark() and reset()."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

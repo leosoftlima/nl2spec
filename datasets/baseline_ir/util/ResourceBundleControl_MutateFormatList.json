@@ -1,20 +1,69 @@
 {
   "id": "ResourceBundleControl_MutateFormatList",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "ResourceBundleControl_MutateFormatList",
+    "parameters": [
+      {
+        "type": "List",
+        "name": "l"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut": {
+          "raw": "( call(List ResourceBundle.Control.getFormats(..)) || call(List ResourceBundle.Control.getCandidateLocales(..)) )",
+          "calls": [
+            "List ResourceBundle.Control.getFormats(..)",
+            "List ResourceBundle.Control.getCandidateLocales(..)"
+          ]
+        },
+        "returning": {
+          "type": "List",
+          "name": "l"
+        }
       },
       {
+        "kind": "event",
         "name": "mutate",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "List",
+            "name": "l"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(l)",
+          "calls": [
+            "* Collection+.add*(..)",
+            "* Collection+.clear(..)",
+            "* Collection+.remove*(..)",
+            "* Collection+.retain*(..)"
+          ]
+        }
       }
     ],
-    "pattern": "create mutate",
-    "violation_message": "The list returned by ResourceBundle.Control.getFormats() or getCandidateLocales() was mutated."
+    "formula": {
+      "raw": "create mutate",
+      "raw_lines": [
+        "create mutate"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The list returned by ResourceBundle.Control.getFormats() or getCandidateLocales() was mutated.\");"
+      ]
+    }
   }
 }

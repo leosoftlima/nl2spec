@@ -1,1 +1,24 @@
-A collection/set view of a map does not support add()/addAll().
+The following events are involved in this specification:
+
+1) Event name: getset
+   Kind: creation
+   Timing: after
+   Parameters: Map m
+   Returning: Collection c
+   Pointcut: ( call(Set Map+.keySet()) || call(Set Map+.entrySet()) || call(Collection Map+.values()) ) && target(m)
+
+2) Event name: add
+   Kind: event
+   Timing: before
+   Parameters: Collection c
+   Pointcut: ( call(* Collection+.add(..)) || call(* Collection+.addAll(..)) ) && target(c)
+
+The required execution pattern is defined by the following regular expression:
+
+getset add+
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"A collection/set view of a map does not support add()/addAll()."

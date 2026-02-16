@@ -1,16 +1,38 @@
 {
   "id": "ServerSocket_Port",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "ServerSocket_Port",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "construct_port",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "int",
+            "name": "port"
+          }
+        ],
+        "pointcut_raw": "( call(ServerSocket.new(int)) || call(ServerSocket.new(int, int)) || call(ServerSocket.new(int, int, InetAddress)) ) && args(port, ..)",
+        "body": {
+          "raw_lines": [
+            "\t\tif (0 <= port && port <= 65535)",
+            "\t\t\treturn;",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"The specified port \" + port + \" is out of range; [0 ~ 65535]\");"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "The specified port"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

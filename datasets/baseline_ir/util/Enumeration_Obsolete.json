@@ -1,16 +1,49 @@
 {
   "id": "Enumeration_Obsolete",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "Enumeration_Obsolete",
+    "parameters": [
+      {
+        "type": "Enumeration",
+        "name": "e"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "use",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Enumeration",
+            "name": "e"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Enumeration+.*(..)) && target(e)",
+          "calls": [
+            "* Enumeration+.*(..)"
+          ]
+        }
       }
     ],
-    "pattern": "use",
-    "violation_message": "The Enumeration interface is obsolete. New implementations should consider using the Interface interface."
+    "formula": {
+      "raw": "use",
+      "raw_lines": [
+        "use"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The Enumeration interface is obsolete. New implementations should consider using the Interface interface.\");"
+      ]
+    }
   }
 }

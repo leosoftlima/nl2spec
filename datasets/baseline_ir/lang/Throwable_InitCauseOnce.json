@@ -1,24 +1,83 @@
 {
   "id": "Throwable_InitCauseOnce",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "lang",
+  "signature": {
+    "name": "Throwable_InitCauseOnce",
+    "parameters": [
+      {
+        "type": "Throwable",
+        "name": "t"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "createWithoutThrowable",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut": {
+          "raw": "call(Throwable+.new()) || call(Throwable+.new(String))",
+          "calls": [
+            "Throwable+.new()",
+            "Throwable+.new(String)"
+          ]
+        },
+        "returning": {
+          "type": "Throwable",
+          "name": "t"
+        }
       },
       {
+        "kind": "event",
         "name": "createWithThrowable",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut": {
+          "raw": "call(Throwable+.new(String, Throwable)) || call(Throwable+.new(Throwable))",
+          "calls": [
+            "Throwable+.new(String, Throwable)",
+            "Throwable+.new(Throwable)"
+          ]
+        },
+        "returning": {
+          "type": "Throwable",
+          "name": "t"
+        }
       },
       {
+        "kind": "event",
         "name": "initCause",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Throwable",
+            "name": "t"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Throwable+.initCause(..)) && target(t)",
+          "calls": [
+            "* Throwable+.initCause(..)"
+          ]
+        }
       }
     ],
-    "pattern": "(createWithoutThrowable initCause initCause+) | (createWithThrowable initCause+)",
-    "violation_message": "initCause should not be called more than once."
+    "formula": {
+      "raw": "(createWithoutThrowable initCause initCause+) | (createWithThrowable initCause+)",
+      "raw_lines": [
+        "(createWithoutThrowable initCause initCause+) | (createWithThrowable initCause+)"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.WARNING, \"initCause should not be called more than once.\");"
+      ]
+    }
   }
 }

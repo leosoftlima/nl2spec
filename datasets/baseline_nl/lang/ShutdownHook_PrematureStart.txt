@@ -1,1 +1,49 @@
-A virtual-machine shutdown hook has been started by the user code.
+The system behavior is defined in terms of explicit states and transitions.
+
+The monitored events are:
+
+1) Event name: good_register
+   Kind: creation
+   Timing: before
+   Parameters: Thread t
+   Pointcut: call(* Runtime+.addShutdownHook(..)) && args(t) && condition(t.getState() == Thread.State.NEW)
+
+2) Event name: bad_register
+   Kind: creation
+   Timing: before
+   Parameters: Thread t
+   Pointcut: call(* Runtime+.addShutdownHook(..)) && args(t) && condition(t.getState() != Thread.State.NEW)
+
+3) Event name: unregister
+   Kind: event
+   Timing: before
+   Parameters: Thread t
+   Pointcut: call(* Runtime+.removeShutdownHook(..)) && args(t)
+
+4) Event name: userstart
+   Kind: event
+   Timing: before
+   Parameters: Thread t
+   Pointcut: call(* Thread+.start(..)) && target(t)
+
+The finite state behavior is defined as follows:
+
+		unregistered [
+			good_register -> registered
+			bad_register -> err
+		]
+		registered [
+			unregister -> unregistered
+			userstart -> err
+		]
+		err [
+		]
+	@err {
+		RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+		RVMLogging.out.println(Level.CRITICAL, "A virtual-machine shutdown hook has been started by the user code.");
+
+Any execution that deviates from the state transition behavior described above constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

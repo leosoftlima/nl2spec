@@ -1,24 +1,94 @@
 {
   "id": "List_UnsynchronizedSubList",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "List_UnsynchronizedSubList",
+    "parameters": [
+      {
+        "type": "List",
+        "name": "b"
+      },
+      {
+        "type": "List",
+        "name": "s"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "createsublist",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "List",
+            "name": "b"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* List.subList(..)) && target(b)",
+          "calls": [
+            "* List.subList(..)"
+          ]
+        },
+        "returning": {
+          "type": "List",
+          "name": "s"
+        }
       },
       {
+        "kind": "event",
         "name": "modifybackinglist",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "List",
+            "name": "b"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Collection+.add*(..)) || call(* Collection+.remove*(..)) || call(* Collection+.clear(..)) || call(* Collection+.retain*(..)) ) && target(b)",
+          "calls": [
+            "* Collection+.add*(..)",
+            "* Collection+.remove*(..)",
+            "* Collection+.clear(..)",
+            "* Collection+.retain*(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "usesublist",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "List",
+            "name": "s"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* List.*(..)) && target(s)",
+          "calls": [
+            "* List.*(..)"
+          ]
+        }
       }
     ],
-    "pattern": "createsublist usesublist* modifybackinglist+ usesublist",
-    "violation_message": "The backing list was modified while a sub-list is being used."
+    "formula": {
+      "raw": "createsublist usesublist* modifybackinglist+ usesublist",
+      "raw_lines": [
+        "createsublist usesublist* modifybackinglist+ usesublist"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The backing list was modified while a sub-list is being used.\");"
+      ]
+    }
   }
 }

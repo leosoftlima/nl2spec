@@ -1,16 +1,36 @@
 {
   "id": "Comparable_CompareToNull",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Comparable_CompareToNull",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "nullcompare",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Object",
+            "name": "o"
+          }
+        ],
+        "pointcut_raw": "call(* Comparable+.compareTo(..)) && args(o) && if(o == null)",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"null cannot be compared to any object\");"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "null cannot be compared to any object"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

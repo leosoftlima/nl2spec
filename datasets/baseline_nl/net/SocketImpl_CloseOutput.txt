@@ -1,1 +1,30 @@
-The output stream of a closed socket is about to be used.
+The following events are involved in this specification:
+
+1) Event name: getoutput
+   Kind: creation
+   Timing: after
+   Parameters: SocketImpl sock
+   Returning: OutputStream output
+   Pointcut: call(OutputStream SocketImpl+.getOutputStream()) && target(sock)
+
+2) Event name: close
+   Kind: event
+   Timing: before
+   Parameters: SocketImpl sock
+   Pointcut: ( call(* SocketImpl+.close(..)) || call(* SocketImpl+.shutdownOutput(..)) ) && target(sock)
+
+3) Event name: use
+   Kind: event
+   Timing: before
+   Parameters: OutputStream output
+   Pointcut: call(* OutputStream+.*(..)) && target(output)
+
+The required execution pattern is defined by the following regular expression:
+
+getoutput close use+
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The output stream of a closed socket is about to be used."

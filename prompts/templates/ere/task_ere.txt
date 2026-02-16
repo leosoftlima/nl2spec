@@ -1,0 +1,13 @@
+The following events are involved in this specification:
+
+{{EVENT_BLOCK}}
+
+The required execution pattern is defined by the following regular expression:
+
+{{FORMULA}}
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"{{VIOLATION_SEMANTICS}}"

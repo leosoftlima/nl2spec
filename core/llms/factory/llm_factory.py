@@ -1,22 +1,26 @@
-import importlib
-from nl2spec.logging_utils import get_logger
+from nl2spec.core.llms.llm_registry import load_llm_info
 
-log = get_logger(__name__)
-
-def load_class(class_path: str):
-    module_name, class_name = class_path.rsplit(".", 1)
-    module = importlib.import_module(module_name)
-    return getattr(module, class_name)
 
 def create_llm(cfg: dict):
+
     provider = cfg["llm"]["provider"]
-    llm_cfg = cfg["llm"][provider]
+    csv_path = cfg["llm"]["registry_csv"]
 
-    cls_path = llm_cfg["class"]
-    LLMClass = load_class(cls_path)
+    info = load_llm_info(provider, csv_path)
 
-    params = {k: v for k, v in llm_cfg.items() if k != "class"}
-    llm = LLMClass(**params)
 
-    log.info("Loaded LLM class: %s", llm.__class__.__name__)
-    return llm
+    if provider == "gemini":
+        from nl2spec.core.llms.gemini_llm import GeminiLLM
+        return GeminiLLM(
+            api_key=info["api_key"],
+            model=info["model"],
+        )
+
+    if provider == "openai":
+        from nl2spec.core.llms.openai_llm import OpenAILLM
+        return OpenAILLM(
+            api_key=info["api_key"],
+            model=info["model"],
+        )
+
+    raise ValueError(f"Unsupported LLM provider: {provider}")

@@ -1,1 +1,49 @@
-An output stream is unavailable if the socket is closed, is not connected, or the socket output has been shutdown.
+The following events are involved in this specification:
+
+1) Event name: create_connected
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: Socket sock
+   Pointcut: ( call(Socket.new(InetAddress, int)) || call(Socket.new(InetAddress, int, boolean)) || call(Socket.new(InetAddress, int, InetAddress, int)) || call(Socket.new(String, int)) || call(Socket.new(String, int, boolean)) || call(Socket.new(String, int, InetAddress, int)) )
+
+2) Event name: create_unconnected
+   Kind: creation
+   Timing: after
+   Parameters: none
+   Returning: Socket sock
+   Pointcut: ( call(Socket.new()) || call(Socket.new(Proxy)) || call(Socket.new(SocketImpl)) )
+
+3) Event name: connect
+   Kind: event
+   Timing: before
+   Parameters: Socket sock
+   Pointcut: call(* Socket+.connect(..)) && target(sock)
+
+4) Event name: get
+   Kind: event
+   Timing: before
+   Parameters: Socket sock
+   Pointcut: call(* Socket+.getOutputStream(..)) && target(sock)
+
+5) Event name: close
+   Kind: event
+   Timing: before
+   Parameters: Socket sock
+   Pointcut: call(* Socket+.close()) && target(sock)
+
+6) Event name: shutdown
+   Kind: event
+   Timing: before
+   Parameters: Socket sock
+   Pointcut: call(* Socket+.shutdownOutput()) && target(sock)
+
+The required execution pattern is defined by the following regular expression:
+
+(create_connected | create_unconnected connect) get* (close | shutdown)*
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"An output stream is unavailable if the socket is closed, is not connected, or the socket output has been shutdown."

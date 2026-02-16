@@ -1,16 +1,38 @@
 {
   "id": "URLEncoder_EncodeUTF8",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "URLEncoder_EncodeUTF8",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "encode",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "String",
+            "name": "enc"
+          }
+        ],
+        "pointcut_raw": "call(* URLEncoder.encode(String, String)) && args(*, enc)",
+        "body": {
+          "raw_lines": [
+            "\t\tif (enc.equalsIgnoreCase(\"utf-8\") || enc.equalsIgnoreCase(\"utf8\"))",
+            "\t\t\treturn;",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"The used encoding '\" + enc + \"' may introduce incompatibilites.\");"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "utf-8"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

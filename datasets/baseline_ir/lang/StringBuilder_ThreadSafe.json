@@ -1,20 +1,80 @@
 {
   "id": "StringBuilder_ThreadSafe",
-  "category": "EVENT",
+  "formalism": "ere",
   "domain": "lang",
+  "signature": {
+    "name": "StringBuilder_ThreadSafe",
+    "parameters": [
+      {
+        "type": "StringBuilder",
+        "name": "b"
+      }
+    ]
+  },
   "ir": {
-    "type": "event",
+    "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "safe_oper",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "StringBuilder",
+            "name": "b"
+          },
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* StringBuilder.*(..)) && target(b) && thread(t) && condition(this.owner == null || this.owner == t)",
+          "calls": [
+            "* StringBuilder.*(..)"
+          ]
+        },
+        "body": {
+          "raw_lines": [
+            "this.owner = t;"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "unsafe_oper",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "StringBuilder",
+            "name": "b"
+          },
+          {
+            "type": "Thread",
+            "name": "t"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* StringBuilder.*(..)) && target(b) && thread(t) && condition(this.owner != null && this.owner != t)",
+          "calls": [
+            "* StringBuilder.*(..)"
+          ]
+        }
       }
     ],
-    "guard": "this.owner == null || this.owner == t",
-    "violation_message": "More than two threads attempted to use a StringBuilder instance, which may lead to a race condition. Use StringBuffer instead."
+    "formula": {
+      "raw": "safe_oper*",
+      "raw_lines": [
+        "safe_oper*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"More than two threads attempted to use a StringBuilder instance, which may lead to a race condition. Use StringBuffer instead.\");",
+        "__RESET;"
+      ]
+    }
   }
 }

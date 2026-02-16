@@ -1,1 +1,13 @@
-The specified port
+The following events are monitored in this specification:
+
+1) Event name: construct_port
+   Kind: event
+   Timing: before
+   Parameters: int port
+   Pointcut: ( call(ServerSocket.new(int)) || call(ServerSocket.new(int, int)) || call(ServerSocket.new(int, int, InetAddress)) ) && args(port, ..)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

@@ -1,20 +1,55 @@
 {
   "id": "CharSequence_NotInSet",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "CharSequence_NotInSet",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "set_add",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [],
+        "pointcut_raw": "call(* Set+.add(..)) && args(CharSequence) && !args(String) && !args(CharBuffer) && condition(!flag)",
+        "body": {
+          "raw_lines": [
+            "\t\tflag = true;",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"It might not be safe to add a CharSequence instance into a set\");"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "set_addall",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Collection",
+            "name": "c"
+          }
+        ],
+        "pointcut_raw": "call(* Set+.addAll(Collection)) && args(c) && condition(!flag)",
+        "body": {
+          "raw_lines": [
+            "\t\tfor(Object o : c){",
+            "\t\t\tif(o instanceof CharSequence && !(o instanceof String) && !(o instanceof CharBuffer)){",
+            "\t\t\t\tflag = true;",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"It might not be safe to add a CharSequence instance into a set\");",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "!flag",
-    "violation_message": "It might not be safe to add a CharSequence instance into a set"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

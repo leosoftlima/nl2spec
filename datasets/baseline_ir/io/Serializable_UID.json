@@ -1,16 +1,57 @@
 {
   "id": "Serializable_UID",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "io",
+  "signature": {
+    "name": "Serializable_UID",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "staticinit",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "staticinitialization(Serializable+)",
+        "body": {
+          "raw_lines": [
+            "\t\torg.aspectj.lang.Signature initsig = __STATICSIG;",
+            "\t\tClass klass = initsig.getDeclaringType();",
+            "\t\tif (klass != null) {",
+            "\t\t\ttry {",
+            "\t\t\t\tField field = klass.getDeclaredField(\"serialVersionUID\");",
+            "\t\t\t\tint mod = field.getModifiers();",
+            "\t\t\t\tboolean isstatic = Modifier.isStatic(mod);",
+            "\t\t\t\tboolean isfinal = Modifier.isFinal(mod);",
+            "\t\t\t\tClass fieldtype = field.getType();",
+            "\t\t\t\tboolean islong = fieldtype.getName() == \"long\";",
+            "\t\t\t\tif (!isstatic) {",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The serialVersionUID field of \" + klass.getName() + \" is not a static field.\");",
+            "\t\t\t\t}",
+            "\t\t\t\tif (!isfinal) {",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The serialVersionUID field of \" + klass.getName() + \" is not a final field.\");",
+            "\t\t\t\t}",
+            "\t\t\t\tif (!islong) {",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The serialVersionUID field of \" + klass.getName() + \" is not of type long.\");",
+            "\t\t\t\t}",
+            "\t\t\t}",
+            "\t\t\tcatch (NoSuchFieldException e) {",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"A serializable class \" + klass.getName() + \" does not declare a serialVersionUID\");",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "serialVersionUID"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

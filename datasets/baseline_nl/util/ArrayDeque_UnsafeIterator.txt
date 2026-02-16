@@ -1,1 +1,30 @@
-The deque was modified while an iterator is being used.
+The following events are involved in this specification:
+
+1) Event name: create
+   Kind: creation
+   Timing: after
+   Parameters: ArrayDeque q
+   Returning: Iterator i
+   Pointcut: target(ArrayDeque) && ( call(Iterator Iterable+.iterator()) || call(Iterator Deque+.descendingIterator()) ) && target(q)
+
+2) Event name: modify
+   Kind: event
+   Timing: before
+   Parameters: ArrayDeque q
+   Pointcut: target(ArrayDeque) && ( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.offer*(..)) || call(* Collection+.pop(..)) || call(* Collection+.push(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(q)
+
+3) Event name: useiter
+   Kind: event
+   Timing: before
+   Parameters: Iterator i
+   Pointcut: call(* Iterator.*(..)) && target(i)
+
+The required execution pattern is defined by the following regular expression:
+
+create useiter* modify+ useiter
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The deque was modified while an iterator is being used."

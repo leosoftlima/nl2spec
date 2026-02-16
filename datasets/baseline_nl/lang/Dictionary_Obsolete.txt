@@ -1,1 +1,0 @@
-The Dictionary class is obsolete. New implementations should implement the Map interface.

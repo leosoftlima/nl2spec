@@ -1,1 +1,19 @@
-A non-comparable object is being inserted into a TreeSet object.
+The following events are monitored in this specification:
+
+1) Event name: add
+   Kind: event
+   Timing: before
+   Parameters: Object e
+   Pointcut: ( call(* Collection+.add*(..)) ) && target(TreeSet) && args(e)
+
+2) Event name: addall
+   Kind: event
+   Timing: before
+   Parameters: Collection c
+   Pointcut: call(* Collection+.addAll(Collection)) && target(TreeSet) && args(c)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

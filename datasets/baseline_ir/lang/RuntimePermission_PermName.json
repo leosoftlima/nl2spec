@@ -1,16 +1,48 @@
 {
   "id": "RuntimePermission_PermName",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "RuntimePermission_PermName",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "constructor_runtimeperm",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "String",
+            "name": "name"
+          }
+        ],
+        "pointcut_raw": "call(RuntimePermission.new(String)) && args(name)",
+        "body": {
+          "raw_lines": [
+            "\t\t\tint index = name.indexOf(\"*\");",
+            "\t\t\tif(index != -1 && name.length() > 1){",
+            "\t\t\t\tif(index != name.length() - 1){",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The permission name for RuntimePermission is invalid\");",
+            "\t\t\t\t} else if (name.charAt(index - 1) != '.'){",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The permission name for RuntimePermission is invalid\");",
+            "\t\t\t\t}",
+            "\t\t\t}"
+          ]
+        },
+        "returning": {
+          "type": "RuntimePermission",
+          "name": "r"
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "*"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

@@ -1,24 +1,92 @@
 {
   "id": "Socket_CloseOutput",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "net",
+  "signature": {
+    "name": "Socket_CloseOutput",
+    "parameters": [
+      {
+        "type": "Socket",
+        "name": "sock"
+      },
+      {
+        "type": "OutputStream",
+        "name": "output"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "getoutput",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Socket",
+            "name": "sock"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(OutputStream Socket+.getOutputStream()) && target(sock)",
+          "calls": [
+            "OutputStream Socket+.getOutputStream()"
+          ]
+        },
+        "returning": {
+          "type": "OutputStream",
+          "name": "output"
+        }
       },
       {
+        "kind": "event",
         "name": "close",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Socket",
+            "name": "sock"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Socket+.close(..)) || call(* Socket+.shutdownOutput(..)) ) && target(sock)",
+          "calls": [
+            "* Socket+.close(..)",
+            "* Socket+.shutdownOutput(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "use",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "OutputStream",
+            "name": "output"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* OutputStream+.*(..)) && target(output)",
+          "calls": [
+            "* OutputStream+.*(..)"
+          ]
+        }
       }
     ],
-    "pattern": "getoutput close use+",
-    "violation_message": "The output stream of a closed socket is about to be used."
+    "formula": {
+      "raw": "getoutput close use+",
+      "raw_lines": [
+        "getoutput close use+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The output stream of a closed socket is about to be used.\");"
+      ]
+    }
   }
 }

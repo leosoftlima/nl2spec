@@ -1,1 +1,43 @@
-The position mark has been invalidated.
+The following events are involved in this specification:
+
+1) Event name: mark
+   Kind: creation
+   Timing: before
+   Parameters: InputStream i, int l
+   Pointcut: call(* InputStream+.mark(int)) && target(i) && args(l) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream )
+
+2) Event name: read1
+   Kind: event
+   Timing: after
+   Parameters: InputStream i
+   Returning: int n
+   Pointcut: call(* InputStream+.read()) && target(i) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream )
+
+3) Event name: readn
+   Kind: event
+   Timing: after
+   Parameters: InputStream i
+   Returning: int n
+   Pointcut: call(* InputStream+.read(char[], ..)) && target(i) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream )
+
+4) Event name: badreset
+   Kind: event
+   Timing: before
+   Parameters: InputStream i
+   Pointcut: call(* InputStream+.reset(..)) && target(i) && condition(rest < 0) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream )
+
+5) Event name: goodreset
+   Kind: event
+   Timing: before
+   Parameters: InputStream i
+   Pointcut: call(* InputStream+.reset(..)) && target(i) && condition(rest >= 0) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream )
+
+The required execution pattern is defined by the following regular expression:
+
+(mark | read1 | readn | goodreset)* badreset+
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The position mark has been invalidated."

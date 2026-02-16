@@ -8,10 +8,12 @@ from typing import List
 
 from nl2spec.pipeline_types import PipelineFlags
 from nl2spec.logging_utils import get_logger
-from nl2spec.pipeline.generate import generate_one
-from nl2spec.core.llms.factory.llm_factory import create_llm
 from nl2spec.pipeline.nl_loader import load_nl_scenarios_by_domain
 from nl2spec.prompts.build_prompt import build_prompt
+from nl2spec.scripts.Old_convert_mop_to_ir import run_convert_mop_to_ir
+from nl2spec.core.convert.ir_to_nl import IRToNL
+from nl2spec.core.convert.mop_to_ir import convert_mop_dir_to_ir
+
 
 log = get_logger(__name__)
 
@@ -87,13 +89,13 @@ def stage_generate(ctx, flags: PipelineFlags) -> None:
     if not flags.generate:
         log.info("Generate stage skipped")
         return
+    
 
     cfg = ctx.config
-    llm = create_llm(cfg)
 
-    log.info("Using LLM: %s", llm.__class__.__name__)
+    #cria os json and IR referente aos .mop
+    stage_prepare_datasets(cfg, flags)
 
-    # instanciar loader de few-shot (UMA VEZ)
     fewshot_loader = FewShotLoader(
         fewshot_dir=cfg["prompting"]["fewshot"]["dataset_dir"],
         seed=int(cfg.get("seed", 42)),
@@ -104,64 +106,41 @@ def stage_generate(ctx, flags: PipelineFlags) -> None:
     )
 
     baseline_ir_root = Path(cfg["paths"]["baseline_ir"])
-    generated = []
+
+    total = 0
 
     for domain, scenarios in scenarios_by_domain.items():
-        log.info(
-            "Processing domain '%s' (%d scenarios)",
-            domain, len(scenarios)
-        )
+        log.info("Processing domain '%s' (%d scenarios)", domain, len(scenarios))
 
         for scenario in scenarios:
             sid = scenario["id"]
 
             try:
-                log.info("Generating IR for scenario '%s'", sid)
-
-                # inferir ir_type via baseline IR
                 gt_path = baseline_ir_root / domain / f"{sid}.json"
+
                 if not gt_path.exists():
-                    raise FileNotFoundError(
-                        f"Baseline IR not found: {gt_path}"
-                    )
+                    raise FileNotFoundError(f"Baseline IR not found: {gt_path}")
 
                 gt = json.loads(gt_path.read_text(encoding="utf-8"))
                 ir_type = gt["ir"]["type"].lower()
 
-                log.info("IR type resolved: %s", ir_type)
-
-                # resolver few-shot PELO LOADER QUE VOCÊ TEM
                 k = int(cfg["prompting"].get("k", 0))
-                fewshot_files = fewshot_loader.get(
-                    ir_type=ir_type,
-                    k=k,
-                )
+                fewshot_files = fewshot_loader.get(ir_type=ir_type, k=k)
 
-                # gerar IR (generate_one já usa build_prompt internamente)
-                result = generate_one(
-                    scenario=scenario,
+                build_prompt(
                     ir_type=ir_type,
+                    nl_text=scenario["natural_language"],
                     fewshot_files=fewshot_files,
-                    llm=llm,
-                    schema_path=cfg["paths"]["schema_ir"],
+                    scenario_id=sid,
+                    save=True,
                 )
 
-                # metadados
-                result["id"] = sid
-                result["domain"] = domain
-                result["ir_type"] = ir_type
-
-                generated.append(result)
+                total += 1
 
             except Exception as e:
-                log.error(
-                    "Generation failed for %s/%s: %s",
-                    domain, sid, e,
-                )
+                log.error("Prompt generation failed for %s/%s: %s", domain, sid, e)
 
-    ctx.artifacts["generated_ir"] = generated
-    log.info("Generate stage finished (%d IRs)", len(generated))
-
+    log.info("Generate stage finished (%d prompts created)", total)
 
 # ==========================================================
 # COMPARE STAGE
@@ -225,3 +204,52 @@ def stage_tests(ctx, flags: PipelineFlags) -> None:
     subprocess.run(args, check=True)
 
     log.info("Tests completed successfully")
+
+def stage_prepare_datasets(cfg, flags):
+    log.info("Stage: prepare datasets")
+
+    log.info("Converting MOP to IR...")
+    _prepare_baseline_ir(cfg)
+
+    log.info("Converting IR to NL...")
+    _prepare_baseline_nl(cfg)
+
+    log.info("Dataset preparation completed")
+
+def _prepare_baseline_nl(cfg):
+    baseline_ir_root = Path(cfg["paths"]["baseline_ir"])
+    baseline_nl_root = Path(cfg["paths"]["baseline_nl"])
+    template_dir = Path(cfg["paths"]["ir_to_nl_templates"])
+
+    if baseline_nl_root.exists() and any(baseline_nl_root.rglob("*.txt")):
+        log.info("Baseline NL already exists. Skipping IR→NL conversion.")
+        return
+
+    log.info("Generating NL from IR...")
+
+    builder = IRToNL(template_dir)
+
+    total = builder.generate_from_directory(
+        baseline_ir_root,
+        baseline_nl_root
+    )
+
+    log.info("IR → NL conversion completed (%d files)", total)
+    
+def _prepare_baseline_ir(cfg):
+    mop_root = Path(cfg["paths"]["mop_root"])
+    baseline_ir_root = Path(cfg["paths"]["baseline_ir"])
+
+    if baseline_ir_root.exists() and any(baseline_ir_root.rglob("*.json")):
+        log.info("Baseline IR already exists. Skipping MOP conversion.")
+        return
+
+    log.info("Converting MOP files to IR JSON...")
+
+    convert_mop_dir_to_ir(
+        mop_root=str(mop_root),
+        out_dir=str(baseline_ir_root),
+        keep_structure=True
+    )
+
+    log.info("MOP → IR conversion completed.")

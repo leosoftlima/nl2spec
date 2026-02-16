@@ -2,6 +2,7 @@ mode: dev
 seed: 42
 
 paths:
+  mop_root: nl2spec/datasets/raw_mop
   baseline_nl: datasets/baseline_nl
   baseline_ir: datasets/baseline_ir
   output_dir: ../outputs/
@@ -18,9 +19,10 @@ prompting:
   k: 2
   fewshot:
     dataset_dir: datasets/fewshot
-    selection: fixed
+    selection: random
 
 llm:
-  provider: mock
+  provider: mock        #openAI | gemini | 
   mock:
     class: nl2spec.core.llms.mock_llm.MockLLM
+    registry_csv: nl2spec/config/information_llms.csv

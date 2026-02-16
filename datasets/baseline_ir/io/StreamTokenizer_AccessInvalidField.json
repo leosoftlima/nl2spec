@@ -1,88 +1,241 @@
 {
   "id": "StreamTokenizer_AccessInvalidField",
-  "category": "FSM",
+  "formalism": "fsm",
   "domain": "io",
+  "signature": {
+    "name": "StreamTokenizer_AccessInvalidField",
+    "parameters": [
+      {
+        "type": "StreamTokenizer",
+        "name": "s"
+      }
+    ]
+  },
   "ir": {
     "type": "fsm",
-    "states": [
-      "valid",
-      "read_word",
-      "read_num",
-      "done"
-    ],
-    "start_state": "valid",
-    "transitions": [
+    "events": [
       {
-        "from": "valid",
-        "event": "nexttoken_word",
-        "to": "read_word"
+        "kind": "event",
+        "name": "nexttoken_word",
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "StreamTokenizer",
+            "name": "s"
+          }
+        ],
+        "pointcut_raw": "call(* StreamTokenizer+.nextToken(..)) && target(s) && condition(t == StreamTokenizer.TT_WORD)",
+        "returning": {
+          "type": "int",
+          "name": "t"
+        },
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "valid",
-        "event": "nexttoken_num",
-        "to": "read_num"
+        "kind": "event",
+        "name": "nexttoken_num",
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "StreamTokenizer",
+            "name": "s"
+          }
+        ],
+        "pointcut_raw": "call(* StreamTokenizer+.nextToken(..)) && target(s) && condition(t == StreamTokenizer.TT_NUMBER)",
+        "returning": {
+          "type": "int",
+          "name": "t"
+        },
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "valid",
-        "event": "nexttoken_eol",
-        "to": "valid"
+        "kind": "event",
+        "name": "nexttoken_eol",
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "StreamTokenizer",
+            "name": "s"
+          }
+        ],
+        "pointcut_raw": "call(* StreamTokenizer+.nextToken(..)) && target(s) && condition(t == StreamTokenizer.TT_EOL)",
+        "returning": {
+          "type": "int",
+          "name": "t"
+        },
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "valid",
-        "event": "nexttoken_eof",
-        "to": "done"
+        "kind": "event",
+        "name": "nexttoken_eof",
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "StreamTokenizer",
+            "name": "s"
+          }
+        ],
+        "pointcut_raw": "call(* StreamTokenizer+.nextToken(..)) && target(s) && condition(t == StreamTokenizer.TT_EOF)",
+        "returning": {
+          "type": "int",
+          "name": "t"
+        },
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "read_word",
-        "event": "sval",
-        "to": "read_word"
+        "kind": "event",
+        "name": "sval",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "StreamTokenizer",
+            "name": "s"
+          }
+        ],
+        "pointcut_raw": "get(* StreamTokenizer.sval) && target(s)",
+        "body": {
+          "raw_lines": []
+        }
       },
       {
-        "from": "read_word",
-        "event": "nexttoken_word",
-        "to": "read_word"
-      },
-      {
-        "from": "read_word",
-        "event": "nexttoken_num",
-        "to": "read_num"
-      },
-      {
-        "from": "read_word",
-        "event": "nexttoken_eol",
-        "to": "valid"
-      },
-      {
-        "from": "read_word",
-        "event": "nexttoken_eof",
-        "to": "done"
-      },
-      {
-        "from": "read_num",
-        "event": "nval",
-        "to": "read_num"
-      },
-      {
-        "from": "read_num",
-        "event": "nexttoken_word",
-        "to": "read_word"
-      },
-      {
-        "from": "read_num",
-        "event": "nexttoken_num",
-        "to": "read_num"
-      },
-      {
-        "from": "read_num",
-        "event": "nexttoken_eol",
-        "to": "valid"
-      },
-      {
-        "from": "read_num",
-        "event": "nexttoken_eof",
-        "to": "done"
+        "kind": "event",
+        "name": "nval",
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "StreamTokenizer",
+            "name": "s"
+          }
+        ],
+        "pointcut_raw": "get(* StreamTokenizer.nval) && target(s)",
+        "body": {
+          "raw_lines": []
+        }
       }
     ],
-    "violation_message": "The caller attempted to read an invalidated value."
+    "fsm": {
+      "raw_block": "\t\tvalid [\n\t\t\tnexttoken_word -> read_word\n\t\t\tnexttoken_num -> read_num\n\t\t\tnexttoken_eol -> valid\n\t\t\tnexttoken_eof -> done\n\t\t]\n\t\tread_word [\n\t\t\tsval -> read_word\n\t\t\tnexttoken_word -> read_word\n\t\t\tnexttoken_num -> read_num\n\t\t\tnexttoken_eol -> valid\n\t\t\tnexttoken_eof -> done\n\t\t]\n\t\tread_num [\n\t\t\tnval -> read_num\n\t\t\tnexttoken_word -> read_word\n\t\t\tnexttoken_num -> read_num\n\t\t\tnexttoken_eol -> valid\n\t\t\tnexttoken_eof -> done\n\t\t]\n\t\tdone [\n\t\t]",
+      "raw_lines": [
+        "\t\tvalid [",
+        "\t\t\tnexttoken_word -> read_word",
+        "\t\t\tnexttoken_num -> read_num",
+        "\t\t\tnexttoken_eol -> valid",
+        "\t\t\tnexttoken_eof -> done",
+        "\t\t]",
+        "\t\tread_word [",
+        "\t\t\tsval -> read_word",
+        "\t\t\tnexttoken_word -> read_word",
+        "\t\t\tnexttoken_num -> read_num",
+        "\t\t\tnexttoken_eol -> valid",
+        "\t\t\tnexttoken_eof -> done",
+        "\t\t]",
+        "\t\tread_num [",
+        "\t\t\tnval -> read_num",
+        "\t\t\tnexttoken_word -> read_word",
+        "\t\t\tnexttoken_num -> read_num",
+        "\t\t\tnexttoken_eol -> valid",
+        "\t\t\tnexttoken_eof -> done",
+        "\t\t]",
+        "\t\tdone [",
+        "\t\t]"
+      ]
+    },
+    "analysis": {
+      "states": [
+        "done",
+        "read_num",
+        "read_word",
+        "valid"
+      ],
+      "initial": "valid",
+      "transitions": [
+        {
+          "from": "valid",
+          "event": "nexttoken_word",
+          "to": "read_word"
+        },
+        {
+          "from": "valid",
+          "event": "nexttoken_num",
+          "to": "read_num"
+        },
+        {
+          "from": "valid",
+          "event": "nexttoken_eol",
+          "to": "valid"
+        },
+        {
+          "from": "valid",
+          "event": "nexttoken_eof",
+          "to": "done"
+        },
+        {
+          "from": "read_word",
+          "event": "sval",
+          "to": "read_word"
+        },
+        {
+          "from": "read_word",
+          "event": "nexttoken_word",
+          "to": "read_word"
+        },
+        {
+          "from": "read_word",
+          "event": "nexttoken_num",
+          "to": "read_num"
+        },
+        {
+          "from": "read_word",
+          "event": "nexttoken_eol",
+          "to": "valid"
+        },
+        {
+          "from": "read_word",
+          "event": "nexttoken_eof",
+          "to": "done"
+        },
+        {
+          "from": "read_num",
+          "event": "nval",
+          "to": "read_num"
+        },
+        {
+          "from": "read_num",
+          "event": "nexttoken_word",
+          "to": "read_word"
+        },
+        {
+          "from": "read_num",
+          "event": "nexttoken_num",
+          "to": "read_num"
+        },
+        {
+          "from": "read_num",
+          "event": "nexttoken_eol",
+          "to": "valid"
+        },
+        {
+          "from": "read_num",
+          "event": "nexttoken_eof",
+          "to": "done"
+        }
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The caller attempted to read an invalidated value. \" + __LOC);",
+        "__RESET;"
+      ]
+    }
   }
 }

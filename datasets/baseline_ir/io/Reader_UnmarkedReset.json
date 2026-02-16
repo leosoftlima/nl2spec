@@ -1,20 +1,66 @@
 {
   "id": "Reader_UnmarkedReset",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "io",
+  "signature": {
+    "name": "Reader_UnmarkedReset",
+    "parameters": [
+      {
+        "type": "Reader",
+        "name": "r"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "event",
         "name": "mark",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Reader",
+            "name": "r"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Reader+.mark(..)) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )",
+          "calls": [
+            "* Reader+.mark(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "reset",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Reader",
+            "name": "r"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Reader+.reset(..)) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )",
+          "calls": [
+            "* Reader+.reset(..)"
+          ]
+        }
       }
     ],
-    "pattern": "mark (mark | reset)*",
-    "violation_message": "BufferedReader and LineNumberReader allow reset() only after mark() has been invoked."
+    "formula": {
+      "raw": "mark (mark | reset)*",
+      "raw_lines": [
+        "mark (mark | reset)*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"BufferedReader and LineNumberReader allow reset() only after mark() has been invoked.\");"
+      ]
+    }
   }
 }

@@ -1,16 +1,35 @@
 {
   "id": "Short_StaticFactory",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Short_StaticFactory",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "constructor_create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [],
+        "pointcut_raw": "call(Short+.new(short))",
+        "body": {
+          "raw_lines": [
+            "            RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "            RVMLogging.out.println(Level.CRITICAL, \"Using the constructor Short(short value) might be inefficient. Use valueOf(short) if it is appropriate.\");"
+          ]
+        },
+        "returning": {
+          "type": "Short",
+          "name": "l"
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "Using the constructor Short(short value) might be inefficient. Use valueOf(short) if it is appropriate."
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

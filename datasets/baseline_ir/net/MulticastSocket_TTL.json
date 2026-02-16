@@ -1,20 +1,52 @@
 {
   "id": "MulticastSocket_TTL",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "MulticastSocket_TTL",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "set1",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "byte",
+            "name": "ttl"
+          }
+        ],
+        "pointcut_raw": "call(* MulticastSocket+.setTTL(byte)) && args(ttl)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.check(__DEFAULT_MESSAGE, ttl & 0xff);"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "set2",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "int",
+            "name": "ttl"
+          }
+        ],
+        "pointcut_raw": "call(* MulticastSocket+.setTimeToLive(int)) && args(ttl)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.check(__DEFAULT_MESSAGE, ttl);"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "The specified TTL"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

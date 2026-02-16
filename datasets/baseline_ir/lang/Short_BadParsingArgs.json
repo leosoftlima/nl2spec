@@ -1,20 +1,83 @@
 {
   "id": "Short_BadParsingArgs",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "Short_BadParsingArgs",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "bad_arg",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "String",
+            "name": "s"
+          },
+          {
+            "type": "int",
+            "name": "radix"
+          }
+        ],
+        "pointcut_raw": "call(* Short.parseShort(String, int)) && args(s, radix)",
+        "body": {
+          "raw_lines": [
+            "\t\t\tif(s == null || s.length() == 0){",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"Wrong argument to Short.parseShort(String s, int radix)\");",
+            "\t\t\t} else if(radix < java.lang.Character.MIN_RADIX || radix > java.lang.Character.MAX_RADIX){",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"Wrong argument to Short.parseShort(String s, int radix)\");",
+            "\t\t\t} else {",
+            "\t\t\t\tfor(int j = 0; j < s.length(); j++){",
+            "\t\t\t\t\tif(Character.digit(s.charAt(j), radix) == -1){",
+            "\t\t\t\t\t\tif(!(j == 0 && s.length() > 1 && s.charAt(0) == '-')){",
+            "\t\t\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"Wrong argument to Short.parseShort(String s, int radix)\");",
+            "\t\t\t\t\t\t}",
+            "\t\t\t\t\t}",
+            "\t\t\t\t}",
+            "\t\t\t}"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "bad_arg2",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "String",
+            "name": "s"
+          }
+        ],
+        "pointcut_raw": "call(* Short.parseShort(String)) && args(s)",
+        "body": {
+          "raw_lines": [
+            "\t\t\tif(s == null || s.length() == 0){",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"Wrong argument to Short.parseShort(String s)\");",
+            "\t\t\t} else {",
+            "\t\t\t\tfor(int j = 0; j < s.length(); j++){",
+            "\t\t\t\t\tif(Character.digit(s.charAt(j), 10) == -1){",
+            "\t\t\t\t\t\tif(!(j == 0 && s.length() > 1 && s.charAt(0) == '-')){",
+            "\t\t\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"Wrong argument to Short.parseShort(String s)\");",
+            "\t\t\t\t\t\t}",
+            "\t\t\t\t\t}",
+            "\t\t\t\t}",
+            "\t\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "Wrong argument to Short.parseShort(String s, int radix)"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

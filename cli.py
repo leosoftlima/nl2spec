@@ -14,26 +14,36 @@ def build_parser() -> argparse.ArgumentParser:
         description="Pipeline for NL-to-Runtime Specification generation and IR-based evaluation."
 
     )
+   
+    # GLOBAL OPTIONS
+    p.add_argument(
+        "--log-level",
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        help="Logging level"
+    )
+
+    p.add_argument(
+        "--config",
+        default="config.yaml",
+        help="Path to config.yaml"
+    )
 
     sub = p.add_subparsers(dest="cmd", required=True)
 
     # run
     run = sub.add_parser("run", help="Run pipeline stages.")
-    run.add_argument("--config", default="config.yaml", help="Path to config.yaml")
     run.add_argument("-g", "--generate", action="store_true")
     run.add_argument("-l", "--llm", action="store_true")
     run.add_argument("-c", "--compare", action="store_true")
-    run.add_argument("--csv", action="store_true")
-    run.add_argument("--stats", action="store_true")
     run.add_argument("--all", action="store_true")
-    run.add_argument("--log-level", default="INFO")
+
 
     # test
     tst = sub.add_parser("test", help="Run tests.")
     tst.add_argument("-g", "--generate", action="store_true")
     tst.add_argument("-c", "--compare", action="store_true")
     tst.add_argument("--all", action="store_true")
-    tst.add_argument("--log-level", default="INFO")
 
     return p
 
@@ -49,8 +59,8 @@ def main(argv: Optional[list[str]] = None) -> int:
             generate=args.generate or args.all,
             llm=args.llm or args.all,
             compare=args.compare or args.all,
-            csv=args.csv or args.all,
-            stats=args.stats or args.all,
+           # csv=args.csv or args.all,
+           # stats=args.stats or args.all,
         )
 
         if not any([flags.generate, flags.llm, flags.compare, flags.csv, flags.stats]):

@@ -1,24 +1,83 @@
 {
   "id": "Collections_NewSetFromMap",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "Collections_NewSetFromMap",
+    "parameters": [
+      {
+        "type": "Map",
+        "name": "map"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "map"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Collections.newSetFromMap(Map)) && args(map) && condition(map.size() == 0)",
+          "calls": [
+            "* Collections.newSetFromMap(Map)"
+          ]
+        }
       },
       {
+        "kind": "creation",
         "name": "bad_create",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "map"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Collections.newSetFromMap(Map)) && args(map) && condition(map.size() > 0)",
+          "calls": [
+            "* Collections.newSetFromMap(Map)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "access",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "map"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(* Map+.*(..)) && target(map)",
+          "calls": [
+            "* Map+.*(..)"
+          ]
+        }
       }
     ],
-    "pattern": "bad_create | (create access)",
-    "violation_message": "The map used in Collections.newSetFromMap() must be empty before calling this method, and should not be accessed directly after this method returns."
+    "formula": {
+      "raw": "bad_create | (create access)",
+      "raw_lines": [
+        "bad_create | (create access)"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The map used in Collections.newSetFromMap() must be empty before calling this method, and should not be accessed directly after this method returns.\");"
+      ]
+    }
   }
 }

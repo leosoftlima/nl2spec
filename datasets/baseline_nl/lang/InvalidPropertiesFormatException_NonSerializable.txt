@@ -1,1 +1,0 @@
-InvalidPropertiesFormatException is not intended to be Serialized.

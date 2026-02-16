@@ -1,24 +1,98 @@
 {
   "id": "Collection_UnsynchronizedAddAll",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "Collection_UnsynchronizedAddAll",
+    "parameters": [
+      {
+        "type": "Collection",
+        "name": "t"
+      },
+      {
+        "type": "Collection",
+        "name": "s"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "enter",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Collection",
+            "name": "t"
+          },
+          {
+            "type": "Collection",
+            "name": "s"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(boolean Collection+.addAll(..)) && target(t) && args(s)",
+          "calls": [
+            "boolean Collection+.addAll(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "modify",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Collection",
+            "name": "s"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Collection+.add*(..)) || call(* Collection+.remove*(..)) || call(* Collection+.clear(..)) || call(* Collection+.retain*(..)) ) && target(s)",
+          "calls": [
+            "* Collection+.add*(..)",
+            "* Collection+.remove*(..)",
+            "* Collection+.clear(..)",
+            "* Collection+.retain*(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "leave",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Collection",
+            "name": "t"
+          },
+          {
+            "type": "Collection",
+            "name": "s"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(boolean Collection+.addAll(..)) && target(t) && args(s)",
+          "calls": [
+            "boolean Collection+.addAll(..)"
+          ]
+        }
       }
     ],
-    "pattern": "(enter leave modify*)*",
-    "violation_message": "The source collection of addAll() has been modified."
+    "formula": {
+      "raw": "(enter leave modify*)*",
+      "raw_lines": [
+        "(enter leave modify*)*"
+      ]
+    },
+    "violation": {
+      "tag": "fail",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The source collection of addAll() has been modified.\");"
+      ]
+    }
   }
 }

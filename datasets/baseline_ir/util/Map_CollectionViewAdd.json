@@ -1,20 +1,77 @@
 {
   "id": "Map_CollectionViewAdd",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "Map_CollectionViewAdd",
+    "parameters": [
+      {
+        "type": "Map",
+        "name": "m"
+      },
+      {
+        "type": "Collection",
+        "name": "c"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "getset",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Map",
+            "name": "m"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(Set Map+.keySet()) || call(Set Map+.entrySet()) || call(Collection Map+.values()) ) && target(m)",
+          "calls": [
+            "Set Map+.keySet()",
+            "Set Map+.entrySet()",
+            "Collection Map+.values()"
+          ]
+        },
+        "returning": {
+          "type": "Collection",
+          "name": "c"
+        }
       },
       {
+        "kind": "event",
         "name": "add",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Collection",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Collection+.add(..)) || call(* Collection+.addAll(..)) ) && target(c)",
+          "calls": [
+            "* Collection+.add(..)",
+            "* Collection+.addAll(..)"
+          ]
+        }
       }
     ],
-    "pattern": "getset add+",
-    "violation_message": "A collection/set view of a map does not support add()/addAll()."
+    "formula": {
+      "raw": "getset add+",
+      "raw_lines": [
+        "getset add+"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"A collection/set view of a map does not support add()/addAll().\");"
+      ]
+    }
   }
 }

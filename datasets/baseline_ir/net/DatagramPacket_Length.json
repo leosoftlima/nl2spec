@@ -1,20 +1,64 @@
 {
   "id": "DatagramPacket_Length",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "DatagramPacket_Length",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "construct_len",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "byte[]",
+            "name": "buffer"
+          },
+          {
+            "type": "int",
+            "name": "length"
+          }
+        ],
+        "pointcut_raw": "( call(DatagramPacket.new(byte[], int)) || call(DatagramPacket.new(byte[], int, InetAddress, int)) || call(DatagramPacket.new(byte[], int, SocketAddress)) ) && args(buffer, length, ..)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.validateOffsetLength(buffer, 0, length, __DEFAULT_MESSAGE);"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "construct_offlen",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "byte[]",
+            "name": "buffer"
+          },
+          {
+            "type": "int",
+            "name": "offset"
+          },
+          {
+            "type": "int",
+            "name": "length"
+          }
+        ],
+        "pointcut_raw": "( call(DatagramPacket.new(byte[], int, int)) || call(DatagramPacket.new(byte[], int, int, InetAddress, int)) || call(DatagramPacket.new(byte[], int, int, SocketAddress)) ) && args(buffer, offset, length, ..)",
+        "body": {
+          "raw_lines": [
+            "\t\tthis.validateOffsetLength(buffer, offset, length, __DEFAULT_MESSAGE);"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "The offset argument and/or the length argument are out of range;"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

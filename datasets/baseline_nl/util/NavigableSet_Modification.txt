@@ -1,1 +1,50 @@
-The NavigableSet was modified while an iteration over a NavigableSet that shares the same storage.
+The following events are involved in this specification:
+
+1) Event name: create
+   Kind: creation
+   Timing: after
+   Parameters: NavigableSet s1
+   Returning: NavigableSet s2
+   Pointcut: call(NavigableSet NavigableSet+.descendingSet()) && target(s1)
+
+2) Event name: getiter1
+   Kind: event
+   Timing: after
+   Parameters: NavigableSet s1
+   Returning: Iterator i
+   Pointcut: call(Iterator Iterable+.iterator()) && target(s1)
+
+3) Event name: getiter2
+   Kind: event
+   Timing: after
+   Parameters: NavigableSet s2
+   Returning: Iterator i
+   Pointcut: call(Iterator Iterable+.iterator()) && target(s2)
+
+4) Event name: modify1
+   Kind: event
+   Timing: before
+   Parameters: NavigableSet s1
+   Pointcut: ( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(s1)
+
+5) Event name: modify2
+   Kind: event
+   Timing: before
+   Parameters: NavigableSet s2
+   Pointcut: ( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(s2)
+
+6) Event name: useiter
+   Kind: event
+   Timing: before
+   Parameters: Iterator i
+   Pointcut: ( call(* Iterator.hasNext(..)) || call(* Iterator.next(..)) ) && target(i)
+
+The required execution pattern is defined by the following regular expression:
+
+create (modify1 | modify2)* (getiter1 | getiter2) useiter* (modify1 | modify2)+ useiter
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The NavigableSet was modified while an iteration over a NavigableSet that shares the same storage."

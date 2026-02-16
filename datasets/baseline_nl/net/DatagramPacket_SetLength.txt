@@ -1,1 +1,13 @@
-The length argument is out of range;
+The following events are monitored in this specification:
+
+1) Event name: setlength
+   Kind: event
+   Timing: before
+   Parameters: DatagramPacket packet, int length
+   Pointcut: call(void DatagramPacket.setLength(int)) && target(packet) && args(length)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

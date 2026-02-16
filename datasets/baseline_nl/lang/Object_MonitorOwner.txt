@@ -1,1 +1,19 @@
-notify() and notifyAll() can be called only by the owner of this object's monitor.
+The following events are monitored in this specification:
+
+1) Event name: bad_notify
+   Kind: event
+   Timing: before
+   Parameters: Object o
+   Pointcut: (call(* Object+.notify(..)) || call(* Object+.notifyAll(..)))&& target(o) && if(!Thread.holdsLock(o))
+
+2) Event name: bad_wait
+   Kind: event
+   Timing: before
+   Parameters: Object o
+   Pointcut: call(* Object+.wait(..)) && target(o) && if(!Thread.holdsLock(o))
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

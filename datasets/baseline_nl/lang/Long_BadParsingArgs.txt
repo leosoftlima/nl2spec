@@ -1,1 +1,19 @@
-Wrong argument to Long.parseLong(String s, int radix)
+The following events are monitored in this specification:
+
+1) Event name: bad_arg
+   Kind: event
+   Timing: before
+   Parameters: String s, int radix
+   Pointcut: call(* Long.parseLong(String, int)) && args(s, radix)
+
+2) Event name: bad_arg2
+   Kind: event
+   Timing: before
+   Parameters: String s
+   Pointcut: call(* Long.parseLong(String)) && args(s)
+
+A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+
+The violation message that must be used in the JSON output is:
+
+"A violation must be reported when this condition occurs."

@@ -1,20 +1,44 @@
 {
   "id": "CharSequence_UndefinedHashCode",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "lang",
+  "signature": {
+    "name": "CharSequence_UndefinedHashCode",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "equals",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [],
+        "pointcut_raw": "call(* CharSequence+.equals(..)) && !target(String) && !target(CharBuffer)",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"equals and hashCode methods might not be supported in CharSequence\");"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "hashCode",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [],
+        "pointcut_raw": "call(* CharSequence+.hashCode(..)) && !target(String) && !target(CharBuffer)",
+        "body": {
+          "raw_lines": [
+            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\tRVMLogging.out.println(Level.CRITICAL, \"equals and hashCode methods might not be supported in CharSequence\");"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "equals and hashCode methods might not be supported in CharSequence"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

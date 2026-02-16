@@ -1,1 +1,0 @@
-The source stream or reader was used after the Scanner had been closed.

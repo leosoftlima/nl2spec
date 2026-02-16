@@ -1,1 +1,29 @@
-The source map of putAll() has been modified.
+The following events are involved in this specification:
+
+1) Event name: enter
+   Kind: creation
+   Timing: before
+   Parameters: Map t, Map s
+   Pointcut: call(boolean Map+.putAll(..)) && target(t) && args(s)
+
+2) Event name: modify
+   Kind: event
+   Timing: before
+   Parameters: Map s
+   Pointcut: ( call(* Map+.clear(..)) || call(* Map+.put*(..)) || call(* Map+.remove*(..)) ) && target(s)
+
+3) Event name: leave
+   Kind: event
+   Timing: after
+   Parameters: Map t, Map s
+   Pointcut: call(void Map+.putAll(..)) && target(t) && args(s)
+
+The required execution pattern is defined by the following regular expression:
+
+(enter leave modify*)*
+
+Any execution trace that does not conform to this pattern constitutes a violation.
+
+The violation message that must be used in the JSON output is:
+
+"The source map of putAll() has been modified."

@@ -1,16 +1,60 @@
 {
   "id": "DatagramSocket_TrafficClass",
-  "category": "EVENT",
+  "formalism": "event",
   "domain": "net",
+  "signature": {
+    "name": "DatagramSocket_TrafficClass",
+    "parameters": []
+  },
   "ir": {
     "type": "event",
     "events": [
       {
+        "kind": "event",
         "name": "settc",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "DatagramSocket",
+            "name": "socket"
+          },
+          {
+            "type": "int",
+            "name": "tc"
+          }
+        ],
+        "pointcut_raw": "call(void DatagramSocket.setTrafficClass(int)) && target(socket) && args(tc)",
+        "body": {
+          "raw_lines": [
+            "\t\tboolean outofrange = !(0 <= tc && tc <= 255);",
+            "\t\tboolean mbz = false;",
+            "\t\tboolean precedence = false;",
+            "\t\tInetAddress addr = socket.getLocalAddress();",
+            "\t\tif (addr instanceof Inet4Address) {",
+            "\t\t\tmbz = (tc & 1) != 0 ? true : false;",
+            "\t\t\tprecedence = (tc >> (4 + 1)) != 0;",
+            "\t\t}",
+            "\t\tif (outofrange || mbz || precedence) {",
+            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+            "\t\t\tif (outofrange) {",
+            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The traffic class value \" + tc + \" is out of range; [0 ~ 255].\");",
+            "\t\t\t}",
+            "\t\t\telse {",
+            "\t\t\t\tif (mbz) {",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The traffic class value sets 1 to MBZ.\");",
+            "\t\t\t\t}",
+            "\t\t\t\tif (precedence) {",
+            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The traffic class value sets non-zero precedence.\");",
+            "\t\t\t\t}",
+            "\t\t\t}",
+            "\t\t}"
+          ]
+        }
       }
     ],
-    "guard": "true",
-    "violation_message": "The traffic class value"
+    "violation": {
+      "tag": null,
+      "raw_block": []
+    }
   }
 }

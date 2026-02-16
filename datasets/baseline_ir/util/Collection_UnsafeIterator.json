@@ -1,24 +1,98 @@
 {
   "id": "Collection_UnsafeIterator",
-  "category": "ERE",
+  "formalism": "ere",
   "domain": "util",
+  "signature": {
+    "name": "Collection_UnsafeIterator",
+    "parameters": [
+      {
+        "type": "Collection",
+        "name": "c"
+      },
+      {
+        "type": "Iterator",
+        "name": "i"
+      }
+    ]
+  },
   "ir": {
     "type": "ere",
     "events": [
       {
+        "kind": "creation",
         "name": "create",
-        "timing": "after"
+        "timing": "after",
+        "parameters": [
+          {
+            "type": "Collection",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "call(Iterator Iterable+.iterator()) && target(c)",
+          "calls": [
+            "Iterator Iterable+.iterator()"
+          ]
+        },
+        "returning": {
+          "type": "Iterator",
+          "name": "i"
+        }
       },
       {
+        "kind": "event",
         "name": "modify",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Collection",
+            "name": "c"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.offer*(..)) || call(* Collection+.pop(..)) || call(* Collection+.push(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(c)",
+          "calls": [
+            "* Collection+.add*(..)",
+            "* Collection+.clear(..)",
+            "* Collection+.offer*(..)",
+            "* Collection+.pop(..)",
+            "* Collection+.push(..)",
+            "* Collection+.remove*(..)",
+            "* Collection+.retain*(..)"
+          ]
+        }
       },
       {
+        "kind": "event",
         "name": "useiter",
-        "timing": "before"
+        "timing": "before",
+        "parameters": [
+          {
+            "type": "Iterator",
+            "name": "i"
+          }
+        ],
+        "pointcut": {
+          "raw": "( call(* Iterator.hasNext(..)) || call(* Iterator.next(..)) ) && target(i)",
+          "calls": [
+            "* Iterator.hasNext(..)",
+            "* Iterator.next(..)"
+          ]
+        }
       }
     ],
-    "pattern": "create useiter* modify+ useiter",
-    "violation_message": "The collection was modified while an iterator is being used."
+    "formula": {
+      "raw": "create useiter* modify+ useiter",
+      "raw_lines": [
+        "create useiter* modify+ useiter"
+      ]
+    },
+    "violation": {
+      "tag": "match",
+      "raw_block": [
+        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
+        "RVMLogging.out.println(Level.CRITICAL, \"The collection was modified while an iterator is being used.\");"
+      ]
+    }
   }
 }
