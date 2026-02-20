@@ -3,7 +3,7 @@ import sys
 
 from nl2spec.core.convert.ir_to_nl import IRToNL
 
-#execution python -m nl2spec.scripts.app_generated_ir_to_nl
+#run: python -m nl2spec.scripts.run_generated_ir_to_nl
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 IR_ROOT = PROJECT_ROOT / "nl2spec" / "datasets" / "baseline_ir"

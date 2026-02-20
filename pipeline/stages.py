@@ -219,7 +219,8 @@ def stage_prepare_datasets(cfg, flags):
 def _prepare_baseline_nl(cfg):
     baseline_ir_root = Path(cfg["paths"]["baseline_ir"])
     baseline_nl_root = Path(cfg["paths"]["baseline_nl"])
-    template_dir = Path(cfg["paths"]["ir_to_nl_templates"])
+    PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    TEMPLATE_DIR = PROJECT_ROOT / "nl2spec"  / "prompts" / "templates"
 
     if baseline_nl_root.exists() and any(baseline_nl_root.rglob("*.txt")):
         log.info("Baseline NL already exists. Skipping IR→NL conversion.")
@@ -227,7 +228,7 @@ def _prepare_baseline_nl(cfg):
 
     log.info("Generating NL from IR...")
 
-    builder = IRToNL(template_dir)
+    builder = IRToNL(TEMPLATE_DIR)
 
     total = builder.generate_from_directory(
         baseline_ir_root,
@@ -235,7 +236,7 @@ def _prepare_baseline_nl(cfg):
     )
 
     log.info("IR → NL conversion completed (%d files)", total)
-    
+
 def _prepare_baseline_ir(cfg):
     mop_root = Path(cfg["paths"]["mop_root"])
     baseline_ir_root = Path(cfg["paths"]["baseline_ir"])

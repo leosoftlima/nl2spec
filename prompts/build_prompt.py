@@ -23,9 +23,6 @@ def _save_prompt(
     ir_type: str,
     output_dir: Optional[Path] = None,
 ) -> None:
-    """
-    Persist the generated prompt for inspection and reproducibility.
-    """
 
     base_dir = output_dir or GENERATED_DIR
     target_dir = base_dir / ir_type.upper()
@@ -46,17 +43,6 @@ def build_prompt(
     save: bool = False,
     output_dir: Optional[Path] = None,
 ) -> str:
-    """
-    Build a prompt for a given IR type (fsm, ere, event, ltl).
-
-    The prompt is composed of:
-      1) header.txt (global instructions)
-      2) template_<ir_type>.txt (IR-specific guidance)
-      3) few-shot examples (if any)
-      4) explicit task with the NL description
-
-    If save=True and scenario_id is provided, the prompt is saved to disk.
-    """
 
     ir_type = ir_type.lower()
     if ir_type not in SUPPORTED_IR_TYPES:
@@ -68,17 +54,17 @@ def build_prompt(
     log.info("Building prompt for IR type: %s", ir_type)
 
     # ---------- fixed prompt parts ----------
-    header_path = PROMPT_DIR / "base" / "header.txt"
-    template_path = PROMPT_DIR / ir_type / "template.txt"
+    header_path = PROMPT_DIR / "templates" / "base" / "header.txt"
+    context_path = PROMPT_DIR / "templates" / ir_type / f"context_{ir_type}.txt"
 
     if not header_path.exists():
         raise FileNotFoundError(f"Prompt header not found: {header_path}")
 
-    if not template_path.exists():
-        raise FileNotFoundError(f"Prompt template not found: {template_path}")
+    if not context_path.exists():
+        raise FileNotFoundError(f"Context template not found: {context_path}")
 
     header = _load(header_path)
-    template = _load(template_path)
+    context_template = _load(context_path)
 
     # ---------- few-shot examples ----------
     examples = []
@@ -95,19 +81,14 @@ def build_prompt(
     else:
         fewshot_block = "None"
 
-    # inject few-shot block into template
-    template = template.replace(
+    context_template = context_template.replace(
         "{{FEW_SHOT_EXAMPLES}}",
         fewshot_block
     )
 
-    # ---------- explicit task (GENERIC) ----------
-    task = f"""
-Task:
-Generate a {ir_type.upper()} runtime verification IR in JSON format
-that captures the behavior described below.
-
-Natural language description:
+    # ---------- NL task ----------
+    task_block = f"""
+Natural Language Specification:
 \"\"\"
 {nl_text}
 \"\"\"
@@ -119,14 +100,12 @@ Natural language description:
         len(examples),
     )
 
-    # ---------- final prompt ----------
     prompt = "\n\n".join([
         header,
-        template,
-        task
+        context_template,
+        task_block
     ])
 
-    # ---------- optional persistence ----------
     if save and scenario_id:
         _save_prompt(
             prompt,

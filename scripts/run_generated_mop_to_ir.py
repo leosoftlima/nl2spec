@@ -5,6 +5,7 @@ import json
 
 from core.convert.mop_to_ir import convert_mop_file_to_ir, detect_formalism
 
+# run: python -m nl2spec.scripts.run_generated_mop_to_ir
 
 # ==========================================================
 # PATHS

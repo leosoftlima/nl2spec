@@ -3,6 +3,7 @@ import json
 import sys
 import shutil
 
+# run # run: python -m nl2spec.scripts.run_generated_ir_to_mop
 
 # ==========================================================
 # PATHS

@@ -207,32 +207,87 @@ class FewShotLoader:
     # LTL Extractor (Pattern-Aware + Composite Features)
     # =========================================================
 
-    import re
-
     def _extract_vector_ltl(self, spec_json: dict) -> dict:
-     vector: Dict[str, Any] = {}
+        vector: Dict[str, Any] = {}
 
-     ir = spec_json.get("ir", {})
-     formula_raw = ir.get("formula", {}).get("raw", "")
+        ir = spec_json.get("ir", {})
+        events = ir.get("events", [])
+        formula_raw = ir.get("formula", {}).get("raw", "")
 
-     vector["len_formula"] = len(formula_raw)
+        vector["num_events"] = len(events)
 
-     vector["count_always"] = formula_raw.count("[]")
-     vector["count_eventually"] = formula_raw.count("<>")
-     vector["count_next"] = formula_raw.count(" X ") + formula_raw.count("X(")
-     vector["count_until"] = formula_raw.count(" U ")
-     vector["count_negation"] = formula_raw.count("!")
-     vector["count_implication"] = formula_raw.count("=>")
-     vector["count_or"] = formula_raw.count(" or ")
+        has_returning = 0
+        has_boolean_returning = 0
+        has_condition_in_pointcut = 0
+        has_end_program_event = 0
+        saw_true_variant = 0
+        saw_false_variant = 0
 
-     # crude nesting estimate
-     vector["paren_depth"] = formula_raw.count("(")
+        for e in events:
+            name = e.get("name", "")
 
-     # atomic propositions estimation
-     props = re.findall(r"[a-zA-Z_][a-zA-Z0-9_]*", formula_raw)
-     vector["num_atomic_props"] = len(set(props))
+            if name == "endProg":
+                has_end_program_event = 1
 
-     return vector
+            if "returning" in e:
+                has_returning = 1
+                ret_type = e.get("returning", {}).get("type", "")
+                if ret_type == "boolean":
+                    has_boolean_returning = 1
+
+            pointcut_raw = e.get("pointcut", {}).get("raw", "")
+            if "condition(" in pointcut_raw:
+                has_condition_in_pointcut = 1
+
+            if "true" in name:
+                saw_true_variant = 1
+            if "false" in name:
+                saw_false_variant = 1
+
+        has_true_false_split = 1 if (saw_true_variant and saw_false_variant) else 0
+
+        vector["has_returning_event"] = has_returning
+        vector["has_boolean_returning"] = has_boolean_returning
+        vector["has_condition_in_pointcut"] = has_condition_in_pointcut
+        vector["has_end_program_event"] = has_end_program_event
+        vector["has_true_false_split"] = has_true_false_split
+
+        uses_always = 1 if "[]" in formula_raw else 0
+        uses_eventually = 1 if "<>" in formula_raw else 0
+        uses_past_o = 1 if "=> o" in formula_raw or " o " in formula_raw else 0
+        uses_star_operator = 1 if "(*)" in formula_raw else 0
+        uses_or = 1 if " or " in formula_raw else 0
+
+        pattern_precedence = 1 if "=> o" in formula_raw else 0
+        pattern_response = 1 if "=> <>" in formula_raw else 0
+
+        vector["uses_always"] = uses_always
+        vector["uses_eventually"] = uses_eventually
+        vector["uses_past_o"] = uses_past_o
+        vector["uses_star_operator"] = uses_star_operator
+        vector["uses_or"] = uses_or
+
+        vector["pattern_precedence"] = pattern_precedence
+        vector["pattern_response"] = pattern_response
+
+        vector["pattern_endprog_obligation"] = 1 if (
+            has_end_program_event and uses_always and pattern_precedence
+        ) else 0
+
+        vector["pattern_boolean_split"] = 1 if (
+            has_boolean_returning
+            and has_condition_in_pointcut
+            and has_true_false_split
+            and uses_star_operator
+        ) else 0
+
+        vector["pattern_precedence_only"] = 1 if (
+            pattern_precedence and not has_end_program_event and not uses_eventually
+        ) else 0
+
+        vector["pattern_response_only"] = 1 if (pattern_response and uses_eventually) else 0
+
+        return vector
 
     # =========================================================
     # FSM Extractor (Robust Graph + Semantics)
@@ -383,55 +438,116 @@ class FewShotLoader:
     _IO_TOKENS = {"closeable", "inputstream", "reader", "file", "classloader"}
 
     def _extract_vector_event(self, spec_json: dict) -> dict:
+        vector: Dict[str, Any] = {}
 
-     vector = {}
+        ir = spec_json.get("ir", {})
+        events = ir.get("events", []) or []
+        constraints = ir.get("constraints", []) or []
+        violation = ir.get("violation_message", "") or ""
 
-     ir = spec_json.get("ir", {})
-     events = ir.get("events", [])
-     constraints = ir.get("constraints", [])
+        vector["num_events"] = len(events)
+        vector["num_constraints"] = len(constraints)
+        vector["has_violation_message"] = 1 if violation.strip() else 0
+        vector["multi_event_constraints"] = 1 if len(events) > 1 else 0
 
-     vector["num_events"] = len(events)
-     vector["num_constraints"] = len(constraints)
+        total_params = 0
+        max_params = 0
+        has_returning = 0
+        has_boolean_returning = 0
+        has_condition = 0
+        has_static = 0
+        has_constructor = 0
 
-     total_params = 0
-     has_return = 0
-     has_after = 0
-     has_before = 0
+        raw_parts: List[str] = []
+        event_names: List[str] = []
 
-     for e in events:
-        params = e.get("parameters", [])
-        total_params += len(params)
+        for e in events:
+            event_names.append((e.get("name") or "").lower())
 
-        if any(p.get("name") == "ret" for p in params):
-            has_return = 1
+            params = e.get("parameters", None)
+            if params is None:
+                params = (e.get("signature", {}) or {}).get("parameters", []) or []
+            param_count = len(params)
 
-        if e.get("timing") == "after":
-            has_after = 1
-        if e.get("timing") == "before":
-            has_before = 1
+            total_params += param_count
+            max_params = max(max_params, param_count)
 
-     vector["num_parameters"] = total_params
-     vector["has_return"] = has_return
-     vector["has_after"] = has_after
-     vector["has_before"] = has_before
+            if "returning" in e:
+                has_returning = 1
+                if (e.get("returning", {}) or {}).get("type", "") == "boolean":
+                    has_boolean_returning = 1
 
-     # Analyze constraint expressions
-     full_expr = " ".join(
-        c.get("expression", "") for c in constraints
-     )
+            pointcut_raw = (e.get("pointcut", {}) or {}).get("raw", "") or ""
+            raw_parts.append(pointcut_raw)
 
-     vector["num_and"] = full_expr.count("&&")
-     vector["num_or"] = full_expr.count("||")
-     vector["num_eq"] = full_expr.count("==")
-     vector["num_neq"] = full_expr.count("!=")
-     vector["num_gt"] = full_expr.count(">")
-     vector["num_lt"] = full_expr.count("<")
-     vector["num_ge"] = full_expr.count(">=")
-     vector["num_le"] = full_expr.count("<=")
+            if " static " in f" {pointcut_raw.lower()} " or "static(" in pointcut_raw.lower():
+                has_static = 1
 
-     vector["expr_length"] = len(full_expr)
+            if "<init>" in pointcut_raw or ".<init>" in pointcut_raw:
+                has_constructor = 1
 
-     return vector
+            if "condition(" in pointcut_raw:
+                has_condition = 1
+
+        vector["total_event_parameters"] = total_params
+        vector["max_event_parameters"] = max_params
+        vector["has_returning_event"] = has_returning
+        vector["has_boolean_returning"] = has_boolean_returning
+        vector["has_condition_in_pointcut"] = has_condition
+        vector["has_static_method"] = has_static
+        vector["has_constructor_event"] = has_constructor
+
+        for c in constraints:
+            raw_parts.append((c.get("raw") or ""))
+
+        raw_parts.append(violation)
+        raw_blob = " ".join(raw_parts).lower()
+
+        vector["uses_equality"] = 1 if "==" in raw_blob else 0
+        vector["uses_inequality"] = 1 if "!=" in raw_blob else 0
+        vector["uses_comparison"] = 1 if any(op in raw_blob for op in ["<=", ">=", "<", ">"]) else 0
+        vector["uses_not"] = raw_blob.count("!")
+        vector["uses_and"] = raw_blob.count("&&")
+        vector["uses_or"] = raw_blob.count("||")
+
+        vector["uses_before"] = 1 if "before" in raw_blob else 0
+        vector["uses_after"] = 1 if "after" in raw_blob else 0
+
+        vector["compares_to_null"] = 1 if "null" in raw_blob else 0
+
+        has_number = bool(re.search(r"\b\d+\b", raw_blob)) or bool(re.search(r"\b0x[0-9a-f]+\b", raw_blob))
+        has_string_literal = '"' in raw_blob or "'" in raw_blob
+        vector["compares_to_constant"] = 1 if (has_number or has_string_literal) else 0
+
+        param_like = re.findall(r"\b[a-zA-Z_]\w*\b", raw_blob)
+        vector["compares_two_idents"] = 1 if (
+            len(set(param_like)) >= 8 and (
+                vector["uses_equality"] or vector["uses_inequality"] or vector["uses_comparison"]
+            )
+        ) else 0
+
+        name_blob = " ".join(event_names) + " " + raw_blob
+
+        def has_any(tokens: set) -> int:
+            return 1 if any(t in name_blob for t in tokens) else 0
+
+        vector["domain_numeric"] = has_any(self._NUMERIC_CLASSES)
+        vector["domain_collection"] = has_any(self._COLLECTION_TOKENS)
+        vector["domain_network"] = has_any(self._NETWORK_TOKENS)
+        vector["domain_permission"] = has_any(self._PERMISSION_TOKENS)
+        vector["domain_io"] = has_any(self._IO_TOKENS)
+        vector["domain_comparable"] = 1 if ("compareto" in name_blob or "comparable" in name_blob) else 0
+
+        vector["pattern_null"] = 1 if "null" in raw_blob else 0
+        vector["pattern_decode"] = 1 if "decode" in raw_blob else 0
+        vector["pattern_parse"] = 1 if "parse" in raw_blob else 0
+        vector["pattern_factory"] = 1 if "static" in raw_blob else 0
+        vector["pattern_comparable"] = 1 if "compareto" in raw_blob else 0
+        vector["pattern_permission"] = 1 if "permission" in raw_blob else 0
+        vector["pattern_timeout"] = 1 if "timeout" in raw_blob else 0
+        vector["pattern_port"] = 1 if "port" in raw_blob else 0
+
+        return vector
 
     # =========================================================
     # DISTANCE DISPATCHER
@@ -549,22 +665,51 @@ class FewShotLoader:
 
     def _distance_event(self, v1: dict, v2: dict) -> float:
         weights = {
-      "num_events": 4.0,
-      "num_constraints": 5.0,
-      "num_parameters": 3.0,
-      "has_return": 6.0,
-      "has_after": 2.0,
-      "has_before": 2.0,
-      "num_and": 4.0,
-      "num_or": 4.0,
-      "num_eq": 2.0,
-      "num_neq": 3.0,
-      "num_gt": 2.0,
-      "num_lt": 2.0,
-      "num_ge": 2.0,
-      "num_le": 2.0,
-      "expr_length": 1.0
-    }
+            "num_events": 2.0,
+            "num_constraints": 3.0,
+
+            "total_event_parameters": 1.5,
+            "max_event_parameters": 2.0,
+
+            "has_returning_event": 2.5,
+            "has_boolean_returning": 3.0,
+            "has_condition_in_pointcut": 2.5,
+
+            "has_static_method": 2.0,
+            "has_constructor_event": 2.0,
+
+            "multi_event_constraints": 4.0,
+
+            "uses_equality": 2.0,
+            "uses_inequality": 2.0,
+            "uses_comparison": 2.0,
+            "uses_not": 1.0,
+            "uses_and": 0.8,
+            "uses_or": 0.8,
+            "uses_before": 2.0,
+            "uses_after": 2.0,
+
+            "compares_to_null": 2.0,
+            "compares_to_constant": 2.0,
+            "compares_two_idents": 1.5,
+
+            "domain_numeric": 3.0,
+            "domain_collection": 3.0,
+            "domain_network": 3.0,
+            "domain_permission": 3.0,
+            "domain_io": 2.5,
+            "domain_comparable": 3.0,
+
+            "pattern_decode": 1.5,
+            "pattern_parse": 1.5,
+            "pattern_factory": 1.2,
+            "pattern_permission": 1.5,
+            "pattern_timeout": 1.5,
+            "pattern_port": 1.5,
+            "pattern_comparable": 1.5,
+
+            "has_violation_message": 1.0,
+        }
         return self._weighted_manhattan(v1, v2, weights)
 
     # =========================================================
