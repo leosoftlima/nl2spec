@@ -1,5 +1,6 @@
 # Few-shot datasets (confidential)
 datasets/fewshot/
+output/prompt
 
 # =========================
 # Python

@@ -1,0 +1,9 @@
+dataset,formalism,rank,selected_fewshot,distance
+Console_FillZeroPassword,ltl,1,ltl_01.json,2.000000
+File_DeleteTempFile,ltl,1,ltl_02.json,2.000000
+ObjectInput_Close,ltl,1,ltl_04.json,0.000000
+ObjectOutput_Close,ltl,1,ltl_04.json,0.000000
+ObjectStreamClass_Initialize,ltl,1,ltl_04.json,1.000000
+PasswordAuthentication_FillZeroPassword,ltl,1,ltl_01.json,2.000000
+Iterator_HasNext,ltl,1,ltl_03.json,1.000000
+StringTokenizer_HasMoreElements,ltl,1,ltl_03.json,1.000000

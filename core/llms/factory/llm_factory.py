@@ -4,10 +4,19 @@ from nl2spec.core.llms.llm_registry import load_llm_info
 def create_llm(cfg: dict):
 
     provider = cfg["llm"]["provider"]
-    csv_path = cfg["llm"]["registry_csv"]
 
+    # ----------------------------------------
+    # MOCK PROVIDER (no registry dependency)
+    # ----------------------------------------
+    if provider == "mock":
+        from nl2spec.core.llms.mock_llm import MockLLM
+        return MockLLM()
+
+    # ----------------------------------------
+    # REAL PROVIDERS (need registry info)
+    # ----------------------------------------
+    csv_path = cfg["llm"]["information"]
     info = load_llm_info(provider, csv_path)
-
 
     if provider == "gemini":
         from nl2spec.core.llms.gemini_llm import GeminiLLM

@@ -6,7 +6,10 @@ from nl2spec.logging_utils import get_logger
 log = get_logger(__name__)
 
 PROMPT_DIR = Path(__file__).parent
-GENERATED_DIR = PROMPT_DIR / "generated"
+
+# project_root/nl2spec/output/prompt
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+GENERATED_DIR = PROJECT_ROOT / "nl2spec" / "output" / "prompt"
 
 SUPPORTED_IR_TYPES = {"fsm", "ere", "event", "ltl"}
 
@@ -21,11 +24,21 @@ def _save_prompt(
     *,
     scenario_id: str,
     ir_type: str,
+    shot_mode: str,
+    selection: str,
     output_dir: Optional[Path] = None,
 ) -> None:
 
     base_dir = output_dir or GENERATED_DIR
-    target_dir = base_dir / ir_type.upper()
+    if shot_mode.lower() == "zero":
+        target_dir = base_dir / "zero" / ir_type.lower()
+    else:
+        target_dir = (
+            base_dir
+            / selection.lower()
+            / shot_mode.lower()
+            / ir_type.lower()
+        )
     target_dir.mkdir(parents=True, exist_ok=True)
 
     prompt_path = target_dir / f"{scenario_id}.txt"
@@ -40,6 +53,8 @@ def build_prompt(
     fewshot_files: List[Path],
     *,
     scenario_id: Optional[str] = None,
+    shot_mode: str,
+    selection: str,
     save: bool = False,
     output_dir: Optional[Path] = None,
 ) -> str:
@@ -51,7 +66,7 @@ def build_prompt(
             f"Supported types: {SUPPORTED_IR_TYPES}"
         )
 
-    log.info("Building prompt for IR type: %s", ir_type)
+    log.info("Building prompt for IR type: %s | shot_mode: %s", ir_type, shot_mode)
 
     # ---------- fixed prompt parts ----------
     header_path = PROMPT_DIR / "templates" / "base" / "header.txt"
@@ -108,10 +123,12 @@ Natural Language Specification:
 
     if save and scenario_id:
         _save_prompt(
-            prompt,
-            scenario_id=scenario_id,
-            ir_type=ir_type,
-            output_dir=output_dir,
+           prompt,
+           scenario_id=scenario_id,
+           ir_type=ir_type,
+           shot_mode=shot_mode,
+           selection=selection,
+           output_dir=output_dir,
         )
 
     return prompt

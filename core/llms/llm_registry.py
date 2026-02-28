@@ -3,6 +3,10 @@ from pathlib import Path
 
 
 def load_llm_info(provider: str, csv_path: str) -> dict:
+
+
+    BASE_DIR = Path(__file__).resolve().parents[2]
+    csv_path = BASE_DIR / "core" / "llms" / "config" / "information_llms.csv"
     path = Path(csv_path)
 
     if not path.exists():

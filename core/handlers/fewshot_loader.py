@@ -61,7 +61,6 @@ class FewShotLoader:
         ir_base: Optional[dict] = None,
         return_scores: bool = False,
     ):
-
         self._validate_configuration(shot_mode, k, selection)
 
         if k == 0:
@@ -77,14 +76,58 @@ class FewShotLoader:
         if not files:
             raise FewShotNotAvailableError(str(ir_dir))
 
+        # ===============================
+        # RANDOM SELECTION (WITH DISTANCE)
+        # ===============================
         if selection == "random":
-            chosen = self._select_random(files, k)
-            return [(p, 0.0) for p in chosen] if return_scores else chosen
 
+            chosen = self._select_random(files, k)
+
+            if not return_scores:
+                return chosen
+
+            if ir_base is None:
+                raise NL2SpecException(
+                    "Random selection with scoring requires ir_base."
+                )
+
+            base_vector = self._extract_vector_by_type(ir_base, ir_type)
+            results: List[Tuple[Path, float]] = []
+
+            for path in chosen:
+                with open(path, "r", encoding="utf-8") as f:
+                    template_json = json.load(f)
+
+                template_ir_type = (
+                    template_json.get("ir", {}).get("type", "").lower()
+                )
+                if template_ir_type != ir_type:
+                    continue
+
+                template_vector = self._extract_vector_by_type(
+                    template_json, ir_type
+                )
+
+                dist = self._distance_by_type(
+                    template_vector, base_vector, ir_type
+                )
+
+                results.append((path, float(dist)))
+
+            return results
+
+        # ===============================
+        # STRUCTURAL SELECTION
+        # ===============================
         if selection == "structural":
             if ir_base is None:
-                raise NL2SpecException("Structural selection requires ir_base.")
-            return self._select_structural(files, k, ir_base, ir_type, return_scores)
+                raise NL2SpecException(
+                    "Structural selection requires ir_base."
+                )
+
+            return self._select_structural(
+                files, k, ir_base, ir_type, return_scores
+            )
 
         raise NL2SpecException("Unexpected selection mode.")
 
@@ -110,12 +153,10 @@ class FewShotLoader:
         ir_type: str,
         return_scores: bool = False,
     ):
-
         base_vector = self._extract_vector_by_type(ir_base, ir_type)
         scored: List[Dict[str, Any]] = []
 
         for path in files:
-
             with open(path, "r", encoding="utf-8") as f:
                 template_json = json.load(f)
 
@@ -141,7 +182,6 @@ class FewShotLoader:
     # =========================================================
 
     def _extract_vector_by_type(self, spec_json: dict, ir_type: str) -> dict:
-
         if ir_type == "ltl":
             return self._extract_vector_ltl(spec_json)
 
@@ -163,11 +203,10 @@ class FewShotLoader:
     # =========================================================
 
     def _extract_vector_ere(self, spec_json: dict) -> dict:
-
         vector: Dict[str, Any] = {}
 
         ir = spec_json.get("ir", {})
-        events = ir.get("events", [])
+        events = ir.get("events", []) or []
         formula_raw = ir.get("formula", {}).get("raw", "") or ""
         raw = formula_raw.strip()
 
@@ -207,116 +246,156 @@ class FewShotLoader:
     # LTL Extractor (Pattern-Aware + Composite Features)
     # =========================================================
 
-    import re
-
     def _extract_vector_ltl(self, spec_json: dict) -> dict:
-     vector: Dict[str, Any] = {}
-
-     ir = spec_json.get("ir", {})
-     formula_raw = ir.get("formula", {}).get("raw", "")
-
-     vector["len_formula"] = len(formula_raw)
-
-     vector["count_always"] = formula_raw.count("[]")
-     vector["count_eventually"] = formula_raw.count("<>")
-     vector["count_next"] = formula_raw.count(" X ") + formula_raw.count("X(")
-     vector["count_until"] = formula_raw.count(" U ")
-     vector["count_negation"] = formula_raw.count("!")
-     vector["count_implication"] = formula_raw.count("=>")
-     vector["count_or"] = formula_raw.count(" or ")
-
-     # crude nesting estimate
-     vector["paren_depth"] = formula_raw.count("(")
-
-     # atomic propositions estimation
-     props = re.findall(r"[a-zA-Z_][a-zA-Z0-9_]*", formula_raw)
-     vector["num_atomic_props"] = len(set(props))
-
-     return vector
-
-    # =========================================================
-    # FSM Extractor (Robust Graph + Semantics)
-    # =========================================================
-
-    def _extract_vector_fsm(self, spec_json: dict) -> dict:
         vector: Dict[str, Any] = {}
 
         ir = spec_json.get("ir", {})
-        states = ir.get("states", [])
-        transitions = ir.get("transitions", [])
-        events = ir.get("events", [])
+        formula_raw = ir.get("formula", {}).get("raw", "") or ""
+
+        vector["len_formula"] = len(formula_raw)
+
+        vector["count_always"] = formula_raw.count("[]")
+        vector["count_eventually"] = formula_raw.count("<>")
+        vector["count_next"] = formula_raw.count(" X ") + formula_raw.count("X(")
+        vector["count_until"] = formula_raw.count(" U ")
+        vector["count_negation"] = formula_raw.count("!")
+        vector["count_implication"] = formula_raw.count("=>")
+        vector["count_or"] = formula_raw.count(" or ")
+
+        vector["paren_depth"] = formula_raw.count("(")
+
+        props = re.findall(r"[a-zA-Z_][a-zA-Z0-9_]*", formula_raw)
+        vector["num_atomic_props"] = len(set(props))
+
+        return vector
+
+    # =========================================================
+    # FSM Extractor (CORRIGIDO PARA analysis STRUCTURE)
+    # =========================================================
+
+    def _extract_vector_fsm(self, spec_json: dict) -> dict:
+        """FSM extractor ajustado para o formato do dataset (ir.analysis.*).
+
+        Estrutura esperada:
+          - ir.analysis.states: List[str]
+          - ir.analysis.initial: str
+          - ir.analysis.transitions: List[dict] com chaves from/to (ou source/target)
+          - ir.events: List[dict] com pointcut_raw
+          - ir.violation.tag (opcional)
+
+        Objetivo: gerar features suficientes para diferenciar templates (fsm_01/03/05 etc.)
+        sem deixar features binárias dominarem a distância.
+        """
+        import math
+
+        vector: Dict[str, Any] = {}
+
+        ir = spec_json.get("ir", {}) or {}
+        analysis = ir.get("analysis", {}) or {}
+
+        states: List[str] = analysis.get("states", []) or []
+        transitions: List[dict] = analysis.get("transitions", []) or []
+        events: List[dict] = ir.get("events", []) or []
+
+        initial_state = analysis.get("initial")
+
+        # --- Classificação de estados (heurística por nome)
+        final_states = [
+            s for s in states
+            if str(s).lower() in {"final", "finished", "closed", "end"}
+        ]
+        error_states = [
+            s for s in states
+            if any(k in str(s).lower() for k in ("error", "fail", "violation"))
+        ]
+        intermediate = [
+            s for s in states
+            if s not in final_states and s not in error_states and s != initial_state
+        ]
 
         vector["num_states"] = len(states)
         vector["num_transitions"] = len(transitions)
-
-        initial_state = None
-        final_states: List[str] = []
-        error_states: List[str] = []
-
-        for s in states:
-            name = s.get("name", "")
-            if s.get("initial", False):
-                initial_state = name
-            if s.get("final", False):
-                final_states.append(name)
-            if "error" in name.lower() or "violation" in name.lower():
-                error_states.append(name)
-
         vector["num_final_states"] = len(final_states)
         vector["num_error_states"] = len(error_states)
-
-        intermediate = [
-            s.get("name")
-            for s in states
-            if s.get("name") not in final_states
-            and s.get("name") not in error_states
-            and s.get("name") != initial_state
-        ]
         vector["num_intermediate_states"] = len(intermediate)
 
+        # --- Grafo
         adjacency: Dict[str, List[str]] = {}
         outgoing_count: Dict[str, int] = {}
-        has_cycle = 0
+        incoming_count: Dict[str, int] = {}
+        num_self_loops = 0
 
         for t in transitions:
-            src = t.get("source")
-            tgt = t.get("target")
+            src = t.get("from") or t.get("source")
+            tgt = t.get("to") or t.get("target")
+            if src is None or tgt is None:
+                continue
 
             adjacency.setdefault(src, []).append(tgt)
             outgoing_count[src] = outgoing_count.get(src, 0) + 1
+            incoming_count[tgt] = incoming_count.get(tgt, 0) + 1
 
             if src == tgt:
-                has_cycle = 1
+                num_self_loops += 1
 
-        max_out_degree = 0
-        for c in outgoing_count.values():
-            if c > max_out_degree:
-                max_out_degree = c
+        vector["num_self_loops"] = num_self_loops
 
-        vector["max_out_degree"] = max_out_degree
-        vector["has_cycle"] = has_cycle
-        vector["has_branching"] = 1 if max_out_degree > 1 else 0
-        vector["is_linear_chain"] = 1 if max_out_degree <= 1 else 0
+        max_out = max(outgoing_count.values()) if outgoing_count else 0
+        max_in = max(incoming_count.values()) if incoming_count else 0
+        vector["max_out_degree"] = max_out
+        vector["max_in_degree"] = max_in
 
+        # Média por estado (inclui estados sem saída como 0 implicitamente)
+        vector["avg_out_degree"] = (sum(outgoing_count.values()) / len(states)) if states else 0.0
+
+        # Sinks (sem saída)
+        sinks = [s for s in states if len(adjacency.get(s, [])) == 0]
+        vector["num_sink_states"] = len(sinks)
+
+        # --- Ciclo (melhor que só self-loop): DFS com stack
+        def has_any_cycle() -> bool:
+            visited = set()
+            stack = set()
+
+            def dfs(u: str) -> bool:
+                visited.add(u)
+                stack.add(u)
+                for v in adjacency.get(u, []):
+                    if v not in visited:
+                        if dfs(v):
+                            return True
+                    elif v in stack:
+                        return True
+                stack.remove(u)
+                return False
+
+            for n in states:
+                if n not in visited:
+                    if dfs(n):
+                        return True
+            return False
+
+        vector["has_cycle"] = 1 if (num_self_loops > 0 or has_any_cycle()) else 0
+        vector["has_branching"] = 1 if max_out > 1 else 0
+        vector["is_linear_chain"] = 1 if max_out <= 1 else 0
+
+        # --- Profundidade (BFS) a partir do inicial
         max_depth = 0
         if initial_state:
             visited = set()
-            queue = [(initial_state, 0)]
-
+            queue: List[Tuple[str, int]] = [(initial_state, 0)]
             while queue:
                 node, depth = queue.pop(0)
                 max_depth = max(max_depth, depth)
-
                 if node in visited:
                     continue
                 visited.add(node)
-
                 for neighbor in adjacency.get(node, []):
                     queue.append((neighbor, depth + 1))
-
         vector["max_depth"] = max_depth
 
-        def count_paths(start: str, target: str, visited: set, limit: int = 20) -> int:
+        # --- Caminhos para erro + erro terminal
+        def count_paths(start: str, target: str, visited: set, limit: int = 30) -> int:
             if start == target:
                 return 1
             if len(visited) > limit:
@@ -331,31 +410,38 @@ class FewShotLoader:
         if initial_state:
             for err in error_states:
                 num_paths += count_paths(initial_state, err, {initial_state})
-
         vector["num_paths_to_error"] = num_paths
 
+        error_out_degree = 0
         error_is_terminal = 1
         for err in error_states:
-            if len(adjacency.get(err, [])) > 0:
+            outd = len(adjacency.get(err, []))
+            error_out_degree += outd
+            if outd > 0:
                 error_is_terminal = 0
-                break
+        vector["error_out_degree"] = error_out_degree
         vector["error_is_terminal"] = error_is_terminal
 
+        # --- Violação (se existir no IR)
+        violation = ir.get("violation", {}) or {}
+        vector["violation_is_fail"] = 1 if violation.get("tag") == "fail" else 0
+
+        # --- Eventos
         has_creation_event = 0
         has_boolean_returning = 0
         has_condition_in_pointcut = 0
 
         for e in events:
-            name = e.get("name", "")
+            name = (e.get("name", "") or "")
             if "create" in name.lower():
                 has_creation_event = 1
 
             if "returning" in e:
-                ret_type = e.get("returning", {}).get("type", "")
+                ret_type = (e.get("returning", {}) or {}).get("type", "")
                 if ret_type == "boolean":
                     has_boolean_returning = 1
 
-            pointcut_raw = e.get("pointcut", {}).get("raw", "")
+            pointcut_raw = e.get("pointcut_raw", "") or ""
             if "condition(" in pointcut_raw:
                 has_condition_in_pointcut = 1
 
@@ -363,82 +449,102 @@ class FewShotLoader:
         vector["has_boolean_returning"] = has_boolean_returning
         vector["has_condition_in_pointcut"] = has_condition_in_pointcut
 
+        # Heurísticas de padrão
         vector["pattern_precedence_like"] = 1 if (num_paths == 1 and max_depth <= 2) else 0
-        vector["pattern_response_like"] = 1 if (num_paths > 1) else 0
+        vector["pattern_response_like"] = 1 if (num_paths > 1 or max_out > 1) else 0
+
+        # --- Normalização log1p SOMENTE para features de escala (não-bool)
+        for k in (
+            "num_states",
+            "num_transitions",
+            "num_final_states",
+            "num_error_states",
+            "num_intermediate_states",
+            "num_self_loops",
+            "num_sink_states",
+            "max_out_degree",
+            "max_in_degree",
+            "max_depth",
+            "num_paths_to_error",
+            "error_out_degree",
+            "avg_out_degree",
+        ):
+            val = vector.get(k, 0)
+            vector[k] = math.log1p(val) if val >= 0 else 0.0
 
         return vector
-
     # =========================================================
     # EVENT Extractor (Robust Structural + Light Semantic Signals)
     # =========================================================
 
-    _NUMERIC_CLASSES = {"byte", "short", "integer", "long", "float", "double", "boolean", "character"}
-    _COLLECTION_TOKENS = {"collection", "collections", "list", "set", "map", "sortedset", "sortedmap",
-                          "treemap", "treeset", "hashmap", "hashset", "arraylist", "vector", "deque",
-                          "priorityqueue", "enumset", "enummap", "dictionary", "arrays"}
-    _NETWORK_TOKENS = {"socket", "serversocket", "datagramsocket", "datagrampacket", "multicastsocket",
-                       "inetaddress", "inetsocketaddress", "urlconnection", "urlencoder", "urldecoder",
-                       "httpcookie", "idn"}
+    _NUMERIC_CLASSES = {
+        "byte", "short", "integer", "long", "float", "double", "boolean", "character"
+    }
+    _COLLECTION_TOKENS = {
+        "collection", "collections", "list", "set", "map", "sortedset", "sortedmap",
+        "treemap", "treeset", "hashmap", "hashset", "arraylist", "vector", "deque",
+        "priorityqueue", "enumset", "enummap", "dictionary", "arrays"
+    }
+    _NETWORK_TOKENS = {
+        "socket", "serversocket", "datagramsocket", "datagrampacket", "multicastsocket",
+        "inetaddress", "inetsocketaddress", "urlconnection", "urlencoder", "urldecoder",
+        "httpcookie", "idn"
+    }
     _PERMISSION_TOKENS = {"permission", "socketpermission", "runtimepermission", "netpermission"}
     _IO_TOKENS = {"closeable", "inputstream", "reader", "file", "classloader"}
 
     def _extract_vector_event(self, spec_json: dict) -> dict:
+        vector: Dict[str, Any] = {}
 
-     vector = {}
+        ir = spec_json.get("ir", {})
+        events = ir.get("events", []) or []
+        constraints = ir.get("constraints", []) or []
 
-     ir = spec_json.get("ir", {})
-     events = ir.get("events", [])
-     constraints = ir.get("constraints", [])
+        vector["num_events"] = len(events)
+        vector["num_constraints"] = len(constraints)
 
-     vector["num_events"] = len(events)
-     vector["num_constraints"] = len(constraints)
+        total_params = 0
+        has_return = 0
+        has_after = 0
+        has_before = 0
 
-     total_params = 0
-     has_return = 0
-     has_after = 0
-     has_before = 0
+        for e in events:
+            params = e.get("parameters", []) or []
+            total_params += len(params)
 
-     for e in events:
-        params = e.get("parameters", [])
-        total_params += len(params)
+            if any(p.get("name") == "ret" for p in params):
+                has_return = 1
 
-        if any(p.get("name") == "ret" for p in params):
-            has_return = 1
+            if e.get("timing") == "after":
+                has_after = 1
+            if e.get("timing") == "before":
+                has_before = 1
 
-        if e.get("timing") == "after":
-            has_after = 1
-        if e.get("timing") == "before":
-            has_before = 1
+        vector["num_parameters"] = total_params
+        vector["has_return"] = has_return
+        vector["has_after"] = has_after
+        vector["has_before"] = has_before
 
-     vector["num_parameters"] = total_params
-     vector["has_return"] = has_return
-     vector["has_after"] = has_after
-     vector["has_before"] = has_before
+        full_expr = " ".join(c.get("expression", "") or "" for c in constraints)
 
-     # Analyze constraint expressions
-     full_expr = " ".join(
-        c.get("expression", "") for c in constraints
-     )
+        vector["num_and"] = full_expr.count("&&")
+        vector["num_or"] = full_expr.count("||")
+        vector["num_eq"] = full_expr.count("==")
+        vector["num_neq"] = full_expr.count("!=")
+        vector["num_gt"] = full_expr.count(">")
+        vector["num_lt"] = full_expr.count("<")
+        vector["num_ge"] = full_expr.count(">=")
+        vector["num_le"] = full_expr.count("<=")
 
-     vector["num_and"] = full_expr.count("&&")
-     vector["num_or"] = full_expr.count("||")
-     vector["num_eq"] = full_expr.count("==")
-     vector["num_neq"] = full_expr.count("!=")
-     vector["num_gt"] = full_expr.count(">")
-     vector["num_lt"] = full_expr.count("<")
-     vector["num_ge"] = full_expr.count(">=")
-     vector["num_le"] = full_expr.count("<=")
+        vector["expr_length"] = len(full_expr)
 
-     vector["expr_length"] = len(full_expr)
-
-     return vector
+        return vector
 
     # =========================================================
     # DISTANCE DISPATCHER
     # =========================================================
 
     def _distance_by_type(self, v1: dict, v2: dict, ir_type: str) -> float:
-
         if ir_type == "ltl":
             return self._distance_ltl(v1, v2)
 
@@ -451,16 +557,13 @@ class FewShotLoader:
         if ir_type == "ere":
             return self._distance_ere(v1, v2)
 
-        raise NL2SpecException(
-            f"Distance not implemented for ir_type '{ir_type}'."
-        )
+        raise NL2SpecException(f"Distance not implemented for ir_type '{ir_type}'.")
 
     # =========================================================
     # DISTANCE ERE
     # =========================================================
 
     def _distance_ere(self, v1: dict, v2: dict) -> float:
-
         weights = {
             "num_events": 2.0,
             "formula_length": 1.0,
@@ -479,7 +582,6 @@ class FewShotLoader:
             "is_simple_star_pattern": 5.0,
             "is_single_event_pattern": 4.0,
         }
-
         return self._weighted_manhattan(v1, v2, weights)
 
     # =========================================================
@@ -517,54 +619,66 @@ class FewShotLoader:
     # =========================================================
 
     def _distance_fsm(self, v1: dict, v2: dict) -> float:
+        # Rebalanceado para:
+        # - destacar assinatura estrutural (sinks, loops, graus, profundidade)
+        # - reduzir dominância de binárias (branching/linear/pattern)
+        # - permitir que fsm_01/03/05 “ganhem” quando forem o melhor fit
         weights = {
-            "num_states": 2.0,
-            "num_transitions": 1.5,
-
-            "num_final_states": 2.5,
+            "num_states": 2.5,
+            "num_transitions": 2.5,
+            "num_final_states": 2.0,
             "num_intermediate_states": 2.0,
-            "num_error_states": 5.0,
+            "num_error_states": 2.0,
 
             "max_out_degree": 2.0,
-            "has_cycle": 3.0,
-            "has_branching": 3.0,
-            "is_linear_chain": 3.0,
+            "max_in_degree": 1.5,
+            "avg_out_degree": 3.0,
 
-            "max_depth": 4.0,
-            "num_paths_to_error": 6.0,
-            "error_is_terminal": 4.0,
+            "max_depth": 3.0,
+
+            "num_sink_states": 3.0,
+            "num_self_loops": 3.5,
+            "has_cycle": 2.0,
+
+            "num_paths_to_error": 3.0,
+            "error_out_degree": 4.0,
+            "error_is_terminal": 2.0,
+
+            "violation_is_fail": 4.0,
 
             "has_creation_event": 2.0,
             "has_boolean_returning": 3.0,
             "has_condition_in_pointcut": 3.0,
 
-            "pattern_precedence_like": 5.0,
-            "pattern_response_like": 5.0,
+            # binárias/padrões: peso baixo (evita “sempre o mesmo template”)
+            "has_branching": 0.3,
+            "is_linear_chain": 0.3,
+            "pattern_precedence_like": 0.5,
+            "pattern_response_like": 0.5,
         }
         return self._weighted_manhattan(v1, v2, weights)
-
     # =========================================================
     # Distance: EVENT
     # =========================================================
 
     def _distance_event(self, v1: dict, v2: dict) -> float:
         weights = {
-      "num_events": 4.0,
-      "num_constraints": 5.0,
-      "num_parameters": 3.0,
-      "has_return": 6.0,
-      "has_after": 2.0,
-      "has_before": 2.0,
-      "num_and": 4.0,
-      "num_or": 4.0,
-      "num_eq": 2.0,
-      "num_neq": 3.0,
-      "num_gt": 2.0,
-      "num_lt": 2.0,
-      "num_ge": 2.0,
-      "num_le": 2.0,
-      "expr_length": 1.0
-    }
+            "num_events": 4.0,
+            "num_constraints": 5.0,
+            "num_parameters": 3.0,
+            "has_return": 6.0,
+            "has_after": 2.0,
+            "has_before": 2.0,
+            "num_and": 4.0,
+            "num_or": 4.0,
+            "num_eq": 2.0,
+            "num_neq": 3.0,
+            "num_gt": 2.0,
+            "num_lt": 2.0,
+            "num_ge": 2.0,
+            "num_le": 2.0,
+            "expr_length": 1.0,
+        }
         return self._weighted_manhattan(v1, v2, weights)
 
     # =========================================================

@@ -52,8 +52,8 @@ FEWSHOT_RESULTS_DIR = RESULTS_DIR / "fewshot"
 # ======================================================
 
 TARGET_FORMALISM = "fsm"     # "ltl " | "fsm" | "event" | "ere" | "all"
-SHOT_MODE = "one"            # "zero" | "one" | "few"
-K = 1                        #    0   |   1   | 3
+SHOT_MODE = "few"            # "zero" | "one" | "few"
+K = 3                        #    0   |   1   | 3
 SELECTION = "structural"     # "structural" | "random"
 
 # ======================================================

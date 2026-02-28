@@ -4,6 +4,7 @@ from dataclasses import asdict
 
 from nl2spec.config import load_config
 from nl2spec.core.llms.stage_llm import stage_llm
+from nl2spec.pipeline.stages_fewshot import stage_fewshot
 from nl2spec.pipeline.stages import (
     stage_generate,
     stage_compare,
@@ -30,6 +31,7 @@ def run_pipeline(config_path: str, flags: PipelineFlags) -> None:
 
     if flags.generate:
         stage_generate(ctx, flags)
+        stage_fewshot(ctx, flags)
 
     if flags.llm:
         stage_llm(ctx, flags)

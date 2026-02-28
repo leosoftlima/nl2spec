@@ -1,0 +1,14 @@
+dataset,formalism,rank,selected_fewshot,distance
+ByteArrayOutputStream_FlushBeforeRetrieve,fsm,1,fsm_01.json,11.472682
+PipedInputStream_UnconnectedRead,fsm,1,fsm_05.json,9.204462
+PipedOutputStream_UnconnectedWrite,fsm,1,fsm_04.json,6.340138
+StreamTokenizer_AccessInvalidField,fsm,1,fsm_02.json,26.491319
+ShutdownHook_PrematureStart,fsm,1,fsm_04.json,17.546994
+ShutdownHook_SystemExit,fsm,1,fsm_03.json,2.367561
+ShutdownHook_UnsafeAWTCall,fsm,1,fsm_04.json,7.961659
+ShutdownHook_UnsafeSwingCall,fsm,1,fsm_03.json,5.655938
+Socket_SetTimeoutBeforeBlockingInput,fsm,1,fsm_05.json,2.655693
+Socket_SetTimeoutBeforeBlockingOutput,fsm,1,fsm_04.json,12.629625
+Arrays_SortBeforeBinarySearch,fsm,1,fsm_02.json,26.624138
+Collections_SortBeforeBinarySearch,fsm,1,fsm_04.json,18.031075
+ListIterator_hasNextPrevious,fsm,1,fsm_03.json,25.784133
