@@ -1,0 +1,28 @@
+{
+  "id": "MockSpec",
+  "domain": "io",
+  "category": "FSM",
+  "ir": {
+    "type": "fsm",
+    "states": [
+      "START",
+      "OPENED",
+      "CLOSED"
+    ],
+    "initial_state": "START",
+    "transitions": [
+      {
+        "from": "START",
+        "event": "File.open",
+        "to": "OPENED"
+      },
+      {
+        "from": "OPENED",
+        "event": "File.close",
+        "to": "CLOSED"
+      }
+    ],
+    "error_state": "ERROR",
+    "violation_message": "Invalid file lifecycle transition."
+  }
+}

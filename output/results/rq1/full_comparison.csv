@@ -1,0 +1,5 @@
+provider,model,strategy,formalism,exact_match,exact_match_percent
+mock,mock-model,random,ere,0.027777777777777776,2.78
+mock,mock-model,random,event,0.0,0.0
+mock,mock-model,random,fsm,0.0,0.0
+mock,mock-model,random,ltl,0.0,0.0
