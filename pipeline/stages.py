@@ -88,43 +88,6 @@ def stage_generate(ctx, flags: PipelineFlags) -> None:
 
     log.info("Generate stage finished (%d prompts created)", total)
 
-# ==========================================================
-# COMPARE STAGE
-# ==========================================================
-def stage_compare(ctx, flags: PipelineFlags) -> None:
-    log.info("Stage: compare")
-
-    if not flags.compare:
-        log.info("Compare stage skipped")
-        return
-
-    # Placeholder correto
-    ctx.artifacts["diff"] = []
-
-    log.info("Compare stage completed")
-
-
-# ==========================================================
-# CSV EXPORT STAGE
-# ==========================================================
-def stage_export_csv(ctx, flags: PipelineFlags) -> None:
-    if not flags.csv:
-        return
-
-    log.info("Stage: csv export")
-    log.info("CSV export completed")
-
-
-# ==========================================================
-# STATS STAGE
-# ==========================================================
-def stage_stats(ctx, flags: PipelineFlags) -> None:
-    if not flags.stats:
-        return
-
-    log.info("Stage: stats")
-    log.info("Stats stage completed")
-
 
 # ==========================================================
 # TEST STAGE (pytest)

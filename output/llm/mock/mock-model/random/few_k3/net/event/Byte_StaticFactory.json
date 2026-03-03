@@ -1,0 +1,10 @@
+{
+  "id": "MockSpec",
+  "domain": "net",
+  "category": "ERE",
+  "ir": {
+    "type": "ere",
+    "pattern": "open close",
+    "violation_message": "File operations must follow open then close."
+  }
+}

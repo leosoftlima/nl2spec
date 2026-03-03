@@ -3,14 +3,12 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from nl2spec.config import load_config
-from nl2spec.core.llms.stage_llm import stage_llm
+from nl2spec.pipeline.stage_llm import stage_llm
+from nl2spec.pipeline.stage_compare import stage_compare
 from nl2spec.pipeline.stages_fewshot import stage_fewshot
 from nl2spec.pipeline.stages import (
     stage_generate,
-    stage_compare,
-    stage_export_csv,
     stage_tests,
-    stage_stats
 )
 from nl2spec.pipeline_types import PipelineContext, PipelineFlags
 from nl2spec.logging_utils import get_logger
@@ -38,7 +36,6 @@ def run_pipeline(config_path: str, flags: PipelineFlags) -> None:
 
     if flags.compare:
         stage_compare(ctx, flags)
-        stage_export_csv(ctx, flags)
-        stage_stats(ctx, flags) 
+
 
     log.info("Pipeline finished.")

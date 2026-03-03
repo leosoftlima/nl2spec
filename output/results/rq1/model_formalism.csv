@@ -1,0 +1,5 @@
+model,formalism,exact_match,exact_match_percent
+mock-model,ere,0.027777777777777776,2.78
+mock-model,event,0.0,0.0
+mock-model,fsm,0.0,0.0
+mock-model,ltl,0.0,0.0
