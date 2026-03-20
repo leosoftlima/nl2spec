@@ -2,7 +2,8 @@ import json
 import csv
 import time
 import shutil
-from pathlib import Path
+from pathlib import Path 
+
 
 from nl2spec.logging_utils import get_logger
 from nl2spec.core.llms.factory.llm_factory import create_llm
@@ -12,9 +13,9 @@ log = get_logger(__name__)
 BASE_OUTPUT = Path("nl2spec/output")
 
 
-def _call_llm(llm, prompt, spec_id, provider, model):
+def _call_llm(llm, prompt, spec_id, provider, model,shot_mode,selection):
     start_ts = time.time()
-    raw = llm.generate(prompt)
+    raw, usage = llm.generate(prompt)
     end_ts = time.time()
 
     elapsed_ms = round((end_ts - start_ts) * 1000, 3)
@@ -23,14 +24,41 @@ def _call_llm(llm, prompt, spec_id, provider, model):
         "[LLM] id=%s | provider=%s | model=%s | start=%.6f | end=%.6f | elapsed_ms=%.3f",
         spec_id, provider, model, start_ts, end_ts, elapsed_ms
     )
-
+    
+    save_token_info(spec_id,
+                    selection,
+                    shot_mode,
+                    provider, 
+                    model, 
+                    usage,
+                    elapsed_ms,
+                    BASE_OUTPUT / "llm/token/")
+    
     if not raw:
         raise RuntimeError(f"Empty response for {spec_id}")
 
     try:
+        raw = raw.strip()
+
+        if raw.startswith("```"):
+           raw = raw.replace("```json", "").replace("```", "").strip()
         ir = json.loads(raw)
     except json.JSONDecodeError as e:
-        raise RuntimeError(f"Invalid JSON for {spec_id}: {e}")
+
+      debug_dir = BASE_OUTPUT / "llm_raw"
+      debug_dir.mkdir(parents=True, exist_ok=True)
+
+      debug_file = debug_dir / f"{spec_id}.txt"
+
+      debug_file.write_text(raw, encoding="utf-8")
+
+      log.error(
+        "Invalid JSON for %s. Raw response saved to %s",
+        spec_id,
+        debug_file
+       )
+
+      raise RuntimeError(f"Invalid JSON for {spec_id}: {e}")
 
     return ir, start_ts, end_ts, elapsed_ms
 
@@ -88,7 +116,7 @@ def stage_llm(ctx, flags):
         log.info("Deleting previous generation_times.csv: %s", csv_path.resolve())
         csv_path.unlink()
 
-    # ✅ compute AFTER deleting
+    #  compute AFTER deleting
     write_header = True
 
     total = 0
@@ -118,10 +146,17 @@ def stage_llm(ctx, flags):
         # ----------------------------
         # PROCESS ALL PROMPTS
         # ----------------------------
+        max_prompts = 300
         for prompt_file in prompts_root.rglob("*.txt"):
             spec_id = prompt_file.stem
             ir_type = prompt_file.parent.name
             prompt = prompt_file.read_text(encoding="utf-8")
+            
+            domain = extract_domain_from_prompt(prompt)
+            
+            if total >= max_prompts:
+              log.info("Reached limit of %d prompts. Stopping test run.", max_prompts)
+              break
 
             log.info(
                 "[PROMPT] file=%s | id=%s | type=%s | provider=%s | model=%s",
@@ -130,10 +165,10 @@ def stage_llm(ctx, flags):
 
             try:
                 ir, start_ts, end_ts, elapsed_ms = _call_llm(
-                    llm, prompt, spec_id, provider, model_name
+                    llm, prompt, spec_id, provider, model_name,shot_mode,selection
                 )
 
-                domain = ir.get("domain", "unknown")
+                #domain = ir.get("domain", "unknown")
 
                 target_dir = output_root / domain / ir_type
                 target_dir.mkdir(parents=True, exist_ok=True)
@@ -171,5 +206,77 @@ def stage_llm(ctx, flags):
         llm.close()
 
     log.info("========== STAGE LLM END ==========")
+    
+    formatted_time = format_ms(total_time)
+
     log.info("TOTAL FILES PROCESSED: %d", total)
-    log.info("TOTAL ACCUMULATED TIME (ms): %.3f", total_time)
+    log.info("TOTAL ACCUMULATED TIME: %s (%0.3f ms)", formatted_time, total_time)
+    
+def format_ms(ms: float) -> str:
+    total_seconds = int(ms // 1000)
+    milliseconds = int(ms % 1000)
+
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    seconds = total_seconds % 60
+
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}.{milliseconds:03d}"
+
+def save_token_info(
+    spec_id,
+    selection,
+    shot_mode,
+    provider,
+    model,
+    usage,
+    elapsed_ms,
+    output_root
+):
+
+    token_dir = output_root / "token"
+    token_dir.mkdir(parents=True, exist_ok=True)
+
+    token_file = token_dir / "information_response_token.csv"
+
+    file_exists = token_file.exists()
+
+    with open(token_file, "a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+
+        if not file_exists:
+            writer.writerow([
+                "spec_id",
+                "selection",
+                "shot_mode",
+                "provider",
+                "model",
+                "prompt_tokens",
+                "completion_tokens",
+                "total_tokens",
+                "elapsed_ms"
+            ])
+
+        writer.writerow([
+            spec_id,
+            selection,
+            shot_mode,
+            provider,
+            model,
+            usage.prompt_tokens,
+            usage.completion_tokens,
+            usage.total_tokens,
+            elapsed_ms
+        ])
+        
+import re
+
+import re
+
+def extract_domain_from_prompt(prompt: str) -> str:
+    pattern = r'"domain"\s*:\s*"([^"]+)"'
+    matches = re.findall(pattern, prompt)
+
+    if matches:
+        return matches[-1].lower()  # pega o último
+
+    return "unknown"

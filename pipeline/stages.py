@@ -8,7 +8,7 @@ from nl2spec.pipeline_types import PipelineFlags
 from nl2spec.logging_utils import get_logger
 from nl2spec.pipeline.nl_loader import load_nl_scenarios_by_domain
 from nl2spec.prompts.build_prompt import build_prompt
-from nl2spec.core.convert.ir_to_nl import IRToNL
+from nl2spec.core.convert.nl.ir_to_nl import IRToNL
 from nl2spec.core.convert.mop_to_ir import convert_mop_dir_to_ir
 from nl2spec.core.handlers.fewshot_loader import FewShotLoader
 
@@ -57,7 +57,8 @@ def stage_generate(ctx, flags: PipelineFlags) -> None:
                     raise FileNotFoundError(f"Baseline IR not found: {gt_path}")
 
                 gt = json.loads(gt_path.read_text(encoding="utf-8"))
-                ir_type = gt["ir"]["type"].lower()
+                #ir_type = gt["ir"]["type"].lower()
+                ir_type = gt["formalism"].lower()
 
                 shot_mode = cfg["prompting"]["shot_mode"].lower()
                 selection = cfg["prompting"]["fewshot"]["selection"].lower()
