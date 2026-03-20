@@ -1,0 +1,57 @@
+{
+  "id": "",
+  "formalism": "ere",
+  "domain": "",
+  "signature": {
+    "name": "",
+    "parameters": [
+      {
+        "type": "",
+        "name": ""
+      }
+    ]
+  },
+  "ir": {
+    "events": [
+      {
+        "body": {
+          "methods": [
+            {
+              "action": "",
+              "name": "",
+              "timing": "",
+              "parameters": [
+                {
+                  "type": "",
+                  "name": ""
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "",
+                  "arguments": [
+                    {
+                      "value": ""
+                    }
+                  ]
+                }
+              ],
+              "operation": []
+            }
+          ]
+        }
+      }
+    ],
+    "ere": {
+      "expression": ""
+    },
+    "violation": {
+      "tag": "",
+      "body": {
+        "statements": [],
+        "has_reset": false
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import re
-from typing import Dict, List
+from typing import Dict, List, Optional, Tuple
 
 
 # ==========================================================
@@ -7,7 +7,6 @@ from typing import Dict, List
 # ==========================================================
 
 def extract_ltl_ir(mop_text: str, spec_id: str, domain: str) -> Dict:
-
     signature = extract_signature(mop_text)
     events = extract_events(mop_text)
     formula = extract_formula(mop_text)
@@ -19,11 +18,28 @@ def extract_ltl_ir(mop_text: str, spec_id: str, domain: str) -> Dict:
         "domain": domain,
         "signature": signature,
         "ir": {
-            "type": "ltl",
             "events": events,
-            "formula": formula,
-            "violation": violation
-        }
+            "ltl": formula,
+            "violation": violation,
+        },
+    }
+
+
+# ==========================================================
+# SIGNATURE
+# ==========================================================
+
+def extract_signature(text: str) -> Dict:
+    m = re.search(r"^\s*(\w+)\s*\((.*?)\)\s*\{", text, re.MULTILINE | re.DOTALL)
+    if not m:
+        return {"name": "", "parameters": []}
+
+    name = m.group(1).strip()
+    params_raw = m.group(2).strip()
+
+    return {
+        "name": name,
+        "parameters": parse_parameters(params_raw),
     }
 
 
@@ -33,154 +49,192 @@ def extract_ltl_ir(mop_text: str, spec_id: str, domain: str) -> Dict:
 
 EVENT_RE = re.compile(
     r"event\s+(\w+)\s+"
-    r"(before|after)\((.*?)\)\s*"
+    r"(before|after)"
+    r"(?:\((.*?)\))?\s*"
     r"(?:returning\((.*?)\))?\s*:\s*"
-    r"(.*?)\s*\{\s*\}",
-    re.DOTALL
+    r"(.*?)\{\s*\}",
+    re.DOTALL,
 )
 
+
 def extract_events(text: str) -> List[Dict]:
-    events = []
+    events: List[Dict] = []
 
     for name, timing, params, returning, pointcut in EVENT_RE.findall(text):
-        event = {
+        method = {
+            "action": "event",
             "name": name.strip(),
             "timing": timing.strip(),
-            "parameters": parse_parameters(params),
-            "pointcut": parse_pointcut(pointcut.strip())
+            "parameters": parse_parameters(params or ""),
+            "returning": parse_returning(returning),
+            "procediments": ":",
+            "function": extract_pointcut_functions(pointcut.strip()),
+            "operation": extract_pointcut_operations(pointcut.strip()),
         }
 
-        if returning:
-            tokens = returning.strip().split()
-            if len(tokens) == 2:
-                event["returning"] = {
-                    "type": tokens[0],
-                    "name": tokens[1]
-                }
-
-        events.append(event)
+        events.append({"body": {"methods": [method]}})
 
     return events
 
 
 def parse_parameters(param_text: str) -> List[Dict]:
-    if not param_text.strip():
+    param_text = (param_text or "").strip()
+    if not param_text:
         return []
 
     params = []
-    parts = [p.strip() for p in param_text.split(",")]
+    parts = [p.strip() for p in param_text.split(",") if p.strip()]
 
-    for p in parts:
-        tokens = p.split()
-        if len(tokens) == 2:
+    for part in parts:
+        tokens = part.split()
+        if len(tokens) >= 2:
             params.append({
-                "type": tokens[0],
-                "name": tokens[1]
+                "type": " ".join(tokens[:-1]),
+                "name": tokens[-1],
             })
 
     return params
+
+
+def parse_returning(returning_text: Optional[str]) -> Optional[Dict]:
+    returning_text = (returning_text or "").strip()
+    if not returning_text:
+        return None
+
+    tokens = returning_text.split()
+    if len(tokens) >= 2:
+        return {
+            "type": " ".join(tokens[:-1]),
+            "name": tokens[-1],
+        }
+
+    return None
 
 
 # ==========================================================
 # POINTCUT
 # ==========================================================
 
-def parse_pointcut(text: str) -> Dict:
-    return {
-        "raw": normalize(text),
-        "joinpoints": extract_calls(text),
-        "bindings": extract_targets(text),
-        "exclusions": extract_cflow(text)
-    }
-
-
-def extract_calls(text: str) -> List[Dict]:
-    """
-    Extracts call(...) joinpoints using balanced-parentheses scanning.
-    This avoids truncation when the call body contains parentheses, e.g. readPassword(..).
-    """
-    calls = []
-
-    for body in _extract_balanced_call_bodies(text):
-        body = normalize(body)
-
-        calls.append({
-            "kind": "call",
-            "pattern": body,  # agora vem completo: "char[] Console+.readPassword(..)"
-            "simple": extract_simple_method(body),
-            "declaring_type": extract_declaring_type(body),
-        })
-
-    return calls
-
-def _extract_balanced_call_bodies(text: str) -> List[str]:
-    """
-    Returns the inside of each call( ... ) with correct balancing.
-    Example: call(char[] Console+.readPassword(..)) -> "char[] Console+.readPassword(..)"
-    """
-    out: List[str] = []
+def extract_pointcut_functions(text: str) -> List[Dict]:
+    functions: List[Dict] = []
     i = 0
     n = len(text)
 
     while i < n:
-        m = re.search(r"\bcall\s*\(", text[i:])
-        if not m:
+        match = re.search(r"\b(call|target|args|condition|cflow|endProgram)\b", text[i:])
+        if not match:
             break
 
-        start = i + m.start()
-        # position at the '(' after 'call'
-        j = start + m.group(0).rfind("(")
+        start = i + match.start()
+        fname = match.group(1)
+        j = start + len(fname)
 
-        depth = 0
-        k = j
-        while k < n:
-            ch = text[k]
-            if ch == "(":
-                depth += 1
-            elif ch == ")":
-                depth -= 1
-                if depth == 0:
-                    # body is inside outer call(...)
-                    body = text[j + 1 : k]
-                    out.append(body)
-                    i = k + 1
-                    break
-            k += 1
-        else:
-            # unbalanced: stop scanning
-            break
+        while j < n and text[j].isspace():
+            j += 1
 
-    return out
+        if j >= n or text[j] != "(":
+            i = j
+            continue
 
-def extract_simple_method(body: str) -> str:
-    m = re.search(r"\.(\w+\(\.\.\))", body)
-    return m.group(1) if m else ""
+        body, end_idx = extract_balanced_parenthesized(text, j)
+        body = normalize(body)
+
+        functions.append({
+            "name": fname,
+            "parameters": build_function_parameters(fname, body),
+        })
+
+        i = end_idx
+
+    return functions
 
 
-def extract_declaring_type(body: str) -> str:
-    
-    # remove leading return type if exists
-    # split by space and take last token before '.'
-    m = re.search(r"\b([A-Za-z_]\w*\+?)\s*\.\s*\w+\s*\(", body)
+def extract_pointcut_operations(text: str) -> List[str]:
+    ops: List[str] = []
+    i = 0
+    depth = 0
+    n = len(text)
 
-    if m:
-        return m.group(1)
+    while i < n - 1:
+        ch = text[i]
+        nxt = text[i + 1]
 
-    return ""
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth = max(0, depth - 1)
+        elif depth == 0 and ch == "&" and nxt == "&":
+            ops.append("&&")
+            i += 1
+        elif depth == 0 and ch == "|" and nxt == "|":
+            ops.append("||")
+            i += 1
+
+        i += 1
+
+    return ops
 
 
-def extract_targets(text: str) -> List[Dict]:
-    matches = re.findall(r"target\((\w+)\)", text)
-    return [{"type": "target", "variable": m} for m in matches]
+def extract_balanced_parenthesized(text: str, open_paren_idx: int) -> Tuple[str, int]:
+    depth = 0
+    i = open_paren_idx
+    n = len(text)
+
+    while i < n:
+        if text[i] == "(":
+            depth += 1
+        elif text[i] == ")":
+            depth -= 1
+            if depth == 0:
+                return text[open_paren_idx + 1 : i], i + 1
+        i += 1
+
+    return text[open_paren_idx + 1 :], n
 
 
-def extract_cflow(text: str) -> List[Dict]:
-    matches = re.findall(r"!cflow\((.*?)\)", text, re.DOTALL)
+def build_function_parameters(fname: str, body: str) -> List[Dict]:
+    if fname in {"call", "cflow"}:
+        return [{"return": "*" if fname == "call" else "", "name": body}]
 
-    return [{
-        "type": "cflow",
-        "pattern": normalize(m)
-    } for m in matches]
+    if fname == "endProgram":
+        return []
+
+    if fname == "target":
+        return [{"return": "", "name": body}]
+
+    if fname == "condition":
+        return [{"return": "", "name": body}]
+
+    if fname == "args":
+        args = split_top_level_args(body)
+        return [{"return": "", "name": arg} for arg in args]
+
+    return [{"return": "", "name": body}]
+
+
+def split_top_level_args(text: str) -> List[str]:
+    args = []
+    current = []
+    depth = 0
+
+    for ch in text:
+        if ch == "," and depth == 0:
+            arg = normalize("".join(current))
+            if arg:
+                args.append(arg)
+            current = []
+            continue
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth = max(0, depth - 1)
+        current.append(ch)
+
+    arg = normalize("".join(current))
+    if arg:
+        args.append(arg)
+
+    return args
 
 
 # ==========================================================
@@ -188,92 +242,154 @@ def extract_cflow(text: str) -> List[Dict]:
 # ==========================================================
 
 def extract_formula(text: str) -> Dict:
-    m = re.search(r"(?im)^\s*(ptltl|ltl)\s*:\s*(.*)", text)
-
-    raw = m.group(2).strip() if m else ""
+    m = re.search(r"(?im)^\s*(ptltl|ltl)\s*:\s*(.*)$", text, re.MULTILINE)
+    if not m:
+        return {
+            "name": "",
+            "value": ""
+        }
 
     return {
-        "raw": raw,
+        "name": m.group(1).strip(),
+        "value": normalize(m.group(2))
     }
 
-def extract_signature(text: str) -> Dict:
-    m = re.search(r"^\s*(\w+)\s*\((.*?)\)\s*\{", text, re.MULTILINE)
-    if not m:
-        return {"parameters": []}
 
-    params_raw = m.group(2).strip()
-    if not params_raw:
-        return {"parameters": []}
+TOKEN_RE = re.compile(r"\[\]|\(\*\)|<>|=>|\|\||&&|\(|\)|!|\bo\b|\bor\b|\band\b|\b[A-Za-z_]\w*\b")
 
-    params = []
-    for p in params_raw.split(","):
-        tokens = p.strip().split()
-        if len(tokens) == 2:
-            params.append({
-                "type": tokens[0],
-                "name": tokens[1]
-            })
 
-    return {"parameters": params}
+class FormulaParser:
+    def __init__(self, text: str):
+        self.tokens = TOKEN_RE.findall(text)
+        self.pos = 0
+
+    def current(self) -> Optional[str]:
+        return self.tokens[self.pos] if self.pos < len(self.tokens) else None
+
+    def eat(self, token: str) -> None:
+        if self.current() != token:
+            raise ValueError(f"Expected '{token}', found '{self.current()}'")
+        self.pos += 1
+
+    def parse(self) -> Dict:
+        expr = self.parse_implies()
+        if self.current() is not None:
+            raise ValueError(f"Unexpected token: {self.current()}")
+        return expr
+
+    def parse_implies(self) -> Dict:
+        left = self.parse_or()
+        while self.current() == "=>":
+            self.eat("=>")
+            right = self.parse_implies()
+            left = {"name": "implies", "value": [left, right]}
+        return left
+
+    def parse_or(self) -> Dict:
+        left = self.parse_and()
+        while self.current() in {"or", "||"}:
+            self.pos += 1
+            right = self.parse_and()
+            left = {"name": "or", "value": [left, right]}
+        return left
+
+    def parse_and(self) -> Dict:
+        left = self.parse_unary()
+        while self.current() in {"and", "&&"}:
+            self.pos += 1
+            right = self.parse_unary()
+            left = {"name": "and", "value": [left, right]}
+        return left
+
+    def parse_unary(self) -> Dict:
+        tok = self.current()
+        if tok == "[]":
+            self.eat("[]")
+            return {"name": "globally", "value": self.parse_unary()}
+        if tok == "<>":
+            self.eat("<>")
+            return {"name": "eventually", "value": self.parse_unary()}
+        if tok == "o":
+            self.eat("o")
+            return {"name": "next", "value": self.parse_unary()}
+        if tok == "(*)":
+            self.eat("(*)")
+            return {"name": "previous", "value": self.parse_unary()}
+        if tok == "!":
+            self.eat("!")
+            return {"name": "not", "value": self.parse_unary()}
+        return self.parse_primary()
+
+    def parse_primary(self) -> Dict:
+        tok = self.current()
+        if tok == "(":
+            self.eat("(")
+            expr = self.parse_implies()
+            self.eat(")")
+            return expr
+        if tok is None:
+            raise ValueError("Unexpected end of formula")
+        self.pos += 1
+        return {"name": "event", "value": tok}
+
+
+def parse_ltl_formula(raw: str) -> Dict:
+    parser = FormulaParser(raw)
+    return parser.parse()
+
 
 # ==========================================================
 # VIOLATION
 # ==========================================================
+
 def extract_violation_block(text: str) -> Dict:
     m = re.search(
         r"@(fail|violation|match)\s*\{(.*?)\}",
         text,
-        flags=re.DOTALL | re.IGNORECASE
+        flags=re.DOTALL | re.IGNORECASE,
     )
 
     if not m:
-        return {"raw_block": []}
+        return {"tag": "", "statements": []}
 
+    tag = m.group(1).strip().lower()
     block = m.group(2).strip()
 
-    # dividir por linhas preservando conteúdo
-    lines = [
-        line.strip()
-        for line in block.splitlines()
-        if line.strip()
-    ]
+    lines = [normalize(line) for line in block.splitlines() if normalize(line)]
+    statements = [classify_violation_statement(line) for line in lines]
 
-    return {"raw_block": lines}
+    return {
+        "tag": tag,
+        "statements": statements,
+    }
 
-def extract_violation(text: str) -> str:
-    """
-    Extract violation message from @fail / @violation / @match blocks.
 
-    Priority:
-    1) First quoted string inside the block
-    2) Argument of println(...)
-    3) Safe default message
-    """
+def classify_violation_statement(line: str) -> Dict:
+    if "println" in line:
+        return {
+            "type": "log",
+            "value": extract_log_value(line),
+        }
+    return {
+        "type": "raw",
+        "value": line,
+    }
 
-    # Capture block inside @fail / @violation / @match
-    m = re.search(
-        r"@(fail|violation|match)\s*\{(.*?)\}",
-        text,
-        flags=re.DOTALL | re.IGNORECASE
-    )
 
-    if not m:
-        return "Violation detected."
+def extract_log_value(line: str) -> str:
+    default_match = re.search(r"__DEFAULT_MESSAGE", line)
+    if default_match:
+        return "__DEFAULT_MESSAGE"
 
-    block = m.group(2)
+    quoted_strings = re.findall(r'"([^"]*)"', line)
+    if quoted_strings:
+        return f'"{quoted_strings[-1]}"'
 
-    # 1️⃣ Try first quoted string
-    s = re.search(r'"([^"]+)"', block)
-    if s:
-        return s.group(1).strip()
+    m = re.search(r"println\s*\((.*)\)\s*;?", line)
+    if m:
+        return normalize(m.group(1))
 
-    # 2️⃣ Try argument of println(...)
-    p = re.search(r'println\s*\([^,]+,\s*([^)]+)\)', block)
-    if p:
-        return p.group(1).strip()
-
-    # 3️⃣ Fallback
-    return "Violation detected."
+    return line
 
 
 # ==========================================================

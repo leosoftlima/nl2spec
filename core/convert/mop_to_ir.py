@@ -25,7 +25,7 @@ def convert_mop_dir_to_ir(mop_root: str, out_dir: str, keep_structure: bool = Tr
 
         formalism = detect_formalism(text)
 
-        # 🔥 Agora suporta as 4 linguagens
+      
         SUPPORTED = {"ltl", "fsm", "ere", "event"}
 
         if formalism not in SUPPORTED:

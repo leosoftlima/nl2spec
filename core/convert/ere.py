@@ -1,15 +1,16 @@
 import re
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any, Set
 
 
 # ==========================================================
 # MAIN
 # ==========================================================
 
-def extract_ere_ir(mop_text: str, spec_id: str, domain: str) -> Dict:
+def extract_ere_ir(mop_text: str, spec_id: str, domain: str) -> Dict[str, Any]:
     signature = extract_signature(mop_text)
-    events = extract_events(mop_text)
-    formula = extract_ere_formula(mop_text)
+    methods = extract_events(mop_text)
+    declared_events = {m["name"] for m in methods}
+    ere_expression = extract_ere_expression(mop_text, declared_events=declared_events)
     violation = extract_violation_block(mop_text)
 
     return {
@@ -18,11 +19,18 @@ def extract_ere_ir(mop_text: str, spec_id: str, domain: str) -> Dict:
         "domain": domain,
         "signature": signature,
         "ir": {
-            "type": "ere",
-            "events": events,
-            "formula": formula,
-            "violation": violation,
-        },
+            "events": [
+                {
+                    "body": {
+                        "methods": methods
+                    }
+                }
+            ],
+            "ere": {
+                "expression": ere_expression
+            },
+            "violation": violation
+        }
     }
 
 
@@ -30,28 +38,24 @@ def extract_ere_ir(mop_text: str, spec_id: str, domain: str) -> Dict:
 # SIGNATURE
 # ==========================================================
 
-_HEADER_RE = re.compile(r"(?m)^\s*([A-Za-z_]\w*)\s*\(")
+_SPEC_HEADER_RE = re.compile(
+    r"(?m)^\s*(?!package\b|import\b|event\b|creation\b|@|if\b|for\b|while\b|switch\b|catch\b|return\b)"
+    r"([A-Za-z_]\w*)\s*\("
+)
 
-def extract_signature(text: str) -> Dict:
-    m = _HEADER_RE.search(text)
+def extract_signature(text: str) -> Dict[str, Any]:
+    m = _SPEC_HEADER_RE.search(text)
     if not m:
-        return {"parameters": []}
+        return {"name": "", "parameters": []}
 
     name = m.group(1)
     open_pos = text.find("(", m.start())
-    params_raw, _ = extract_balanced(text, open_pos)
+    params_raw, _ = extract_balanced_round(text, open_pos)
 
-    if not params_raw:
+    if params_raw is None:
         return {"name": name, "parameters": []}
 
-    parts = split_commas_balanced(params_raw)
-    params = []
-
-    for p in parts:
-        ptype, pname = split_type_name(p.strip())
-        if ptype and pname:
-            params.append({"type": ptype, "name": pname})
-
+    params = parse_parameters(params_raw)
     return {"name": name, "parameters": params}
 
 
@@ -59,79 +63,202 @@ def extract_signature(text: str) -> Dict:
 # EVENTS
 # ==========================================================
 
-EVENT_RE = re.compile(
-    r"(?is)"
-    r"\b(creation\s+)?event\s+(\w+)\s+"
-    r"(before|after)\((.*?)\)\s*"
-    r"(?:returning\((.*?)\))?\s*:\s*"
-    r"(.*?)\{(.*?)\}"
+_EVENT_START_RE = re.compile(
+    r"(?im)^\s*(creation\s+event|event)\s+([A-Za-z_]\w*)\s+(before|after)\b"
 )
 
-def extract_events(text: str) -> List[Dict]:
-    events = []
+def extract_events(text: str) -> List[Dict[str, Any]]:
+    methods = []
 
-    for creation_kw, name, timing, params, returning, pointcut_raw, body in EVENT_RE.findall(text):
+    for m in _EVENT_START_RE.finditer(text):
+        action = m.group(1).strip().lower()   # "creation event" or "event"
+        name = m.group(2).strip()
+        timing = m.group(3).strip()
 
-        kind = "creation" if creation_kw else "event"
+        cursor = skip_ws(text, m.end())
 
-        event = {
-            "kind": kind,
-            "name": name.strip(),
-            "timing": timing.strip(),
-            "parameters": parse_parameters(params),
-            "pointcut": parse_pointcut(pointcut_raw.strip()),
+        # parâmetros do evento são opcionais
+        params_raw = ""
+        if cursor < len(text) and text[cursor] == "(":
+            params_raw, cursor = extract_balanced_round(text, cursor)
+            cursor = skip_ws(text, cursor)
+
+        # returning(...) também é opcional
+        returning_obj = {"type": "", "name": ""}
+        if text[cursor:cursor + 9].lower() == "returning":
+            ret_open = text.find("(", cursor)
+            ret_raw, cursor = extract_balanced_round(text, ret_open)
+            cursor = skip_ws(text, cursor)
+
+            if ret_raw:
+                rtype, rname = split_type_name(ret_raw.strip())
+                if rtype and rname:
+                    returning_obj = {"type": rtype, "name": rname}
+
+        if cursor >= len(text) or text[cursor] != ":":
+            continue
+
+        cursor += 1
+        cursor = skip_ws(text, cursor)
+
+        pointcut_raw, _, _ = extract_event_pointcut_and_body(text, cursor)
+        if pointcut_raw is None:
+            continue
+
+        pointcut_struct = parse_pointcut(pointcut_raw)
+
+        method = {
+            "action": action,
+            "name": name,
+            "timing": timing,
+            "parameters": parse_parameters(params_raw or ""),
+            "returning": returning_obj,
+            "procediments": ":",
+            "function": pointcut_struct["function"],
+            "operation": pointcut_struct["operation"]
         }
 
-        if returning:
-            rtype, rname = split_type_name(returning.strip())
-            if rtype and rname:
-                event["returning"] = {"type": rtype, "name": rname}
+        methods.append(method)
 
-        body_lines = [ln.strip() for ln in body.splitlines() if ln.strip()]
-        if body_lines:
-            event["body"] = {"raw_lines": body_lines}
+    return methods
 
-        events.append(event)
 
-    return events
+def extract_event_pointcut_and_body(text: str, start_pos: int) -> Tuple[Optional[str], Optional[str], Optional[int]]:
+    """
+    Lê o pointcut até a primeira chave { no nível externo,
+    depois extrai o corpo balanceado do evento.
+    O body é ignorado no JSON final, mas ainda é usado para
+    localizar corretamente o fim do bloco.
+    """
+    i = start_pos
+    paren = 0
+
+    while i < len(text):
+        ch = text[i]
+
+        if ch == "(":
+            paren += 1
+        elif ch == ")":
+            paren -= 1
+        elif ch == "{" and paren == 0:
+            pointcut_raw = text[start_pos:i].strip()
+            body_raw, end_pos = extract_balanced_curly(text, i)
+            return pointcut_raw, body_raw, end_pos
+
+        i += 1
+
+    return None, None, None
 
 
 # ==========================================================
-# POINTCUT (ROBUSTO, SEM TRUNCAR)
+# POINTCUT STRUCTURE
 # ==========================================================
 
-def parse_pointcut(raw: str) -> Dict:
-    calls = []
+def parse_pointcut(raw: str) -> Dict[str, Any]:
+    """
+    Estrutura simplificada do pointcut:
+    - function: lista de primitivas como call(...), target(...), args(...), if(...), condition(...)
+    - operation: sequência dos operadores lógicos encontrados (&&, ||)
+
+    Negação atômica:
+    - !call(...)
+    - !target(...)
+    - !cflow(...)
+
+    Observação:
+    não reconstrói AST completa com agrupamento.
+    """
+    function = []
+    operation = []
+
     i = 0
+    pending_negation = False
 
-    while True:
-        idx = raw.find("call(", i)
-        if idx == -1:
-            break
+    while i < len(raw):
+        if raw[i].isspace():
+            i += 1
+            continue
 
-        content, end_pos = extract_balanced(raw, idx + 4)
-        if content:
-            calls.append(content.strip())
-            i = end_pos
-        else:
-            break
+        if raw.startswith("&&", i):
+            operation.append("&&")
+            i += 2
+            continue
+
+        if raw.startswith("||", i):
+            operation.append("||")
+            i += 2
+            continue
+
+        if raw[i] == "!":
+            pending_negation = True
+            i += 1
+            continue
+
+        if raw[i] in "()":
+            i += 1
+            continue
+
+        if raw[i].isalpha() or raw[i] == "_":
+            j = i
+            while j < len(raw) and (raw[j].isalnum() or raw[j] == "_"):
+                j += 1
+
+            fname = raw[i:j]
+            j = skip_ws(raw, j)
+
+            if j < len(raw) and raw[j] == "(":
+                inner, end_pos = extract_balanced_round(raw, j)
+                arguments = []
+
+                if inner is not None:
+                    for p in split_commas_balanced(inner):
+                        p = p.strip()
+                        if p:
+                            arguments.append({"value": p})
+
+                fn_obj = {
+                    "name": fname,
+                    "arguments": arguments
+                }
+
+                if pending_negation:
+                    fn_obj["negated"] = True
+                    pending_negation = False
+
+                function.append(fn_obj)
+                i = end_pos if end_pos is not None else j + 1
+                continue
+
+        i += 1
 
     return {
-        "raw": normalize(raw),
-        "calls": calls
+        "function": function,
+        "operation": operation
     }
 
-
 # ==========================================================
-# ERE FORMULA
+# ERE EXPRESSION (STRING ONLY)
 # ==========================================================
 
-ERE_RE = re.compile(r"(?im)^\s*ere\s*:\s*(.*)$")
+_ERE_RE = re.compile(r"(?im)^\s*ere\s*:\s*(.*)$")
 
-def extract_ere_formula(text: str) -> Dict:
-    m = ERE_RE.search(text)
+def extract_ere_expression(text: str, declared_events: Optional[Set[str]] = None) -> str:
+    expression = extract_ere_formula_text(text)
+    if not expression:
+        return ""
+
+    expression = normalize_ere_expression(expression)
+
+    if declared_events is not None:
+        validate_ere_expression(expression, declared_events)
+
+    return expression
+
+
+def extract_ere_formula_text(text: str) -> str:
+    m = _ERE_RE.search(text)
     if not m:
-        return {"raw": "", "raw_lines": []}
+        return ""
 
     first_line = m.group(1).strip()
     start = m.end()
@@ -139,41 +266,141 @@ def extract_ere_formula(text: str) -> Dict:
     lines = [first_line] if first_line else []
 
     for ln in text[start:].splitlines():
-        if re.match(r"^\s*@(?:fail|violation|match)", ln, re.I):
-            break
-        if re.match(r"^\s*\}", ln):
-            break
-        if ln.strip():
-            lines.append(ln.strip())
+        stripped = ln.strip()
 
-    return {
-        "raw": " ".join(lines).strip(),
-        "raw_lines": lines
-    }
+        if not stripped:
+            continue
+
+        if re.match(r"^@(fail|match|violation)\b", stripped, re.I):
+            break
+
+        if stripped == "}":
+            break
+
+        lines.append(stripped)
+
+    return " ".join(lines).strip()
+
+
+def normalize_ere_expression(expr: str) -> str:
+    """
+    Normaliza espaços sem transformar a expressão em AST.
+    Ex.: múltiplos espaços viram um só.
+    """
+    return re.sub(r"\s+", " ", expr).strip()
+
+
+def validate_ere_expression(expr: str, declared_events: Set[str]) -> None:
+    tokens = tokenize_ere(expr)
+
+    for kind, value in tokens:
+        if kind == "IDENT" and value not in declared_events:
+            raise ValueError(
+                f"ERE references event '{value}', but this event was not declared in events."
+            )
+
+
+def tokenize_ere(expr: str) -> List[Tuple[str, str]]:
+    token_spec = [
+        ("LPAREN", r"\("),
+        ("RPAREN", r"\)"),
+        ("OR", r"\|"),
+        ("STAR", r"\*"),
+        ("PLUS", r"\+"),
+        ("QMARK", r"\?"),
+        ("NOT", r"[!~]"),
+        ("EPSILON", r"\bepsilon\b"),
+        ("EMPTY", r"\bempty\b"),
+        ("IDENT", r"[A-Za-z_]\w*"),
+        ("WS", r"\s+"),
+    ]
+
+    regex = "|".join(f"(?P<{name}>{pattern})" for name, pattern in token_spec)
+    pos = 0
+    tokens = []
+
+    while pos < len(expr):
+        m = re.match(regex, expr[pos:])
+        if not m:
+            raise ValueError(f"Unexpected token in ERE near: {expr[pos:pos+40]!r}")
+
+        kind = m.lastgroup
+        value = m.group(kind)
+
+        if kind != "WS":
+            tokens.append((kind, value))
+
+        pos += len(m.group(0))
+
+    return tokens
 
 
 # ==========================================================
-# FAIL / VIOLATION / MATCH
+# VIOLATION
 # ==========================================================
 
-def extract_violation_block(text: str) -> Dict:
-    m = re.search(
-        r"@(fail|violation|match)\s*\{(.*?)\}",
-        text,
-        flags=re.DOTALL | re.IGNORECASE,
-    )
+_VIOLATION_RE = re.compile(r"(?im)^\s*@(fail|match|violation)\s*\{")
 
+def extract_violation_block(text: str) -> Dict[str, Any]:
+    m = _VIOLATION_RE.search(text)
     if not m:
-        return {"tag": None, "raw_block": []}
+        return {
+            "tag": "",
+            "body": {
+                "statements": [],
+                "has_reset": False
+            }
+        }
 
     tag = m.group(1).lower()
-    block = m.group(2).strip()
+    open_brace = text.find("{", m.start())
+    block_raw, _ = extract_balanced_curly(text, open_brace)
 
-    lines = [ln.strip() for ln in block.splitlines() if ln.strip()]
+    lines = [ln.strip() for ln in (block_raw or "").splitlines() if ln.strip()]
+    statements = []
+    has_reset = False
+
+    for ln in lines:
+        stmt = parse_violation_statement(ln)
+
+        if stmt["type"] == "command" and stmt.get("name") == "reset":
+            has_reset = True
+
+        if stmt["type"] == "raw" and "reset(" in stmt.get("value", ""):
+            has_reset = True
+
+        statements.append(stmt)
 
     return {
         "tag": tag,
-        "raw_block": lines
+        "body": {
+            "statements": statements,
+            "has_reset": has_reset
+        }
+    }
+
+
+def parse_violation_statement(line: str) -> Dict[str, Any]:
+    log_m = re.search(
+        r"RVMLogging\.out\.println\s*\(\s*Level\.(\w+)\s*,\s*(.*?)\s*\)\s*;?$",
+        line
+    )
+    if log_m:
+        return {
+            "type": "log",
+            "level": log_m.group(1),
+            "message": log_m.group(2).strip()
+        }
+
+    if re.search(r"\breset\s*\(", line):
+        return {
+            "type": "command",
+            "name": "reset"
+        }
+
+    return {
+        "type": "raw",
+        "value": line
     }
 
 
@@ -181,7 +408,7 @@ def extract_violation_block(text: str) -> Dict:
 # PARAMS
 # ==========================================================
 
-def parse_parameters(param_text: str) -> List[Dict]:
+def parse_parameters(param_text: str) -> List[Dict[str, str]]:
     if not param_text.strip():
         return []
 
@@ -200,12 +427,8 @@ def parse_parameters(param_text: str) -> List[Dict]:
 # HELPERS
 # ==========================================================
 
-def extract_balanced(s: str, open_pos: int) -> Tuple[Optional[str], Optional[int]]:
-    """
-    Extrai conteúdo entre parênteses balanceados.
-    open_pos deve apontar para '('
-    """
-    if s[open_pos] != "(":
+def extract_balanced_round(s: str, open_pos: int) -> Tuple[Optional[str], Optional[int]]:
+    if open_pos is None or open_pos >= len(s) or s[open_pos] != "(":
         return None, None
 
     depth = 0
@@ -223,10 +446,29 @@ def extract_balanced(s: str, open_pos: int) -> Tuple[Optional[str], Optional[int
     return None, None
 
 
+def extract_balanced_curly(s: str, open_pos: int) -> Tuple[Optional[str], Optional[int]]:
+    if open_pos is None or open_pos >= len(s) or s[open_pos] != "{":
+        return None, None
+
+    depth = 0
+    i = open_pos
+
+    while i < len(s):
+        if s[i] == "{":
+            depth += 1
+        elif s[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return s[open_pos + 1:i], i + 1
+        i += 1
+
+    return None, None
+
+
 def split_commas_balanced(s: str) -> List[str]:
     result = []
     cur = []
-    angle = paren = bracket = 0
+    angle = paren = bracket = curly = 0
 
     for ch in s:
         if ch == "<":
@@ -241,8 +483,12 @@ def split_commas_balanced(s: str) -> List[str]:
             bracket += 1
         elif ch == "]":
             bracket -= 1
+        elif ch == "{":
+            curly += 1
+        elif ch == "}":
+            curly -= 1
 
-        if ch == "," and angle == 0 and paren == 0 and bracket == 0:
+        if ch == "," and angle == 0 and paren == 0 and bracket == 0 and curly == 0:
             result.append("".join(cur).strip())
             cur = []
         else:
@@ -257,6 +503,7 @@ def split_commas_balanced(s: str) -> List[str]:
 def split_type_name(param: str) -> Tuple[str, str]:
     param = re.sub(r"@\w+(\([^)]*\))?\s*", "", param)
     param = re.sub(r"^\s*final\s+", "", param)
+    param = param.strip()
 
     tokens = param.split()
     if len(tokens) < 2:
@@ -267,5 +514,7 @@ def split_type_name(param: str) -> Tuple[str, str]:
     return ptype.strip(), name.strip()
 
 
-def normalize(s: str) -> str:
-    return re.sub(r"\s+", " ", s).strip()
+def skip_ws(text: str, pos: int) -> int:
+    while pos < len(text) and text[pos].isspace():
+        pos += 1
+    return pos

@@ -1,0 +1,67 @@
+{
+  "id": "",
+  "formalism": "ltl",
+  "domain": "",
+  "signature": {
+    "name": "",
+    "parameters": [
+      {
+        "type": "",
+        "name": ""
+      }
+    ]
+  },
+  "ir": {
+    "events": [
+      {
+        "body": {
+          "methods": [
+            {
+              "action": "",
+              "name": "",
+              "timing": "",
+              "parameters": [
+                {
+                  "type": "",
+                  "name": ""
+                }
+              ],
+              "returning": {
+                "type": "",
+                "name": ""
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": ""
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                ""
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "ltl": {
+      "name": "",
+      "value": {}
+    },
+    "violation": {
+      "tag": "",
+      "statements": [
+        {
+          "type": "",
+          "value": ""
+        }
+      ]
+    }
+  }
+}

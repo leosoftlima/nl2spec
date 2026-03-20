@@ -1,0 +1,90 @@
+{
+  "id": "",
+  "formalism": "fsm",
+  "domain": "",
+  "signature": {
+    "name": "",
+    "parameters": [
+      {
+        "type": "",
+        "name": ""
+      }
+    ]
+  },
+  "ir": {
+    "events": [
+      {
+        "body": {
+          "methods": [
+            {
+              "action": "",
+              "name": "",
+              "timing": "",
+              "parameters": [
+                {
+                  "type": "",
+                  "name": ""
+                }
+              ],
+              "returning": {
+                "type": "",
+                "name": ""
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": ""
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                ""
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "fsm": {
+      "type": "fsm",
+      "initial_state": "",
+      "states": [
+        {
+          "name": "",
+          "transitions": [
+            {
+              "event": "",
+              "target": ""
+            }
+          ]
+        }
+      ]
+    },
+    "violation": {
+      "tag": "",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "",
+            "message": ""
+          },
+          {
+            "type": "command",
+            "name": ""
+          },
+          {
+            "type": "raw",
+            "value": ""
+          }
+        ],
+        "has_reset": false 
+      }
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "id": "",
+  "formalism": "event",
+  "domain": "",
+  "signature": {
+    "name": "",
+    "parameters": [
+      {
+        "type": "",
+        "name": ""
+      }
+    ]
+  },
+  "ir": {
+    "events": [
+      {
+        "name": "",
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "",
+              "timing": "",
+              "parameters": [
+                {
+                  "type": "",
+                  "name": ""
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "",
+                    "parameters": [
+                      {
+                        "value": ""
+                      }
+                    ]
+                  }
+                ],
+                "operation": []
+              },
+              "violation": {
+                "tag": "",
+                "body": {
+                  "statements": []
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "violation": {
+      "tag": "",
+      "body": {
+        "statements": []
+      }
+    }
+  }
+}

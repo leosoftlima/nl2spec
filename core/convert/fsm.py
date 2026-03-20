@@ -18,23 +18,8 @@ def extract_fsm_ir(mop_text: str, spec_id: str, domain: str) -> Dict:
         "domain": domain,
         "signature": signature,
         "ir": {
-            "type": "fsm",
             "events": events,
-
-            # BLOCO FIEL (para reconstrução)
-            "fsm": {
-                "raw_block": fsm_block["raw_block"],
-                "raw_lines": fsm_block["raw_lines"],
-            },
-
-            # ANÁLISE ESTRUTURAL (para pesquisa)
-            "analysis": {
-                "states": fsm_block["states"],
-                "initial": fsm_block["initial"],
-                "transitions": fsm_block["transitions"],
-            },
-
-            # VIOLATION (tag + linhas)
+            "fsm": fsm_block,
             "violation": violation,
         },
     }
@@ -179,36 +164,163 @@ EVENT_FULL_RE = re.compile(
     r"(.*?)\s*\{(.*?)\}",
 )
 
+def parse_pointcut_functions(pointcut: str) -> Dict:
+    raw = normalize(pointcut.strip())
+
+    clauses, operations = split_logical_operators_balanced(raw)
+
+    functions = [parse_single_pointcut_function(clause) for clause in clauses]
+
+    return {
+        "procediments": ":",
+        "function": functions,
+        "operation": operations
+    }
+    
+def parse_single_pointcut_function(part: str) -> Dict:
+    """
+    Converte:
+        call(* OutputStream+.write*(..))
+        target(o)
+        args(t)
+        condition(t.getState() == Thread.State.NEW)
+
+    em algo como:
+        {
+            "name": "call",
+            "parameters": [{"return": "*", "name": "OutputStream+.write*(..)"}]
+        }
+    """
+    part = normalize(part)
+
+    m = re.match(r"^([A-Za-z_]\w*)\((.*)\)$", part, flags=re.DOTALL)
+    if not m:
+        return {
+            "name": "unknown",
+            "parameters": [
+                {
+                    "return": "",
+                    "name": part
+                }
+            ]
+        }
+
+    fname = m.group(1).strip()
+    inner = m.group(2).strip()
+
+    param_obj = {
+        "return": "",
+        "name": inner
+    }
+
+    # call(* java.io.OutputStream+.write*(..))
+    if fname == "call":
+        star_match = re.match(r"^(\*+)\s+(.*)$", inner, flags=re.DOTALL)
+        if star_match:
+            param_obj["return"] = star_match.group(1).strip()
+            param_obj["name"] = star_match.group(2).strip()
+        else:
+            param_obj["return"] = ""
+            param_obj["name"] = inner
+
+    return {
+        "name": fname,
+        "parameters": [param_obj]
+    }
+    
+def split_logical_operators_balanced(s: str) -> Tuple[List[str], List[str]]:
+    """
+    Divide expressões do pointcut em cláusulas e operadores, respeitando
+    parênteses balanceados.
+
+    Exemplo:
+        call(* Runtime+.addShutdownHook(..)) && args(t) && condition(t.getState() == Thread.State.NEW)
+
+    Retorna:
+        clauses = [
+            'call(* Runtime+.addShutdownHook(..))',
+            'args(t)',
+            'condition(t.getState() == Thread.State.NEW)'
+        ]
+        operators = ['&&', '&&']
+    """
+    clauses: List[str] = []
+    operators: List[str] = []
+
+    cur: List[str] = []
+    depth = 0
+    i = 0
+    n = len(s)
+
+    while i < n:
+        ch = s[i]
+
+        if ch == "(":
+            depth += 1
+            cur.append(ch)
+            i += 1
+            continue
+
+        if ch == ")":
+            depth = max(0, depth - 1)
+            cur.append(ch)
+            i += 1
+            continue
+
+        if depth == 0 and i + 1 < n:
+            two = s[i:i+2]
+            if two in ("&&", "||"):
+                clause = "".join(cur).strip()
+                if clause:
+                    clauses.append(clause)
+                operators.append(two)
+                cur = []
+                i += 2
+                continue
+
+        cur.append(ch)
+        i += 1
+
+    tail = "".join(cur).strip()
+    if tail:
+        clauses.append(tail)
+
+    return clauses, operators
+    
 def extract_events(text: str) -> List[Dict]:
-    events: List[Dict] = []
+    methods: List[Dict] = []
 
     for creation_kw, name, timing, params, returning, pointcut, body in EVENT_FULL_RE.findall(text):
-        kind = "creation" if (creation_kw and creation_kw.strip()) else "event"
+        action = "creation event" if (creation_kw and creation_kw.strip()) else "event"
 
-        event: Dict = {
-            "kind": kind,  # "creation" | "event"
+        method: Dict = {
+            "action": action,
             "name": name.strip(),
             "timing": timing.strip(),
             "parameters": parse_parameters(params),
-            "pointcut_raw": normalize(pointcut.strip()),
         }
 
+        # only after(...) may have returning(...)
         if returning and returning.strip():
             rtype, rname = _split_type_name(returning.strip())
             if rtype and rname:
-                event["returning"] = {"type": rtype, "name": rname}
+                method["returning"] = {
+                    "type": rtype,
+                    "name": rname
+                }
 
-        # opcional: preserva se o corpo do event tinha algo (mesmo vazio)
-        # (mantém fidelidade; útil se houver código)
-        body_lines = [ln.rstrip() for ln in body.splitlines() if ln.strip() != ""]
+        pointcut_info = parse_pointcut_functions(pointcut)
+        method["procediments"] = pointcut_info["procediments"]
+        method["function"] = pointcut_info["function"]
+        method["operation"] = pointcut_info["operation"]
+
+        body_lines = [ln.rstrip() for ln in body.splitlines() if ln.strip()]
         if body_lines:
-            event["body"] = {"raw_lines": body_lines}
-        else:
-            event["body"] = {"raw_lines": []}
+            method["raw_body"] = body_lines
 
-        events.append(event)
+        methods.append(method)
 
-    return events
+    return [{"body": {"methods": methods}}]
 
 
 def parse_parameters(param_text: str) -> List[Dict]:
@@ -247,27 +359,67 @@ def extract_fsm_block(text: str) -> Dict:
     """
     m = _FSM_LINE_RE.search(text)
     if not m:
-        return {"raw_block": "", "raw_lines": [], "states": [], "initial": None, "transitions": []}
-
+        return {
+            "type": "fsm",
+            "initial_state": None,
+            "states": []
+        }
     start = m.end()
     end = _find_next_directive_or_property_end(text, start)
 
     block_text = text[start:end].rstrip()
 
     raw_lines = [ln.rstrip("\n") for ln in block_text.splitlines() if ln.strip() != ""]
-    raw_block = "\n".join(raw_lines)
+    #raw_block = "\n".join(raw_lines)
 
-    states, initial, transitions = _parse_fsm_state_blocks(raw_lines)
+    return _build_fsm_ast(raw_lines)
+
+def _build_fsm_ast(lines: List[str]) -> Dict:
+    ast_states: List[Dict] = []
+    initial_state: Optional[str] = None
+
+    current_state: Optional[Dict] = None
+    inside = False
+
+    for ln in lines:
+        line = ln.rstrip()
+
+        m_open = _STATE_OPEN_RE.match(line)
+        if m_open:
+            state_name = m_open.group(1)
+
+            current_state = {
+                "name": state_name,
+                "transitions": []
+            }
+            ast_states.append(current_state)
+
+            if initial_state is None:
+                initial_state = state_name
+
+            inside = True
+            continue
+
+        if inside and line.strip() == "]":
+            inside = False
+            current_state = None
+            continue
+
+        if inside and current_state is not None:
+            m_tr = _TRANS_LINE_RE.match(line)
+            if m_tr:
+                ev, dst = m_tr.group(1), m_tr.group(2)
+                current_state["transitions"].append({
+                    "event": ev,
+                    "target": dst
+                })
 
     return {
-        "raw_block": raw_block,
-        "raw_lines": raw_lines,
-        "states": states,
-        "initial": initial,
-        "transitions": transitions,
+        "type": "fsm",
+        "initial_state": initial_state,
+        "states": ast_states,
     }
-
-
+    
 def _find_next_directive_or_property_end(text: str, start: int) -> int:
     m_dir = re.search(r"(?im)^\s*@(fail|violation|match)\b", text[start:])
     if m_dir:
@@ -327,22 +479,75 @@ def _parse_fsm_state_blocks(lines: List[str]) -> Tuple[List[str], Optional[str],
 # ==========================================================
 # FAIL / VIOLATION / MATCH
 # ==========================================================
+VIOLATION_BLOCK_RE = re.compile(
+    r"@(?P<tag>fail|unsafe|err|violation|match)\s*\{(?P<body>.*?)\}",
+    flags=re.DOTALL | re.IGNORECASE,
+)
+
+LOG_STMT_RE = re.compile(
+    r"""RVMLogging\.out\.println\(\s*
+        Level\.(?P<level>[A-Z_]+)\s*,\s*
+        (?P<message>.*?)
+        \s*\)\s*;?\s*$
+    """,
+    flags=re.VERBOSE,
+)
 
 def extract_violation_block(text: str) -> Dict:
-    m = re.search(
-        r"@(fail|violation|match)\s*\{(.*?)\}",
-        text,
-        flags=re.DOTALL | re.IGNORECASE,
-    )
+    m = VIOLATION_BLOCK_RE.search(text)
 
     if not m:
-        return {"tag": None, "raw_block": []}
+        return {
+            "tag": None,
+            "body": {
+                "statements": [],
+                "has_reset": False
+            }
+        }
 
-    tag = m.group(1).lower()
-    block = m.group(2).strip()
+    tag = m.group("tag").lower()
+    block = m.group("body").strip()
 
-    lines = [ln.strip() for ln in block.splitlines() if ln.strip()]
-    return {"tag": tag, "raw_block": lines}
+    raw_lines = [ln.strip() for ln in block.splitlines() if ln.strip()]
+    statements: List[Dict] = []
+    has_reset = False
+
+    for line in raw_lines:
+        # remove vírgula final perdida ou espaços extras
+        clean = line.rstrip().rstrip(",")
+
+        if clean == "__RESET;" or clean == "__RESET":
+            statements.append({
+                "type": "command",
+                "name": "__RESET"
+            })
+            has_reset = True
+            continue
+
+        log_match = LOG_STMT_RE.match(clean)
+        if log_match:
+            level = log_match.group("level").strip()
+            message = log_match.group("message").strip()
+
+            statements.append({
+                "type": "log",
+                "level": level,
+                "message": message
+            })
+            continue
+
+        statements.append({
+            "type": "raw",
+            "value": clean
+        })
+
+    return {
+        "tag": tag,
+        "body": {
+            "statements": statements,
+            "has_reset": has_reset
+        }
+    }
 
 
 # ==========================================================
