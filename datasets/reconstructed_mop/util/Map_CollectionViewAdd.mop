@@ -1,0 +1,17 @@
+Map_CollectionViewAdd(Map m, Collection c) {
+
+    creation event getset after(Map m) returning(Collection c) :
+        ( call(Set Map+.keySet()) || call(Set Map+.entrySet()) || call(Collection Map+.values()) ) && target(m) {
+        }
+
+    event add before(Collection c) :
+        ( call(* Collection+.add(..)) || call(* Collection+.addAll(..)) ) && target(c) {
+        }
+
+    ere : getset add+
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "A collection/set view of a map does not support add()/addAll().");
+    }
+}

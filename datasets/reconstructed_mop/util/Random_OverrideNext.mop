@@ -1,0 +1,18 @@
+Random_OverrideNext() {
+
+    event staticinit after() :
+        staticinitialization(Random+) {
+        		Signature initsig = __STATICSIG;
+        		Class klass = initsig.getDeclaringType();
+        		if (klass != null) {
+        			try {
+        				Method nextmethod = klass.getDeclaredMethod("next", Integer.class);
+        			}
+        			catch (NoSuchMethodException e) {
+        				RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        				RVMLogging.out.println(Level.CRITICAL, klass.getName() + " does not override int next(int bits).");
+        			}
+        		}
+        }
+
+}

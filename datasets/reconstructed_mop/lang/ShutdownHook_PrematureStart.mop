@@ -1,0 +1,34 @@
+ShutdownHook_PrematureStart(Thread t) {
+
+    creation event good_register before(Thread t) :
+        call(* Runtime+.addShutdownHook(..)) && args(t) && condition(t.getState() == Thread.State.NEW) {
+        }
+
+    creation event bad_register before(Thread t) :
+        call(* Runtime+.addShutdownHook(..)) && args(t) && condition(t.getState() != Thread.State.NEW) {
+        }
+
+    event unregister before(Thread t) :
+        call(* Runtime+.removeShutdownHook(..)) && args(t) {
+        }
+
+    event userstart before(Thread t) :
+        call(* Thread+.start(..)) && target(t) {
+        }
+
+    fsm :
+		unregistered [
+			good_register -> registered
+			bad_register -> err
+		]
+		registered [
+			unregister -> unregistered
+			userstart -> err
+		]
+		err [
+		]
+	@err {
+		RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+		RVMLogging.out.println(Level.CRITICAL, "A virtual-machine shutdown hook has been started by the user code.");
+
+}

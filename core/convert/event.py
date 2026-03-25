@@ -257,10 +257,10 @@ def extract_violation_block(text: str, event_bodies: Optional[List[str]] = None)
             "tag": "fail" if statements else None,
             "body": {
                 "statements": statements,
-                "has_reset": any(
-                    stmt.get("type") == "command" and stmt.get("name") == "__RESET"
-                    for stmt in statements
-                )
+                #"has_reset": any(
+                #    stmt.get("type") == "command" and stmt.get("name") == "__RESET"
+                #    for stmt in statements
+                #)
             }
         }
 
@@ -268,7 +268,7 @@ def extract_violation_block(text: str, event_bodies: Optional[List[str]] = None)
         "tag": None,
         "body": {
             "statements": [],
-            "has_reset": False
+            #"has_reset": False
         }
     }
 

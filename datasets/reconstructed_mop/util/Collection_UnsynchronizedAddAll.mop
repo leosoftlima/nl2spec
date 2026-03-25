@@ -1,0 +1,21 @@
+Collection_UnsynchronizedAddAll(Collection t, Collection s) {
+
+    creation event enter before(Collection t, Collection s) :
+        call(boolean Collection+.addAll(..)) && target(t) && args(s) {
+        }
+
+    event modify before(Collection s) :
+        ( call(* Collection+.add*(..)) || call(* Collection+.remove*(..)) || call(* Collection+.clear(..)) || call(* Collection+.retain*(..)) ) && target(s) {
+        }
+
+    event leave after(Collection t, Collection s) :
+        call(boolean Collection+.addAll(..)) && target(t) && args(s) {
+        }
+
+    ere : (enter leave modify*)*
+
+    @fail {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "The source collection of addAll() has been modified.");
+    }
+}

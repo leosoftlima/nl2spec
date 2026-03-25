@@ -1,0 +1,9 @@
+Enum_UserFriendlyName() {
+
+    event name before() :
+        call(* Enum+.name()) {
+        		RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        		RVMLogging.out.println(Level.CRITICAL, "Most programmers should use toString(). It gives a more user-friendly name.");
+        }
+
+}

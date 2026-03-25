@@ -12,55 +12,118 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "mark",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "InputStream",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* InputStream+.mark(..)) && target(i) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream )",
-          "calls": [
-            "* InputStream+.mark(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "reset",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "InputStream",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* InputStream+.reset(..)) && target(i) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream )",
-          "calls": [
-            "* InputStream+.reset(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "mark",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "InputStream",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* InputStream+.mark(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                },
+                {
+                  "name": "if",
+                  "arguments": [
+                    {
+                      "value": "i instanceof BufferedInputStream ||\n\t\t\ti instanceof DataInputStream ||\n\t\t\ti instanceof LineNumberInputStream"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "reset",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "InputStream",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* InputStream+.reset(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                },
+                {
+                  "name": "if",
+                  "arguments": [
+                    {
+                      "value": "i instanceof BufferedInputStream ||\n\t\t\ti instanceof DataInputStream ||\n\t\t\ti instanceof LineNumberInputStream"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "mark (mark | reset)*",
-      "raw_lines": [
-        "mark (mark | reset)*"
-      ]
+    "ere": {
+      "expression": "mark (mark | reset)*"
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"BufferedInputStream, DataInputStream and LineNumberInputStream allow reset() only after mark() has been invoked.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"BufferedInputStream, DataInputStream and LineNumberInputStream allow reset() only after mark() has been invoked.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

@@ -1,0 +1,21 @@
+List_UnsafeListIterator(List l, ListIterator i) {
+
+    creation event create after(List l) returning(ListIterator i) :
+        call(ListIterator List+.listIterator()) && target(l) {
+        }
+
+    event modify before(List l) :
+        ( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(l) {
+        }
+
+    event useiter before(ListIterator i) :
+        ( call(* Iterator+.hasNext(..)) || call(* ListIterator+.hasPrevious(..)) || call(* Iterator+.next(..)) || call(* ListIterator+.previous(..)) || call(* ListIterator+.nextIndex(..)) || call(* ListIterator+.previousIndex(..)) ) && target(i) {
+        }
+
+    ere : create useiter* modify+ useiter
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "The list was modified while a list iterator is being used.");
+    }
+}

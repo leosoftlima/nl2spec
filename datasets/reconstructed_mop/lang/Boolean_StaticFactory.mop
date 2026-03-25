@@ -1,0 +1,9 @@
+Boolean_StaticFactory() {
+
+    event constructor_create after() returning(Boolean b) :
+        call(Boolean+.new(boolean)) {
+        		RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        		RVMLogging.out.println(Level.CRITICAL, "Using the constructor Boolean(boolean value) might be inefficient. Use valueOf(boolean) if it is appropriate.");
+        }
+
+}

@@ -16,104 +16,218 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "sync",
-        "timing": "after",
-        "parameters": [],
-        "pointcut": {
-          "raw": "call(* Collections.synchronizedCollection(Collection)) || call(* Collections.synchronizedSet(Set)) || call(* Collections.synchronizedSortedSet(SortedSet)) || call(* Collections.synchronizedList(List))",
-          "calls": [
-            "* Collections.synchronizedCollection(Collection)",
-            "* Collections.synchronizedSet(Set)",
-            "* Collections.synchronizedSortedSet(SortedSet)",
-            "* Collections.synchronizedList(List)"
-          ]
-        },
-        "returning": {
-          "type": "Collection",
-          "name": "col"
-        },
         "body": {
-          "raw_lines": [
-            "this.col = col;"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "syncCreateIter",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Collection",
-            "name": "col"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Collection+.iterator()) && target(col) && condition(Thread.holdsLock(col))",
-          "calls": [
-            "* Collection+.iterator()"
-          ]
-        },
-        "returning": {
-          "type": "Iterator",
-          "name": "iter"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "asyncCreateIter",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Collection",
-            "name": "col"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Collection+.iterator()) && target(col) && condition(!Thread.holdsLock(col))",
-          "calls": [
-            "* Collection+.iterator()"
-          ]
-        },
-        "returning": {
-          "type": "Iterator",
-          "name": "iter"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "accessIter",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Iterator",
-            "name": "iter"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Iterator.*(..)) && target(iter) && condition(!Thread.holdsLock(this.col))",
-          "calls": [
-            "* Iterator.*(..)"
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "sync",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "Collection",
+                "name": "col"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collections.synchronizedCollection(Collection)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collections.synchronizedSet(Set)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collections.synchronizedSortedSet(SortedSet)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collections.synchronizedList(List)"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "||"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "syncCreateIter",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Collection",
+                  "name": "col"
+                }
+              ],
+              "returning": {
+                "type": "Iterator",
+                "name": "iter"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.iterator()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "col"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "Thread.holdsLock(col)"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "asyncCreateIter",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Collection",
+                  "name": "col"
+                }
+              ],
+              "returning": {
+                "type": "Iterator",
+                "name": "iter"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.iterator()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "col"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "!Thread.holdsLock(col)"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "accessIter",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Iterator",
+                  "name": "iter"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Iterator.*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "iter"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "!Thread.holdsLock(this.col)"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "(sync asyncCreateIter) | (sync syncCreateIter accessIter)",
-      "raw_lines": [
-        "(sync asyncCreateIter) | (sync syncCreateIter accessIter)"
-      ]
+    "ere": {
+      "expression": "(sync asyncCreateIter) | (sync syncCreateIter accessIter)"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"A synchronized collection was accessed in a thread-unsafe manner.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"A synchronized collection was accessed in a thread-unsafe manner.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

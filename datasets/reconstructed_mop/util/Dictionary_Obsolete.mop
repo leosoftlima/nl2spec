@@ -1,0 +1,13 @@
+Dictionary_Obsolete(Dictionary d) {
+
+    event use before(Dictionary d) :
+        call(* Dictionary+.*(..)) && target(d) {
+        }
+
+    ere : use
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "The Dictionary class is obsolete. New implementations should implement the Map interface.");
+    }
+}

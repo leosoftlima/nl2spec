@@ -1,13 +1,21 @@
+This specification is written in the EVENT formalism.
+
+This specification is called IDN_ToAscii.
+
+
 The following events are monitored in this specification:
 
-1) Event name: toascii
-   Kind: event
-   Timing: before
-   Parameters: String input
-   Pointcut: ( call(* IDN.toASCII(String)) || call(* IDN.toASCII(String, int)) ) && args(input, ..)
+toascii is an event observed before the call. It takes String input as parameter. It matches: call(* IDN.toASCII(String)) || call(* IDN.toASCII(String, int)) && args(input, ..).
 
-A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+A violation occurs when a monitored event is triggered under the pointcut conditions described above and its associated violation handler is activated.
 
 The violation message that must be used in the JSON output is:
 
-"A violation must be reported when this condition occurs."
+"The input to IDN.toASCII() should not be used in an internationalized domain name."
+
+The generated JSON must include the field:
+
+"domain": "net"
+
+Return ONLY the IR JSON.
+Do not include explanations, markdown, comments, or extra text.

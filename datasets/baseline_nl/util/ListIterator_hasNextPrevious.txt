@@ -1,80 +1,57 @@
-The system behavior is defined in terms of explicit states and transitions.
+This specification should use the following name and parameters:
 
-The monitored events are:
+- name: ListIterator_hasNextPrevious
+- parameters: ListIterator i
 
-1) Event name: hasnexttrue
-   Kind: event
-   Timing: after
-   Parameters: ListIterator i
-   Returning: boolean b
-   Pointcut: call(* ListIterator.hasNext()) && target(i) && condition(b)
+Use this exact name consistently throughout the generated JSON.
+Keep the parameter list exactly as shown.
 
-2) Event name: hasnextfalse
-   Kind: event
-   Timing: after
-   Parameters: ListIterator i
-   Returning: boolean b
-   Pointcut: call(* ListIterator.hasNext()) && target(i) && condition(!b)
+This property is described as a finite-state behavior with explicit states and transitions.
 
-3) Event name: next
-   Kind: event
-   Timing: before
-   Parameters: ListIterator i
-   Pointcut: call(* ListIterator.next()) && target(i)
+The monitored events involved in this property are:
 
-4) Event name: hasprevioustrue
-   Kind: event
-   Timing: after
-   Parameters: ListIterator i
-   Returning: boolean b
-   Pointcut: call(* ListIterator.hasPrevious()) && target(i) && condition(b)
+1) hasnexttrue is a event observed after the call. It takes ListIterator i as parameter, returns boolean b, and matches:
+   call(* ListIterator.hasNext()) && target(i) && condition(b)
 
-5) Event name: haspreviousfalse
-   Kind: event
-   Timing: after
-   Parameters: ListIterator i
-   Returning: boolean b
-   Pointcut: call(* ListIterator.hasPrevious()) && target(i) && condition(!b)
+2) hasnextfalse is a event observed after the call. It takes ListIterator i as parameter, returns boolean b, and matches:
+   call(* ListIterator.hasNext()) && target(i) && condition(!b)
 
-6) Event name: previous
-   Kind: event
-   Timing: before
-   Parameters: ListIterator i
-   Pointcut: call(* ListIterator.previous()) && target(i)
+3) next is a event observed before the call. It takes ListIterator i as parameter and matches:
+   call(* ListIterator.next()) && target(i)
 
-The finite state behavior is defined as follows:
+4) hasprevioustrue is a event observed after the call. It takes ListIterator i as parameter, returns boolean b, and matches:
+   call(* ListIterator.hasPrevious()) && target(i) && condition(b)
 
-		na [
-			hasnexttrue -> nextavailable
-			hasnextfalse -> na
-			hasprevioustrue -> prevavailable
-			haspreviousfalse -> na
-		]
-		nextavailable [
-			hasprevioustrue -> bothavailable
-			haspreviousfalse -> nextavailable
-			hasnexttrue -> nextavailable
-			hasnextfalse -> na
-			next -> prevavailable
-		]
-		prevavailable [
-			hasnexttrue -> bothavailable
-			hasnextfalse -> prevavailable
-			hasprevioustrue -> prevavailable
-			haspreviousfalse -> na
-			previous -> nextavailable
-		]
-		bothavailable [
-			hasnexttrue -> bothavailable
-			hasnextfalse -> prevavailable
-			hasprevioustrue -> bothavailable
-			haspreviousfalse -> nextavailable
-			next -> prevavailable
-			previous -> nextavailable
-		]
+5) haspreviousfalse is a event observed after the call. It takes ListIterator i as parameter, returns boolean b, and matches:
+   call(* ListIterator.hasPrevious()) && target(i) && condition(!b)
 
-Any execution that deviates from the state transition behavior described above constitutes a violation.
+6) previous is a event observed before the call. It takes ListIterator i as parameter and matches:
+   call(* ListIterator.previous()) && target(i)
 
-The violation message that must be used in the JSON output is:
+The FSM structure is the following:
+
+The execution begins in the state na.
+
+From na, hasnexttrue moves it to nextavailable, hasnextfalse keeps it in na, hasprevioustrue moves it to prevavailable, and haspreviousfalse keeps it in na.
+
+When the monitor is in nextavailable, hasprevioustrue moves it to bothavailable, haspreviousfalse keeps it in nextavailable, hasnexttrue keeps it in nextavailable, hasnextfalse moves it to na, and next moves it to prevavailable.
+
+When the monitor is in prevavailable, hasnexttrue moves it to bothavailable, hasnextfalse keeps it in prevavailable, hasprevioustrue keeps it in prevavailable, haspreviousfalse moves it to na, and previous moves it to nextavailable.
+
+When the monitor is in bothavailable, hasnexttrue keeps it in bothavailable, hasnextfalse moves it to prevavailable, hasprevioustrue keeps it in bothavailable, haspreviousfalse moves it to nextavailable, next moves it to prevavailable, and previous moves it to nextavailable.
+
+In plain terms, this property means:
+
+The monitored execution starts in the state 'na'. The property distinguishes the following states: na, nextavailable, prevavailable, bothavailable. The behavior evolves through the occurrence of these events: hasnexttrue, hasnextfalse, next, hasprevioustrue, haspreviousfalse, previous. The property describes a protocol that must be respected; violating the expected transition behavior should trigger a failure. Semantically, the monitored rule is about the following condition: ListIterator.hasNext()/hasPrevious() was not called before calling next()/previous().
+
+Any execution that does not follow this transition behavior, or that reaches an invalid behavior according to the rule below, must be treated as a violation.
+
+The violation message that must appear in the JSON output is:
 
 "ListIterator.hasNext()/hasPrevious() was not called before calling next()/previous()."
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Return ONLY the IR JSON.

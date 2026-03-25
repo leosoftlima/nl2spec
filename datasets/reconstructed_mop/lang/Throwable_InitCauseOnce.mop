@@ -1,0 +1,21 @@
+Throwable_InitCauseOnce(Throwable t) {
+
+    event createWithoutThrowable after() returning(Throwable t) :
+        call(Throwable+.new()) || call(Throwable+.new(String)) {
+        }
+
+    event createWithThrowable after() returning(Throwable t) :
+        call(Throwable+.new(String, Throwable)) || call(Throwable+.new(Throwable)) {
+        }
+
+    event initCause before(Throwable t) :
+        call(* Throwable+.initCause(..)) && target(t) {
+        }
+
+    ere : (createWithoutThrowable initCause initCause+) | (createWithThrowable initCause+)
+
+    @match {
+        RVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.WARNING, "initCause should not be called more than once.");
+    }
+}

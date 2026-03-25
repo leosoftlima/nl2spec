@@ -16,61 +16,120 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "get",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "SecurityManager",
-            "name": "manager"
-          }
-        ],
-        "pointcut": {
-          "raw": "call (* SecurityManager.getSecurityContext(..)) && target(manager)",
-          "calls": []
-        },
-        "returning": {
-          "type": "Object",
-          "name": "context"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "check",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "SecurityManager",
-            "name": "manager"
-          },
-          {
-            "type": "Object",
-            "name": "context"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* SecurityManager.checkPermission(Permission, Object)) && target(manager) && args(.., context)",
-          "calls": [
-            "* SecurityManager.checkPermission(Permission, Object)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "get",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "SecurityManager",
+                  "name": "manager"
+                }
+              ],
+              "returning": {
+                "type": "Object",
+                "name": "context"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* SecurityManager.getSecurityContext(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "manager"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "check",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "SecurityManager",
+                  "name": "manager"
+                },
+                {
+                  "type": "Object",
+                  "name": "context"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* SecurityManager.checkPermission(Permission, Object)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "manager"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": ".."
+                    },
+                    {
+                      "value": "context"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "get (get | check)*",
-      "raw_lines": [
-        "get (get | check)*"
-      ]
+    "ere": {
+      "expression": "get (get | check)*"
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The context argument to checkPermission must come from getSecurityContext method call.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The context argument to checkPermission must come from getSecurityContext method call.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

@@ -1,0 +1,17 @@
+OutputStream_ManipulateAfterClose(OutputStream o) {
+
+    event manipulate before(OutputStream o) :
+        ( call(* OutputStream+.write*(..)) || call(* OutputStream+.flush(..)) ) && target(o) && !target(ByteArrayOutputStream) {
+        }
+
+    creation event close before(OutputStream o) :
+        call(* OutputStream+.close(..)) && target(o) && !target(ByteArrayOutputStream) {
+        }
+
+    ere : close+ manipulate+
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "write() or flush() was invoked after close().");
+    }
+}

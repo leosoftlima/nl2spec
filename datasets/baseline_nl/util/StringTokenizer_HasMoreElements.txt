@@ -1,28 +1,36 @@
+This specification is called StringTokenizer_HasMoreElements.
+
+It should use these parameters:
+- StringTokenizer i
+
+Keep this name and parameter list exactly in the generated JSON.
+
 The following events are monitored:
 
-1) Event name: hasnexttrue
-   Timing: after
-   Parameters: StringTokenizer i
-   Returning: boolean b
-   Pointcut: ( call(boolean StringTokenizer.hasMoreTokens()) || call(boolean StringTokenizer.hasMoreElements()) ) && target(i) && condition(b)
+hasnexttrue is an event observed after the call. It takes StringTokenizer i as parameter. It captures the returned value as boolean b. It matches: call(boolean StringTokenizer.hasMoreTokens()) && call(boolean StringTokenizer.hasMoreElements()) && target(i) && condition(b)
 
-2) Event name: hasnextfalse
-   Timing: after
-   Parameters: StringTokenizer i
-   Returning: boolean b
-   Pointcut: ( call(boolean StringTokenizer.hasMoreTokens()) || call(boolean StringTokenizer.hasMoreElements()) ) && target(i) && condition(!b)
+hasnextfalse is an event observed after the call. It takes StringTokenizer i as parameter. It captures the returned value as boolean b. It matches: call(boolean StringTokenizer.hasMoreTokens()) && call(boolean StringTokenizer.hasMoreElements()) && target(i) && condition(!b)
 
-3) Event name: next
-   Timing: before
-   Parameters: StringTokenizer i
-   Pointcut: ( call(* StringTokenizer.nextToken()) || call(* StringTokenizer.nextElement()) ) && target(i)
+next is an event observed before the call. It takes StringTokenizer i as parameter. It matches: call(* StringTokenizer.nextToken()) && call(* StringTokenizer.nextElement()) && target(i)
 
-The temporal property that must hold during execution is defined by the following formula:
+The temporal property that must hold during execution is:
 
-[](next => (*) hasnexttrue)
+ltl: [](next => (*) hasnexttrue)
 
-If this temporal property is violated at any point during execution, it constitutes a violation.
+In plain language, this means:
 
-The violation message that must be used in the JSON output is:
+it must always hold that whenever next occurs, then hasnexttrue must have occurred in the previous step
 
-"StringTokenizer.hasMoreTokens()/hasMoreElements() did not return false before calling nextToken()/nextElement()."
+If this temporal property is violated during execution, the JSON output must use the following violation behavior:
+
+When the property is violation, the monitor logs __DEFAULT_MESSAGE and logs "StringTokenizer.hasMoreTokens()/hasMoreElements() did not return false before calling nextToken()/nextElement()."
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Follow the same JSON structure used in the examples.
+Reuse the exact event names consistently.
+Do not invent new events, operators, or fields.
+
+Return ONLY the IR JSON.

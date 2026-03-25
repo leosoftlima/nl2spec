@@ -1,0 +1,17 @@
+InputStream_MarkAfterClose(InputStream i) {
+
+    event mark before(InputStream i) :
+        call(* InputStream+.mark(..)) && target(i) {
+        }
+
+    event close before(InputStream i) :
+        call(* InputStream+.close(..)) && target(i) {
+        }
+
+    ere : close+ mark+
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "mark() after close() had no effect.");
+    }
+}

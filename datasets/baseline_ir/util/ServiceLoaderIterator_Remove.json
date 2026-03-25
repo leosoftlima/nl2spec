@@ -12,59 +12,104 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "create",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "ServiceLoader",
-            "name": "s"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(Iterator ServiceLoader.iterator()) && target(s)",
-          "calls": [
-            "Iterator ServiceLoader.iterator()"
-          ]
-        },
-        "returning": {
-          "type": "Iterator",
-          "name": "i"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "remove",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Iterator",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Iterator+.remove(..)) && target(i)",
-          "calls": [
-            "* Iterator+.remove(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "create",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "ServiceLoader",
+                  "name": "s"
+                }
+              ],
+              "returning": {
+                "type": "Iterator",
+                "name": "i"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Iterator ServiceLoader.iterator()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "s"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "remove",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Iterator",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Iterator+.remove(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "create remove",
-      "raw_lines": [
-        "create remove"
-      ]
+    "ere": {
+      "expression": "create remove"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The iterator returned by ServiceLoader.iterator() does not support removal.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The iterator returned by ServiceLoader.iterator() does not support removal.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

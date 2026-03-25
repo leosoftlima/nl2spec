@@ -7,38 +7,116 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "equals",
-        "timing": "before",
-        "parameters": [],
-        "pointcut_raw": "call(* CharSequence+.equals(..)) && !target(String) && !target(CharBuffer)",
         "body": {
-          "raw_lines": [
-            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, \"equals and hashCode methods might not be supported in CharSequence\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "equals",
+              "timing": "before",
+              "parameters": [],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* CharSequence+.equals(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "String"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "CharBuffer"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       },
       {
-        "kind": "event",
         "name": "hashCode",
-        "timing": "before",
-        "parameters": [],
-        "pointcut_raw": "call(* CharSequence+.hashCode(..)) && !target(String) && !target(CharBuffer)",
         "body": {
-          "raw_lines": [
-            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, \"equals and hashCode methods might not be supported in CharSequence\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "hashCode",
+              "timing": "before",
+              "parameters": [],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* CharSequence+.hashCode(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "String"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "CharBuffer"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "equals and hashCode methods might not be supported in CharSequence"
+          }
+        ]
+      }
     }
   }
 }

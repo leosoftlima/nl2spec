@@ -12,120 +12,227 @@
     ]
   },
   "ir": {
-    "type": "fsm",
     "events": [
       {
-        "kind": "creation",
-        "name": "good_register",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut_raw": "call(* Runtime+.addShutdownHook(..)) && args(t) && condition(t.getState() == Thread.State.NEW)",
         "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "creation",
-        "name": "bad_register",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut_raw": "call(* Runtime+.addShutdownHook(..)) && args(t) && condition(t.getState() != Thread.State.NEW)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "unregister",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut_raw": "call(* Runtime+.removeShutdownHook(..)) && args(t)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "userstart",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut_raw": "call(* Thread+.start(..)) && target(t)",
-        "body": {
-          "raw_lines": []
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "good_register",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "Runtime+.addShutdownHook(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "t"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "t.getState() == Thread.State.NEW"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "creation event",
+              "name": "bad_register",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "Runtime+.addShutdownHook(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "t"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "t.getState() != Thread.State.NEW"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "unregister",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "Runtime+.removeShutdownHook(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "userstart",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "Thread+.start(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
+          ]
         }
       }
     ],
     "fsm": {
-      "raw_block": "\t\tunregistered [\n\t\t\tgood_register -> registered\n\t\t\tbad_register -> err\n\t\t]\n\t\tregistered [\n\t\t\tunregister -> unregistered\n\t\t\tuserstart -> err\n\t\t]\n\t\terr [\n\t\t]\n\t@err {\n\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);\n\t\tRVMLogging.out.println(Level.CRITICAL, \"A virtual-machine shutdown hook has been started by the user code.\");",
-      "raw_lines": [
-        "\t\tunregistered [",
-        "\t\t\tgood_register -> registered",
-        "\t\t\tbad_register -> err",
-        "\t\t]",
-        "\t\tregistered [",
-        "\t\t\tunregister -> unregistered",
-        "\t\t\tuserstart -> err",
-        "\t\t]",
-        "\t\terr [",
-        "\t\t]",
-        "\t@err {",
-        "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "\t\tRVMLogging.out.println(Level.CRITICAL, \"A virtual-machine shutdown hook has been started by the user code.\");"
-      ]
-    },
-    "analysis": {
+      "type": "fsm",
+      "initial_state": "unregistered",
       "states": [
-        "err",
-        "registered",
-        "unregistered"
-      ],
-      "initial": "unregistered",
-      "transitions": [
         {
-          "from": "unregistered",
-          "event": "good_register",
-          "to": "registered"
+          "name": "unregistered",
+          "transitions": [
+            {
+              "event": "good_register",
+              "target": "registered"
+            },
+            {
+              "event": "bad_register",
+              "target": "err"
+            }
+          ]
         },
         {
-          "from": "unregistered",
-          "event": "bad_register",
-          "to": "err"
+          "name": "registered",
+          "transitions": [
+            {
+              "event": "unregister",
+              "target": "unregistered"
+            },
+            {
+              "event": "userstart",
+              "target": "err"
+            }
+          ]
         },
         {
-          "from": "registered",
-          "event": "unregister",
-          "to": "unregistered"
-        },
-        {
-          "from": "registered",
-          "event": "userstart",
-          "to": "err"
+          "name": "err",
+          "transitions": []
         }
       ]
     },
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "err",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"A virtual-machine shutdown hook has been started by the user code.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

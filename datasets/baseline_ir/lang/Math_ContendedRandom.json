@@ -7,60 +7,118 @@
     "parameters": []
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "onethread_use",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Math.random(..)) && thread(t) && condition(this.th == null || this.th == t)",
-          "calls": [
-            "* Math.random(..)"
-          ]
-        },
         "body": {
-          "raw_lines": [
-            "this.th = t;"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "otherthread_use",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Math.random(..)) && thread(t) && condition(this.th != null && this.th != t)",
-          "calls": [
-            "* Math.random(..)"
+          "methods": [
+            {
+              "action": "event",
+              "name": "onethread_use",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Math.random(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "thread",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "this.th == null || this.th == t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "otherthread_use",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Math.random(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "thread",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "this.th != null && this.th != t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "onethread_use*",
-      "raw_lines": [
-        "onethread_use*"
-      ]
+    "ere": {
+      "expression": "onethread_use*"
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"Math.random() is used by multiple threads. If there is contention, we recommend you to use Random.nextDouble().\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"Math.random() is used by multiple threads. If there is contention, we recommend you to use Random.nextDouble().\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

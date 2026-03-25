@@ -1,13 +1,21 @@
+This specification is written in the EVENT formalism.
+
+This specification is called Integer_BadDecodeArg.
+
+
 The following events are monitored in this specification:
 
-1) Event name: decode
-   Kind: event
-   Timing: before
-   Parameters: Integer i, String nm
-   Pointcut: call(* Integer.decode(String)) && args(nm) && target(i)
+decode is an event observed before the call. It takes Integer i and String nm as parameters. It matches: call(* Integer.decode(String)) && args(nm) && target(i).
 
-A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+A violation occurs when a monitored event is triggered under the pointcut conditions described above and its associated violation handler is activated.
 
 The violation message that must be used in the JSON output is:
 
-"A violation must be reported when this condition occurs."
+"Wrong argument to Integer.decode(String nm)"
+
+The generated JSON must include the field:
+
+"domain": "lang"
+
+Return ONLY the IR JSON.
+Do not include explanations, markdown, comments, or extra text.

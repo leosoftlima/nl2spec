@@ -1,0 +1,21 @@
+Scanner_ManipulateAfterClose(Scanner s, Closeable c) {
+
+    creation event create after(Closeable c) returning(Scanner s) :
+        ( call(Scanner+.new(InputStream, ..)) || call(Scanner+.new(Readable, ..)) || call(Scanner+.new(ReadableByteChannel, ..)) ) && args(c, ..) {
+        }
+
+    event close after(Scanner s) :
+        call(* Scanner+.close()) && target(s) && !args(ByteArrayInputStream) && !args(StringBufferInputStream) {
+        }
+
+    event manipulate before(Closeable c) :
+        ( call(* InputStream+.read(..)) || call(* InputStream+.available(..)) || call(* InputStream+.reset(..)) || call(* InputStream+.skip(..)) || call(* Readable+.read(..)) || call(* ReadableByteChannel+.read(..)) ) && target(c) && !target(ByteArrayInputStream) && !target(StringBufferInputStream) {
+        }
+
+    ere : create close+ manipulate
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "The source stream or reader was used after the Scanner had been closed.");
+    }
+}

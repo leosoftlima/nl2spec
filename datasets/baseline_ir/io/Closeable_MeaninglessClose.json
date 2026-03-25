@@ -7,25 +7,88 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "close",
-        "timing": "before",
-        "parameters": [],
-        "pointcut_raw": "call(* Closeable+.close()) && ( target(ByteArrayInputStream) || target(ByteArrayOutputStream) || target(CharArrayWriter) || target(StringWriter) )",
         "body": {
-          "raw_lines": [
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"close() has no effect.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "close",
+              "timing": "before",
+              "parameters": [],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Closeable+.close()"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "ByteArrayInputStream"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "ByteArrayOutputStream"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "CharArrayWriter"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "StringWriter"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "||",
+                  "||",
+                  "||"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "close() has no effect."
+          }
+        ]
+      }
     }
   }
 }

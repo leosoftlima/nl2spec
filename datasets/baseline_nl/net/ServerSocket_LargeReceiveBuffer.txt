@@ -1,37 +1,50 @@
-The following events are involved in this specification:
+This specification should use the following identifier and signature:
 
-1) Event name: create_bound
-   Kind: creation
-   Timing: after
-   Parameters: none
-   Returning: ServerSocket sock
-   Pointcut: call(ServerSocket.new(int, ..))
+- id: ServerSocket_LargeReceiveBuffer
+- parameters: ServerSocket sock
 
-2) Event name: create_unbound
-   Kind: creation
-   Timing: after
-   Parameters: none
-   Returning: ServerSocket sock
-   Pointcut: call(ServerSocket.new())
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
 
-3) Event name: bind
-   Kind: event
-   Timing: before
-   Parameters: ServerSocket sock
-   Pointcut: call(* ServerSocket+.bind(..)) && target(sock)
+This property is described as an Extended Regular Expression (ERE) behavior over monitored runtime events.
 
-4) Event name: set
-   Kind: event
-   Timing: before
-   Parameters: ServerSocket sock, int size
-   Pointcut: call(* ServerSocket+.setReceiveBufferSize(int)) && target(sock) && args(size) && condition(size > 65536)
+The monitored events involved in this property are:
 
-The required execution pattern is defined by the following regular expression:
+1) create_bound is observed after the call as a creation event. It receives none, returns ServerSocket sock, and matches:
+   Top-level operators between consecutive pointcut atoms: none
+   call(ServerSocket.new(int, ..))
+
+2) create_unbound is observed after the call as a creation event. It receives none, returns ServerSocket sock, and matches:
+   Top-level operators between consecutive pointcut atoms: none
+   call(ServerSocket.new())
+
+3) bind is observed before the call as an event. It receives ServerSocket sock and matches:
+   Top-level operators between consecutive pointcut atoms: &&
+   call(* ServerSocket+.bind(..)) && target(sock)
+
+4) set is observed before the call as an event. It receives ServerSocket sock, int size and matches:
+   Top-level operators between consecutive pointcut atoms: &&, &&, &&
+   call(* ServerSocket+.setReceiveBufferSize(int)) && target(sock) && args(size) && condition(size > 65536)
+
+The ERE pattern is the following:
 
 (create_bound | create_unbound set* bind+) set
 
-Any execution trace that does not conform to this pattern constitutes a violation.
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
 
-The violation message that must be used in the JSON output is:
+This pattern defines the forbidden behavior that must be represented in the JSON.
 
-"A receive window large than 64K bytes must be set before the server socket is bound."
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: match
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="A receive window large than 64K bytes must be set before the server socket is bound."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "net"
+
+Return ONLY the IR JSON.

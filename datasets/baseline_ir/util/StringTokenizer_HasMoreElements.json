@@ -3,6 +3,7 @@
   "formalism": "ltl",
   "domain": "util",
   "signature": {
+    "name": "StringTokenizer_HasMoreElements",
     "parameters": [
       {
         "type": "StringTokenizer",
@@ -11,126 +12,202 @@
     ]
   },
   "ir": {
-    "type": "ltl",
     "events": [
       {
-        "name": "hasnexttrue",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "StringTokenizer",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(boolean StringTokenizer.hasMoreTokens()) || call(boolean StringTokenizer.hasMoreElements()) ) && target(i) && condition(b)",
-          "joinpoints": [
+        "body": {
+          "methods": [
             {
-              "kind": "call",
-              "pattern": "boolean StringTokenizer.hasMoreTokens()",
-              "simple": "",
-              "declaring_type": "StringTokenizer"
-            },
-            {
-              "kind": "call",
-              "pattern": "boolean StringTokenizer.hasMoreElements()",
-              "simple": "",
-              "declaring_type": "StringTokenizer"
+              "action": "event",
+              "name": "hasnexttrue",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "StringTokenizer",
+                  "name": "i"
+                }
+              ],
+              "returning": {
+                "type": "boolean",
+                "name": "b"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "boolean StringTokenizer.hasMoreTokens()"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "boolean StringTokenizer.hasMoreElements()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "i"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "b"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
             }
-          ],
-          "bindings": [
-            {
-              "type": "target",
-              "variable": "i"
-            }
-          ],
-          "exclusions": []
-        },
-        "returning": {
-          "type": "boolean",
-          "name": "b"
+          ]
         }
       },
       {
-        "name": "hasnextfalse",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "StringTokenizer",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(boolean StringTokenizer.hasMoreTokens()) || call(boolean StringTokenizer.hasMoreElements()) ) && target(i) && condition(!b)",
-          "joinpoints": [
+        "body": {
+          "methods": [
             {
-              "kind": "call",
-              "pattern": "boolean StringTokenizer.hasMoreTokens()",
-              "simple": "",
-              "declaring_type": "StringTokenizer"
-            },
-            {
-              "kind": "call",
-              "pattern": "boolean StringTokenizer.hasMoreElements()",
-              "simple": "",
-              "declaring_type": "StringTokenizer"
+              "action": "event",
+              "name": "hasnextfalse",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "StringTokenizer",
+                  "name": "i"
+                }
+              ],
+              "returning": {
+                "type": "boolean",
+                "name": "b"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "boolean StringTokenizer.hasMoreTokens()"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "boolean StringTokenizer.hasMoreElements()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "i"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "!b"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
             }
-          ],
-          "bindings": [
-            {
-              "type": "target",
-              "variable": "i"
-            }
-          ],
-          "exclusions": []
-        },
-        "returning": {
-          "type": "boolean",
-          "name": "b"
+          ]
         }
       },
       {
-        "name": "next",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "StringTokenizer",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* StringTokenizer.nextToken()) || call(* StringTokenizer.nextElement()) ) && target(i)",
-          "joinpoints": [
+        "body": {
+          "methods": [
             {
-              "kind": "call",
-              "pattern": "* StringTokenizer.nextToken()",
-              "simple": "",
-              "declaring_type": "StringTokenizer"
-            },
-            {
-              "kind": "call",
-              "pattern": "* StringTokenizer.nextElement()",
-              "simple": "",
-              "declaring_type": "StringTokenizer"
+              "action": "event",
+              "name": "next",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "StringTokenizer",
+                  "name": "i"
+                }
+              ],
+              "returning": null,
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "* StringTokenizer.nextToken()"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "* StringTokenizer.nextElement()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
             }
-          ],
-          "bindings": [
-            {
-              "type": "target",
-              "variable": "i"
-            }
-          ],
-          "exclusions": []
+          ]
         }
       }
     ],
-    "formula": {
-      "raw": "[](next => (*) hasnexttrue)"
+    "ltl": {
+      "name": "ltl",
+      "value": "[](next => (*) hasnexttrue)"
     },
     "violation": {
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"StringTokenizer.hasMoreTokens()/hasMoreElements() did not return false before calling nextToken()/nextElement().\");"
+      "tag": "violation",
+      "statements": [
+        {
+          "type": "log",
+          "value": "__DEFAULT_MESSAGE"
+        },
+        {
+          "type": "log",
+          "value": "\"StringTokenizer.hasMoreTokens()/hasMoreElements() did not return false before calling nextToken()/nextElement().\""
+        }
       ]
     }
   }

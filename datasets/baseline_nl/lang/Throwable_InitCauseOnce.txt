@@ -1,31 +1,46 @@
-The following events are involved in this specification:
+This specification should use the following identifier and signature:
 
-1) Event name: createWithoutThrowable
-   Kind: event
-   Timing: after
-   Parameters: none
-   Returning: Throwable t
-   Pointcut: call(Throwable+.new()) || call(Throwable+.new(String))
+- id: Throwable_InitCauseOnce
+- parameters: Throwable t
 
-2) Event name: createWithThrowable
-   Kind: event
-   Timing: after
-   Parameters: none
-   Returning: Throwable t
-   Pointcut: call(Throwable+.new(String, Throwable)) || call(Throwable+.new(Throwable))
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
 
-3) Event name: initCause
-   Kind: event
-   Timing: before
-   Parameters: Throwable t
-   Pointcut: call(* Throwable+.initCause(..)) && target(t)
+This property is described as an Extended Regular Expression (ERE) behavior over monitored runtime events.
 
-The required execution pattern is defined by the following regular expression:
+The monitored events involved in this property are:
+
+1) createWithoutThrowable is observed after the call as an event. It receives none, returns Throwable t, and matches:
+   Top-level operators between consecutive pointcut atoms: ||
+   call(Throwable+.new()) || call(Throwable+.new(String))
+
+2) createWithThrowable is observed after the call as an event. It receives none, returns Throwable t, and matches:
+   Top-level operators between consecutive pointcut atoms: ||
+   call(Throwable+.new(String, Throwable)) || call(Throwable+.new(Throwable))
+
+3) initCause is observed before the call as an event. It receives Throwable t and matches:
+   Top-level operators between consecutive pointcut atoms: &&
+   call(* Throwable+.initCause(..)) && target(t)
+
+The ERE pattern is the following:
 
 (createWithoutThrowable initCause initCause+) | (createWithThrowable initCause+)
 
-Any execution trace that does not conform to this pattern constitutes a violation.
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
 
-The violation message that must be used in the JSON output is:
+This pattern defines the forbidden behavior that must be represented in the JSON.
 
-"initCause should not be called more than once."
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: match
+- statements:
+1) type=log; level=WARNING; message=__DEFAULT_MESSAGE
+2) type=log; level=WARNING; message="initCause should not be called more than once."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "lang"
+
+Return ONLY the IR JSON.

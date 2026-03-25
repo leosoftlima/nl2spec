@@ -7,48 +7,180 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "mark",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Reader+",
-            "name": "r"
-          }
-        ],
-        "pointcut_raw": "call(* Reader+.mark(..)) && target(r) && (target(PushbackReader) || target(InputStreamReader) || target(FileReader) || target(PipedReader))",
         "body": {
-          "raw_lines": [
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"PushbackReader, InputStreamReader, FileReader and PipedReader do not support mark() and reset().\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "mark",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Reader+",
+                  "name": "r"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Reader+.mark(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "r"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "PushbackReader"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "InputStreamReader"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "FileReader"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "PipedReader"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&",
+                  "||",
+                  "||",
+                  "||"
+                ]
+              }
+            }
           ]
         }
       },
       {
-        "kind": "event",
         "name": "reset",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Reader+",
-            "name": "r"
-          }
-        ],
-        "pointcut_raw": "call(* Reader+.reset(..)) && target(r) && (target(PushbackReader) || target(InputStreamReader) || target(FileReader) || target(PipedReader))",
         "body": {
-          "raw_lines": [
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"PushbackReader, InputStreamReader, FileReader and PipedReader do not support mark() and reset().\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "reset",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Reader+",
+                  "name": "r"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Reader+.reset(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "r"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "PushbackReader"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "InputStreamReader"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "FileReader"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "PipedReader"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&",
+                  "||",
+                  "||",
+                  "||"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "PushbackReader, InputStreamReader, FileReader and PipedReader do not support mark() and reset()."
+          }
+        ]
+      }
     }
   }
 }

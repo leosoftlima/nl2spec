@@ -1,4 +1,4 @@
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 
 class EventNL:
@@ -17,7 +17,7 @@ class EventNL:
                 signature.get("parameters", [])
             ),
             "EVENT_BLOCK": self._render_events_block(ir.get("events", [])),
-            "VIOLATION_SEMANTICS": self._render_violation(ir.get("violation", {})),
+            "VIOLATION_SEMANTICS": self._render_violation_semantics(spec),
             "DOMAIN": spec.get("domain", ""),
         }
 
@@ -42,6 +42,14 @@ class EventNL:
                 rendered.append(ptype)
 
         return "[" + ", ".join(rendered) + "]"
+
+    def _render_signature_parameters_text(self, parameters: List[Dict[str, str]]) -> str:
+        rendered = self._render_signature_parameters(parameters)
+
+        if rendered == "[]":
+            return ""
+
+        return f"It should use these parameters: {rendered}."
 
     # ==========================================================
     # EVENTS
@@ -82,24 +90,21 @@ class EventNL:
 
         sentence_parts = []
 
-        base = f"{name} is an event observed {timing} the call."
+        if timing:
+            base = f"{name} is an event observed {timing} the call."
+        else:
+            base = f"{name} is a monitored event."
         sentence_parts.append(base)
 
         if param_text:
             plural = "s" if len(parameters) > 1 else ""
-            sentence_parts.append(
-                f"It takes {param_text} as parameter{plural}."
-            )
+            sentence_parts.append(f"It takes {param_text} as parameter{plural}.")
 
         if returning_text:
-            sentence_parts.append(
-                f"It captures the returned value as {returning_text}."
-            )
+            sentence_parts.append(f"It captures the returned value as {returning_text}.")
 
         if pointcut_text:
-            sentence_parts.append(
-                f"It matches: {pointcut_text}."
-            )
+            sentence_parts.append(f"It matches: {pointcut_text}.")
 
         return " ".join(sentence_parts)
 
@@ -135,13 +140,6 @@ class EventNL:
     # ==========================================================
     # POINTCUT
     # ==========================================================
-    def _render_signature_parameters_text(self, parameters: List[Dict[str, str]]) -> str:
-        rendered = self._render_signature_parameters(parameters)
-
-        if rendered == "[]":
-            return ""
-
-        return f"It should use these parameters: {rendered}."
 
     def _render_pointcut(self, procediments: Dict[str, Any]) -> str:
         functions = procediments.get("function", [])
@@ -181,7 +179,55 @@ class EventNL:
     # VIOLATION
     # ==========================================================
 
-    def _render_violation(self, violation: Dict[str, Any]) -> str:
+    def _render_violation_semantics(self, spec: Dict[str, Any]) -> str:
+        """
+        EVENT specs may define violation messages in two places:
+        1. inside each method: ir.events[].body.methods[].violation
+        2. globally at the end: ir.violation
+
+        Priority:
+        - use the last non-default local violation message found in methods
+        - otherwise use the last non-default global violation message
+        - otherwise fall back to the last available default message
+        - otherwise "__DEFAULT_MESSAGE"
+        """
+        ir = spec.get("ir", {})
+
+        local_messages = self._collect_method_violation_messages(ir.get("events", []))
+        global_messages = self._extract_violation_messages(ir.get("violation", {}))
+
+        # Prefer non-default local messages
+        local_non_default = [msg for msg in local_messages if msg != "__DEFAULT_MESSAGE"]
+        if local_non_default:
+            return local_non_default[-1]
+
+        # Then non-default global messages
+        global_non_default = [msg for msg in global_messages if msg != "__DEFAULT_MESSAGE"]
+        if global_non_default:
+            return global_non_default[-1]
+
+        # Then any local message
+        if local_messages:
+            return local_messages[-1]
+
+        # Then any global message
+        if global_messages:
+            return global_messages[-1]
+
+        return "__DEFAULT_MESSAGE"
+
+    def _collect_method_violation_messages(self, events: List[Dict[str, Any]]) -> List[str]:
+        messages = []
+
+        for event in events:
+            methods = event.get("body", {}).get("methods", [])
+            for method in methods:
+                method_violation = method.get("violation", {})
+                messages.extend(self._extract_violation_messages(method_violation))
+
+        return messages
+
+    def _extract_violation_messages(self, violation: Dict[str, Any]) -> List[str]:
         body = violation.get("body", {})
         statements = body.get("statements", [])
 
@@ -193,14 +239,7 @@ class EventNL:
                 if message:
                     messages.append(message)
 
-        if not messages:
-            return "__DEFAULT_MESSAGE"
-
-        non_default = [msg for msg in messages if msg != "__DEFAULT_MESSAGE"]
-        if non_default:
-            return non_default[-1]
-
-        return messages[-1]
+        return messages
 
     # ==========================================================
     # HELPERS

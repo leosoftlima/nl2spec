@@ -16,83 +16,186 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "enter",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Collection",
-            "name": "t"
-          },
-          {
-            "type": "Collection",
-            "name": "s"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(boolean Collection+.addAll(..)) && target(t) && args(s)",
-          "calls": [
-            "boolean Collection+.addAll(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "modify",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Collection",
-            "name": "s"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Collection+.add*(..)) || call(* Collection+.remove*(..)) || call(* Collection+.clear(..)) || call(* Collection+.retain*(..)) ) && target(s)",
-          "calls": [
-            "* Collection+.add*(..)",
-            "* Collection+.remove*(..)",
-            "* Collection+.clear(..)",
-            "* Collection+.retain*(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "leave",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Collection",
-            "name": "t"
-          },
-          {
-            "type": "Collection",
-            "name": "s"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(boolean Collection+.addAll(..)) && target(t) && args(s)",
-          "calls": [
-            "boolean Collection+.addAll(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "enter",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Collection",
+                  "name": "t"
+                },
+                {
+                  "type": "Collection",
+                  "name": "s"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "boolean Collection+.addAll(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "s"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "modify",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Collection",
+                  "name": "s"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.add*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.remove*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.clear(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.retain*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "s"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "leave",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Collection",
+                  "name": "t"
+                },
+                {
+                  "type": "Collection",
+                  "name": "s"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "boolean Collection+.addAll(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "s"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "(enter leave modify*)*",
-      "raw_lines": [
-        "(enter leave modify*)*"
-      ]
+    "ere": {
+      "expression": "(enter leave modify*)*"
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The source collection of addAll() has been modified.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The source collection of addAll() has been modified.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

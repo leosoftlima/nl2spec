@@ -1,0 +1,21 @@
+Collection_UnsafeIterator(Collection c, Iterator i) {
+
+    creation event create after(Collection c) returning(Iterator i) :
+        call(Iterator Iterable+.iterator()) && target(c) {
+        }
+
+    event modify before(Collection c) :
+        ( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.offer*(..)) || call(* Collection+.pop(..)) || call(* Collection+.push(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(c) {
+        }
+
+    event useiter before(Iterator i) :
+        ( call(* Iterator.hasNext(..)) || call(* Iterator.next(..)) ) && target(i) {
+        }
+
+    ere : create useiter* modify+ useiter
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "The collection was modified while an iterator is being used.");
+    }
+}

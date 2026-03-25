@@ -1,13 +1,21 @@
+This specification is written in the EVENT formalism.
+
+This specification is called Collections_CopySize.
+
+
 The following events are monitored in this specification:
 
-1) Event name: bad_copy
-   Kind: event
-   Timing: before
-   Parameters: List dest, List src
-   Pointcut: call(void Collections.copy(List, List)) && args(dest, src) && condition(dest.size() < src.size())
+bad_copy is an event observed before the call. It takes List dest and List src as parameters. It matches: call(void Collections.copy(List, List)) && args(dest, src) && condition(dest.size() < src.size()).
 
-A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+A violation occurs when a monitored event is triggered under the pointcut conditions described above and its associated violation handler is activated.
 
 The violation message that must be used in the JSON output is:
 
-"A violation must be reported when this condition occurs."
+"The destination list must be at least as long as the source list."
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Return ONLY the IR JSON.
+Do not include explanations, markdown, comments, or extra text.

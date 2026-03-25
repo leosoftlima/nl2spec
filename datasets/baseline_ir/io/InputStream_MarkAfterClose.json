@@ -12,55 +12,100 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "mark",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "InputStream",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* InputStream+.mark(..)) && target(i)",
-          "calls": [
-            "* InputStream+.mark(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "close",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "InputStream",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* InputStream+.close(..)) && target(i)",
-          "calls": [
-            "* InputStream+.close(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "mark",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "InputStream",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* InputStream+.mark(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "close",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "InputStream",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* InputStream+.close(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "close+ mark+",
-      "raw_lines": [
-        "close+ mark+"
-      ]
+    "ere": {
+      "expression": "close+ mark+"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"mark() after close() had no effect.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"mark() after close() had no effect.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

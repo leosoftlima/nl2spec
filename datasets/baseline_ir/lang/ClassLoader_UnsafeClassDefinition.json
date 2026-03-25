@@ -7,30 +7,78 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "defineClass",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "String",
-            "name": "name"
-          }
-        ],
-        "pointcut_raw": "call(* ClassLoader+.defineClass(String, ..)) && args(name, ..) && condition(name.startsWith(\"java.\"))",
         "body": {
-          "raw_lines": [
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"An invalid binary name is used\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "defineClass",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "String",
+                  "name": "name"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* ClassLoader+.defineClass(String, ..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "name"
+                      },
+                      {
+                        "value": ".."
+                      }
+                    ]
+                  },
+                  {
+                    "name": "condition",
+                    "parameters": [
+                      {
+                        "value": "name.startsWith(\"java.\")"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "An invalid binary name is used"
+          }
+        ]
+      }
     }
   }
 }

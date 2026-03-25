@@ -7,80 +7,138 @@
     "parameters": []
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "register",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Runtime+.addShutdownHook(..)) && args(t)",
-          "calls": [
-            "* Runtime+.addShutdownHook(..)"
-          ]
-        },
         "body": {
-          "raw_lines": [
-            "threadSet.add(t);"
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "register",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Runtime+.addShutdownHook(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "creation event",
+              "name": "unregister",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Runtime+.removeShutdownHook(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "start",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "startThread",
+                  "arguments": []
+                },
+                {
+                  "name": "thread",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "threadSet.contains(t)"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            }
           ]
-        }
-      },
-      {
-        "kind": "creation",
-        "name": "unregister",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Runtime+.removeShutdownHook(..)) && args(t)",
-          "calls": [
-            "* Runtime+.removeShutdownHook(..)"
-          ]
-        },
-        "body": {
-          "raw_lines": [
-            "threadSet.remove(t);"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "start",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut": {
-          "raw": "startThread() && thread(t) && condition(threadSet.contains(t))",
-          "calls": []
         }
       }
     ],
-    "formula": {
-      "raw": "(register | unregister)* start+ (register | unregister)",
-      "raw_lines": [
-        "(register | unregister)* start+ (register | unregister)"
-      ]
+    "ere": {
+      "expression": "(register | unregister)* start+ (register | unregister)"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"A shutdown hook was registered/unregister after the shutdown sequence had begun.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"A shutdown hook was registered/unregister after the shutdown sequence had begun.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

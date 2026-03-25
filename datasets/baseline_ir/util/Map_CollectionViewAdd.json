@@ -16,62 +16,131 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "getset",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Map",
-            "name": "m"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(Set Map+.keySet()) || call(Set Map+.entrySet()) || call(Collection Map+.values()) ) && target(m)",
-          "calls": [
-            "Set Map+.keySet()",
-            "Set Map+.entrySet()",
-            "Collection Map+.values()"
-          ]
-        },
-        "returning": {
-          "type": "Collection",
-          "name": "c"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "add",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Collection",
-            "name": "c"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Collection+.add(..)) || call(* Collection+.addAll(..)) ) && target(c)",
-          "calls": [
-            "* Collection+.add(..)",
-            "* Collection+.addAll(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "getset",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Map",
+                  "name": "m"
+                }
+              ],
+              "returning": {
+                "type": "Collection",
+                "name": "c"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Set Map+.keySet()"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Set Map+.entrySet()"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Collection Map+.values()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "m"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "add",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Collection",
+                  "name": "c"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.add(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.addAll(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "c"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "getset add+",
-      "raw_lines": [
-        "getset add+"
-      ]
+    "ere": {
+      "expression": "getset add+"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"A collection/set view of a map does not support add()/addAll().\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"A collection/set view of a map does not support add()/addAll().\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

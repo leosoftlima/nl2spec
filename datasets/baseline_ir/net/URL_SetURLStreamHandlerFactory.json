@@ -7,33 +7,52 @@
     "parameters": []
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "set",
-        "timing": "before",
-        "parameters": [],
-        "pointcut": {
-          "raw": "call(* URL.setURLStreamHandlerFactory(..))",
-          "calls": [
-            "* URL.setURLStreamHandlerFactory(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "set",
+              "timing": "before",
+              "parameters": [],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* URL.setURLStreamHandlerFactory(..)"
+                    }
+                  ]
+                }
+              ],
+              "operation": []
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "set set+",
-      "raw_lines": [
-        "set set+"
-      ]
+    "ere": {
+      "expression": "set set+"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"URL.setURLStreamHandlerFactory() can be called at most once in a given Java Virtual Machine.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"URL.setURLStreamHandlerFactory() can be called at most once in a given Java Virtual Machine.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

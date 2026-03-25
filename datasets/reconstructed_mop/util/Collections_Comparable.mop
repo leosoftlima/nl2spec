@@ -1,0 +1,13 @@
+Collections_Comparable() {
+
+    event invalid_sort before(List list, Comparator comp) :
+        call(void Collections.sort(List, Comparator)) && args(list, comp) {
+        		this.validate(list.toArray(), comp, __DEFAULT_MESSAGE);
+        }
+
+    event invalid_minmax before(Collection col, Comparator comp) :
+        ( call(* Collections.min(Collection, Comparator)) || call(* Collections.max(Collection, Comparator)) ) && args(col, comp) {
+        		this.validate(col.toArray(), comp, __DEFAULT_MESSAGE);
+        }
+
+}

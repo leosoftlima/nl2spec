@@ -1,0 +1,21 @@
+Iterator_HasNext(Iterator i) {
+
+    event hasnexttrue after(Iterator i) returning(boolean b) :
+        call(* Iterator+.hasNext()) && target(i) && condition(b) {
+        }
+
+    event hasnextfalse after(Iterator i) returning(boolean b) :
+        call(* Iterator+.hasNext()) && target(i) && condition(!b) {
+        }
+
+    event next before(Iterator i) :
+        call(* Iterator+.next()) && target(i) {
+        }
+
+    ltl : [](next => (*) hasnexttrue)
+
+    @violation {
+        RVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.WARNING, "Iterator.hasNext() was not called before calling next().");
+    }
+}

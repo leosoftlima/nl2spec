@@ -12,56 +12,129 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "manipulate",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "OutputStream",
-            "name": "o"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* OutputStream+.write*(..)) || call(* OutputStream+.flush(..)) ) && target(o) && !target(ByteArrayOutputStream)",
-          "calls": [
-            "* OutputStream+.write*(..)",
-            "* OutputStream+.flush(..)"
-          ]
-        }
-      },
-      {
-        "kind": "creation",
-        "name": "close",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "OutputStream",
-            "name": "o"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* OutputStream+.close(..)) && target(o) && !target(ByteArrayOutputStream)",
-          "calls": [
-            "* OutputStream+.close(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "manipulate",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "OutputStream",
+                  "name": "o"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* OutputStream+.write*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* OutputStream+.flush(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "o"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "ByteArrayOutputStream"
+                    }
+                  ],
+                  "negated": true
+                }
+              ],
+              "operation": [
+                "||",
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "creation event",
+              "name": "close",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "OutputStream",
+                  "name": "o"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* OutputStream+.close(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "o"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "ByteArrayOutputStream"
+                    }
+                  ],
+                  "negated": true
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "close+ manipulate+",
-      "raw_lines": [
-        "close+ manipulate+"
-      ]
+    "ere": {
+      "expression": "close+ manipulate+"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"write() or flush() was invoked after close().\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"write() or flush() was invoked after close().\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

@@ -1,0 +1,33 @@
+ShutdownHook_SystemExit(Thread t) {
+
+    creation event register before(Thread t) :
+        call(* Runtime+.addShutdownHook(..)) && args(t) {
+        }
+
+    creation event unregister before(Thread t) :
+        call(* Runtime+.removeShutdownHook(..)) && args(t) {
+        }
+
+    event start before(Thread t) :
+        startThread() && thread(t) {
+        }
+
+    fsm :
+		unregistered [
+			register -> registered
+		]
+		registered [
+			unregister -> unregistered
+			start -> started
+		]
+		started [
+			exit -> unsafe
+		]
+		unsafe [
+			exit -> unsafe
+		]
+	@unsafe {
+		RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+		RVMLogging.out.println(Level.CRITICAL, "Invoking System.exit() in a shutdown hook was suppressed because it may lead to deadlocks.");
+
+}

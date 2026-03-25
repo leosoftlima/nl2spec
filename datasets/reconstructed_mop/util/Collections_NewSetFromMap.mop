@@ -1,0 +1,21 @@
+Collections_NewSetFromMap(Map map) {
+
+    creation event create before(Map map) :
+        call(* Collections.newSetFromMap(Map)) && args(map) && condition(map.size() == 0) {
+        }
+
+    creation event bad_create before(Map map) :
+        call(* Collections.newSetFromMap(Map)) && args(map) && condition(map.size() > 0) {
+        }
+
+    event access before(Map map) :
+        call(* Map+.*(..)) && target(map) {
+        }
+
+    ere : bad_create | (create access)
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "The map used in Collections.newSetFromMap() must be empty before calling this method, and should not be accessed directly after this method returns.");
+    }
+}

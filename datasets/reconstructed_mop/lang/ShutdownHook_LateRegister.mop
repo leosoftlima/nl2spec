@@ -1,0 +1,23 @@
+ShutdownHook_LateRegister() {
+
+    creation event register after(Thread t) :
+        call(* Runtime+.addShutdownHook(..)) && args(t) {
+        threadSet.add(t);
+        }
+
+    creation event unregister after(Thread t) :
+        call(* Runtime+.removeShutdownHook(..)) && args(t) {
+        threadSet.remove(t);
+        }
+
+    event start after(Thread t) :
+        startThread() && thread(t) && condition(threadSet.contains(t)) {
+        }
+
+    ere : (register | unregister)* start+ (register | unregister)
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "A shutdown hook was registered/unregister after the shutdown sequence had begun.");
+    }
+}

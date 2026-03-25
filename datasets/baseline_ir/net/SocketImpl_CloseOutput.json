@@ -16,77 +16,146 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "getoutput",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "SocketImpl",
-            "name": "sock"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(OutputStream SocketImpl+.getOutputStream()) && target(sock)",
-          "calls": [
-            "OutputStream SocketImpl+.getOutputStream()"
-          ]
-        },
-        "returning": {
-          "type": "OutputStream",
-          "name": "output"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "close",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "SocketImpl",
-            "name": "sock"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* SocketImpl+.close(..)) || call(* SocketImpl+.shutdownOutput(..)) ) && target(sock)",
-          "calls": [
-            "* SocketImpl+.close(..)",
-            "* SocketImpl+.shutdownOutput(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "use",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "OutputStream",
-            "name": "output"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* OutputStream+.*(..)) && target(output)",
-          "calls": [
-            "* OutputStream+.*(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "getoutput",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "SocketImpl",
+                  "name": "sock"
+                }
+              ],
+              "returning": {
+                "type": "OutputStream",
+                "name": "output"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "OutputStream SocketImpl+.getOutputStream()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "sock"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "close",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "SocketImpl",
+                  "name": "sock"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* SocketImpl+.close(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* SocketImpl+.shutdownOutput(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "sock"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "use",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "OutputStream",
+                  "name": "output"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* OutputStream+.*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "output"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "getoutput close use+",
-      "raw_lines": [
-        "getoutput close use+"
-      ]
+    "ere": {
+      "expression": "getoutput close use+"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The output stream of a closed socket is about to be used.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The output stream of a closed socket is about to be used.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

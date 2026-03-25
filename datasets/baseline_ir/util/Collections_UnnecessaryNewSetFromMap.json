@@ -7,25 +7,70 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "unnecessary",
-        "timing": "before",
-        "parameters": [],
-        "pointcut_raw": "call(* Collections.newSetFromMap(Map)) && ( args(HashMap) || args(TreeMap) )",
         "body": {
-          "raw_lines": [
-            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, \"There is no need to use Collections.newSetFromMap() on HashMap or TreeMap.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "unnecessary",
+              "timing": "before",
+              "parameters": [],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Collections.newSetFromMap(Map)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "HashMap"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "TreeMap"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "||"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "There is no need to use Collections.newSetFromMap() on HashMap or TreeMap."
+          }
+        ]
+      }
     }
   }
 }

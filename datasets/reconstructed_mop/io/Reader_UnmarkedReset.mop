@@ -1,0 +1,17 @@
+Reader_UnmarkedReset(Reader r) {
+
+    event mark before(Reader r) :
+        call(* Reader+.mark(..)) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader ) {
+        }
+
+    event reset before(Reader r) :
+        call(* Reader+.reset(..)) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader ) {
+        }
+
+    ere : mark (mark | reset)*
+
+    @fail {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "BufferedReader and LineNumberReader allow reset() only after mark() has been invoked.");
+    }
+}

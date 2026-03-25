@@ -16,79 +16,164 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "createsublist",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "List",
-            "name": "b"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* List.subList(..)) && target(b)",
-          "calls": [
-            "* List.subList(..)"
-          ]
-        },
-        "returning": {
-          "type": "List",
-          "name": "s"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "modifybackinglist",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "List",
-            "name": "b"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Collection+.add*(..)) || call(* Collection+.remove*(..)) || call(* Collection+.clear(..)) || call(* Collection+.retain*(..)) ) && target(b)",
-          "calls": [
-            "* Collection+.add*(..)",
-            "* Collection+.remove*(..)",
-            "* Collection+.clear(..)",
-            "* Collection+.retain*(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "usesublist",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "List",
-            "name": "s"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* List.*(..)) && target(s)",
-          "calls": [
-            "* List.*(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "createsublist",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "List",
+                  "name": "b"
+                }
+              ],
+              "returning": {
+                "type": "List",
+                "name": "s"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* List.subList(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "b"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "modifybackinglist",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "List",
+                  "name": "b"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.add*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.remove*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.clear(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.retain*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "b"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "usesublist",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "List",
+                  "name": "s"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* List.*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "s"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "createsublist usesublist* modifybackinglist+ usesublist",
-      "raw_lines": [
-        "createsublist usesublist* modifybackinglist+ usesublist"
-      ]
+    "ere": {
+      "expression": "createsublist usesublist* modifybackinglist+ usesublist"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The backing list was modified while a sub-list is being used.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The backing list was modified while a sub-list is being used.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

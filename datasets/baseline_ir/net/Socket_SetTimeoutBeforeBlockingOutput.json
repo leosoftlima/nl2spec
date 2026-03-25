@@ -16,141 +16,248 @@
     ]
   },
   "ir": {
-    "type": "fsm",
     "events": [
       {
-        "kind": "creation",
-        "name": "getoutput",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Socket",
-            "name": "sock"
-          }
-        ],
-        "pointcut_raw": "call(OutputStream Socket+.getOutputStream()) && target(sock)",
-        "returning": {
-          "type": "OutputStream",
-          "name": "output"
-        },
         "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "enter",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "OutputStream",
-            "name": "output"
-          }
-        ],
-        "pointcut_raw": "call(* OutputStream+.write(..)) && target(output)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "leave",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "OutputStream",
-            "name": "output"
-          }
-        ],
-        "pointcut_raw": "call(* OutputStream+.write(..)) && target(output)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "set",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Socket",
-            "name": "sock"
-          },
-          {
-            "type": "int",
-            "name": "timeout"
-          }
-        ],
-        "pointcut_raw": "call(* Socket+.setSoTimeout(int)) && target(sock) && args(timeout) && condition(timeout != 0)",
-        "body": {
-          "raw_lines": []
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "getoutput",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Socket",
+                  "name": "sock"
+                }
+              ],
+              "returning": {
+                "type": "OutputStream",
+                "name": "output"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "OutputStream Socket+.getOutputStream()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "sock"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "enter",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "OutputStream",
+                  "name": "output"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "OutputStream+.write(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "output"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "leave",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "OutputStream",
+                  "name": "output"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "OutputStream+.write(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "output"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "set",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Socket",
+                  "name": "sock"
+                },
+                {
+                  "type": "int",
+                  "name": "timeout"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "Socket+.setSoTimeout(int)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "sock"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "timeout"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "timeout != 0"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&",
+                "&&"
+              ]
+            }
+          ]
         }
       }
     ],
     "fsm": {
-      "raw_block": "\t\tstart [\n\t\t\tgetoutput -> unblocked\n\t\t]\n\t\tunblocked [\n\t\t\tgetoutput -> unblocked\n\t\t\tset -> unblocked\n\t\t\tenter -> blocked\n\t\t]\n\t\tblocked [\n\t\t\tgetoutput -> blocked\n\t\t\tleave -> unblocked\n\t\t]",
-      "raw_lines": [
-        "\t\tstart [",
-        "\t\t\tgetoutput -> unblocked",
-        "\t\t]",
-        "\t\tunblocked [",
-        "\t\t\tgetoutput -> unblocked",
-        "\t\t\tset -> unblocked",
-        "\t\t\tenter -> blocked",
-        "\t\t]",
-        "\t\tblocked [",
-        "\t\t\tgetoutput -> blocked",
-        "\t\t\tleave -> unblocked",
-        "\t\t]"
-      ]
-    },
-    "analysis": {
+      "type": "fsm",
+      "initial_state": "start",
       "states": [
-        "blocked",
-        "start",
-        "unblocked"
-      ],
-      "initial": "start",
-      "transitions": [
         {
-          "from": "start",
-          "event": "getoutput",
-          "to": "unblocked"
+          "name": "start",
+          "transitions": [
+            {
+              "event": "getoutput",
+              "target": "unblocked"
+            }
+          ]
         },
         {
-          "from": "unblocked",
-          "event": "getoutput",
-          "to": "unblocked"
+          "name": "unblocked",
+          "transitions": [
+            {
+              "event": "getoutput",
+              "target": "unblocked"
+            },
+            {
+              "event": "set",
+              "target": "unblocked"
+            },
+            {
+              "event": "enter",
+              "target": "blocked"
+            }
+          ]
         },
         {
-          "from": "unblocked",
-          "event": "set",
-          "to": "unblocked"
-        },
-        {
-          "from": "unblocked",
-          "event": "enter",
-          "to": "blocked"
-        },
-        {
-          "from": "blocked",
-          "event": "getoutput",
-          "to": "blocked"
-        },
-        {
-          "from": "blocked",
-          "event": "leave",
-          "to": "unblocked"
+          "name": "blocked",
+          "transitions": [
+            {
+              "event": "getoutput",
+              "target": "blocked"
+            },
+            {
+              "event": "leave",
+              "target": "unblocked"
+            }
+          ]
         }
       ]
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"Socket.setSoTimeout() should be set prior to entering the blocking operation.\");",
-        "__RESET;"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"Socket.setSoTimeout() should be set prior to entering the blocking operation.\""
+          },
+          {
+            "type": "command",
+            "name": "__RESET"
+          }
+        ],
+        "has_reset": true
+      }
     }
   }
 }

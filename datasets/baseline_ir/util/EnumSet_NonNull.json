@@ -7,52 +7,117 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "insertnull",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object",
-            "name": "e"
-          }
-        ],
-        "pointcut_raw": "call(* EnumSet+.add(Object)) && args(e) && condition(e == null)",
         "body": {
-          "raw_lines": [
-            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, \"EnumSet does not permit null.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "insertnull",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object",
+                  "name": "e"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* EnumSet+.add(Object)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "e"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "condition",
+                    "parameters": [
+                      {
+                        "value": "e == null"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       },
       {
-        "kind": "event",
         "name": "insertnull",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Collection",
-            "name": "c"
-          }
-        ],
-        "pointcut_raw": "call(* EnumSet+.addAll(Collection)) && args(c)",
         "body": {
-          "raw_lines": [
-            "\t\tfor (Object elem : c) {",
-            "\t\t\tif (elem == null){",
-            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"EnumSet does not permit null.\");",
-            "\t\t\t}",
-            "\t\t}"
+          "methods": [
+            {
+              "action": "event",
+              "name": "insertnull",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Collection",
+                  "name": "c"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* EnumSet+.addAll(Collection)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "c"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "EnumSet does not permit null."
+          }
+        ]
+      }
     }
   }
 }

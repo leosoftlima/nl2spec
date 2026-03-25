@@ -20,124 +20,297 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "getset",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Map",
-            "name": "m"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(Set Map+.keySet()) || call(Set Map+.entrySet()) || call(Collection Map+.values()) ) && target(m)",
-          "calls": [
-            "Set Map+.keySet()",
-            "Set Map+.entrySet()",
-            "Collection Map+.values()"
-          ]
-        },
-        "returning": {
-          "type": "Collection",
-          "name": "c"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "getiter",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Collection",
-            "name": "c"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(Iterator Iterable+.iterator()) && target(c)",
-          "calls": [
-            "Iterator Iterable+.iterator()"
-          ]
-        },
-        "returning": {
-          "type": "Iterator",
-          "name": "i"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "modifyMap",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Map",
-            "name": "m"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Map+.clear*(..)) || call(* Map+.put*(..)) || call(* Map+.remove(..)) ) && target(m)",
-          "calls": [
-            "* Map+.clear*(..)",
-            "* Map+.put*(..)",
-            "* Map+.remove(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "modifyCol",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Collection",
-            "name": "c"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Collection+.clear(..)) || call(* Collection+.offer*(..)) || call(* Collection+.pop(..)) || call(* Collection+.push(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(c)",
-          "calls": [
-            "* Collection+.clear(..)",
-            "* Collection+.offer*(..)",
-            "* Collection+.pop(..)",
-            "* Collection+.push(..)",
-            "* Collection+.remove*(..)",
-            "* Collection+.retain*(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "useiter",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Iterator",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Iterator.hasNext(..)) || call(* Iterator.next(..)) ) && target(i)",
-          "calls": [
-            "* Iterator.hasNext(..)",
-            "* Iterator.next(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "getset",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Map",
+                  "name": "m"
+                }
+              ],
+              "returning": {
+                "type": "Collection",
+                "name": "c"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Set Map+.keySet()"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Set Map+.entrySet()"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Collection Map+.values()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "m"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "getiter",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Collection",
+                  "name": "c"
+                }
+              ],
+              "returning": {
+                "type": "Iterator",
+                "name": "i"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Iterator Iterable+.iterator()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "c"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "modifyMap",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Map",
+                  "name": "m"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Map+.clear*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Map+.put*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Map+.remove(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "m"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "modifyCol",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Collection",
+                  "name": "c"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.clear(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.offer*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.pop(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.push(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.remove*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.retain*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "c"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "||",
+                "||",
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "useiter",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Iterator",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Iterator.hasNext(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Iterator.next(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "getset (modifyMap | modifyCol)* getiter useiter* (modifyMap | modifyCol)+ useiter",
-      "raw_lines": [
-        "getset (modifyMap | modifyCol)* getiter useiter* (modifyMap | modifyCol)+ useiter"
-      ]
+    "ere": {
+      "expression": "getset (modifyMap | modifyCol)* getiter useiter* (modifyMap | modifyCol)+ useiter"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The map was modified while an iteration over the set is in progress.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The map was modified while an iteration over the set is in progress.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

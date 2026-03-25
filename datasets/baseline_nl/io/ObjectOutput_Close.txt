@@ -1,27 +1,36 @@
+This specification is called ObjectOutput_Close.
+
+It should use these parameters:
+- ObjectOutput o
+
+Keep this name and parameter list exactly in the generated JSON.
+
 The following events are monitored:
 
-1) Event name: create
-   Timing: after
-   Parameters: none
-   Returning: ObjectOutput o
-   Pointcut: call(ObjectOutput+.new(..))
+create is an event observed after the call. It does not take explicit event parameters. It captures the returned value as ObjectOutput o. It matches: call(ObjectOutput+.new(..))
 
-2) Event name: close
-   Timing: before
-   Parameters: ObjectOutput o
-   Pointcut: call(* ObjectOutput+.close(..)) && target(o)
+close is an event observed before the call. It takes ObjectOutput o as parameter. It matches: call(* ObjectOutput+.close(..)) && target(o)
 
-3) Event name: endProg
-   Timing: before
-   Parameters: none
-   Pointcut: endProgram()
+endProg is an event observed before the call. It does not take explicit event parameters. It matches: endProgram()
 
-The temporal property that must hold during execution is defined by the following formula:
+The temporal property that must hold during execution is:
 
-[](create => o close)
+ltl: [](create => o close)
 
-If this temporal property is violated at any point during execution, it constitutes a violation.
+In plain language, this means:
 
-The violation message that must be used in the JSON output is:
+it must always hold that whenever create occurs, then close occurs in the next step
 
-"close() was not called."
+If this temporal property is violated during execution, the JSON output must use the following violation behavior:
+
+When the property is violation, the monitor logs __DEFAULT_MESSAGE and logs "close() was not called."
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Follow the same JSON structure used in the examples.
+Reuse the exact event names consistently.
+Do not invent new events, operators, or fields.
+
+Return ONLY the IR JSON.

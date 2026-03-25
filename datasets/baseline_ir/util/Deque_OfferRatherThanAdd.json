@@ -12,57 +12,116 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "create",
-        "timing": "after",
-        "parameters": [],
-        "pointcut": {
-          "raw": "call(LinkedBlockingDeque+.new(int))",
-          "calls": [
-            "LinkedBlockingDeque+.new(int)"
-          ]
-        },
-        "returning": {
-          "type": "Deque",
-          "name": "q"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "add",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Deque",
-            "name": "q"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Deque+.addFirst(..)) || call(* Deque+.addLast(..)) || call(* Deque+.add(..)) || call(* Deque+.push(..)) ) && target(q)",
-          "calls": [
-            "* Deque+.addFirst(..)",
-            "* Deque+.addLast(..)",
-            "* Deque+.add(..)",
-            "* Deque+.push(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "create",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "Deque",
+                "name": "q"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "LinkedBlockingDeque+.new(int)"
+                    }
+                  ]
+                }
+              ],
+              "operation": []
+            },
+            {
+              "action": "event",
+              "name": "add",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Deque",
+                  "name": "q"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Deque+.addFirst(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Deque+.addLast(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Deque+.add(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Deque+.push(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "q"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "||",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "create add+",
-      "raw_lines": [
-        "create add+"
-      ]
+    "ere": {
+      "expression": "create add+"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"When using a capacity-restricted deque, it is generally preferable to use offerFirst(), offerLast() and offer() instead of addFirt(), addLast() and add().\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"When using a capacity-restricted deque, it is generally preferable to use offerFirst(), offerLast() and offer() instead of addFirt(), addLast() and add().\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

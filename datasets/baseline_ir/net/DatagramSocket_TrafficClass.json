@@ -7,54 +7,89 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "settc",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "DatagramSocket",
-            "name": "socket"
-          },
-          {
-            "type": "int",
-            "name": "tc"
-          }
-        ],
-        "pointcut_raw": "call(void DatagramSocket.setTrafficClass(int)) && target(socket) && args(tc)",
         "body": {
-          "raw_lines": [
-            "\t\tboolean outofrange = !(0 <= tc && tc <= 255);",
-            "\t\tboolean mbz = false;",
-            "\t\tboolean precedence = false;",
-            "\t\tInetAddress addr = socket.getLocalAddress();",
-            "\t\tif (addr instanceof Inet4Address) {",
-            "\t\t\tmbz = (tc & 1) != 0 ? true : false;",
-            "\t\t\tprecedence = (tc >> (4 + 1)) != 0;",
-            "\t\t}",
-            "\t\tif (outofrange || mbz || precedence) {",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tif (outofrange) {",
-            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The traffic class value \" + tc + \" is out of range; [0 ~ 255].\");",
-            "\t\t\t}",
-            "\t\t\telse {",
-            "\t\t\t\tif (mbz) {",
-            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The traffic class value sets 1 to MBZ.\");",
-            "\t\t\t\t}",
-            "\t\t\t\tif (precedence) {",
-            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The traffic class value sets non-zero precedence.\");",
-            "\t\t\t\t}",
-            "\t\t\t}",
-            "\t\t}"
+          "methods": [
+            {
+              "action": "event",
+              "name": "settc",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "DatagramSocket",
+                  "name": "socket"
+                },
+                {
+                  "type": "int",
+                  "name": "tc"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "void DatagramSocket.setTrafficClass(int)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "socket"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "tc"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The traffic class value \" + tc + \" is out of range; [0 ~ 255]."
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The traffic class value sets 1 to MBZ."
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The traffic class value sets non-zero precedence."
+          }
+        ]
+      }
     }
   }
 }

@@ -1,0 +1,21 @@
+Socket_ReuseSocket(Socket sock) {
+
+    creation event close before(Socket sock) :
+        call(* Socket+.close(..)) && target(sock) {
+        }
+
+    event bind before(Socket sock) :
+        call(* Socket+.bind(..)) && target(sock) {
+        }
+
+    event connect before(Socket sock) :
+        call(* Socket+.connect(..)) && target(sock) {
+        }
+
+    ere : close (bind | connect)+
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "Once a socket has been closed, it is not available for further networking use; a new socket needs to be created.");
+    }
+}

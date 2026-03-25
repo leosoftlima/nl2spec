@@ -1,0 +1,21 @@
+ArrayDeque_UnsafeIterator(ArrayDeque q, Iterator i) {
+
+    creation event create after(ArrayDeque q) returning(Iterator i) :
+        target(ArrayDeque) && ( call(Iterator Iterable+.iterator()) || call(Iterator Deque+.descendingIterator()) ) && target(q) {
+        }
+
+    event modify before(ArrayDeque q) :
+        target(ArrayDeque) && ( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.offer*(..)) || call(* Collection+.pop(..)) || call(* Collection+.push(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(q) {
+        }
+
+    event useiter before(Iterator i) :
+        call(* Iterator.*(..)) && target(i) {
+        }
+
+    ere : create useiter* modify+ useiter
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "The deque was modified while an iterator is being used.");
+    }
+}

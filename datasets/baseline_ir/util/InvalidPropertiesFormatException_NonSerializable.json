@@ -7,56 +7,124 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "serialize",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ObjectOutputStream",
-            "name": "out"
-          },
-          {
-            "type": "InvalidPropertiesFormatException",
-            "name": "obj"
-          }
-        ],
-        "pointcut_raw": "call(* ObjectOutputStream+.writeObject(..)) && target(out) && args(obj)",
         "body": {
-          "raw_lines": [
-            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, \"InvalidPropertiesFormatException is not intended to be Serialized.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "serialize",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ObjectOutputStream",
+                  "name": "out"
+                },
+                {
+                  "type": "InvalidPropertiesFormatException",
+                  "name": "obj"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* ObjectOutputStream+.writeObject(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "out"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "obj"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       },
       {
-        "kind": "event",
         "name": "deserialize",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "ObjectInputStream",
-            "name": "in"
-          }
-        ],
-        "pointcut_raw": "call(* ObjectInputStream+.readObject(..)) && target(in)",
         "body": {
-          "raw_lines": [
-            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, \"InvalidPropertiesFormatException is not intended to be Serialized.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "deserialize",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "ObjectInputStream",
+                  "name": "in"
+                }
+              ],
+              "returning": {
+                "type": "InvalidPropertiesFormatException",
+                "name": "obj"
+              },
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* ObjectInputStream+.readObject(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "in"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&"
+                ]
+              }
+            }
           ]
-        },
-        "returning": {
-          "type": "InvalidPropertiesFormatException",
-          "name": "obj"
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "InvalidPropertiesFormatException is not intended to be Serialized."
+          }
+        ]
+      }
     }
   }
 }

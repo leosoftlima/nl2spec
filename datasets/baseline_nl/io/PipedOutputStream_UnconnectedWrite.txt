@@ -1,62 +1,55 @@
-The system behavior is defined in terms of explicit states and transitions.
+This specification should use the following name and parameters:
 
-The monitored events are:
+- name: PipedOutputStream_UnconnectedWrite
+- parameters: PipedOutputStream o
 
-1) Event name: create
-   Kind: creation
-   Timing: after
-   Parameters: none
-   Returning: PipedOutputStream o
-   Pointcut: call(PipedOutputStream+.new())
+Use this exact name consistently throughout the generated JSON.
+Keep the parameter list exactly as shown.
 
-2) Event name: create_io
-   Kind: creation
-   Timing: after
-   Parameters: none
-   Returning: PipedOutputStream o
-   Pointcut: call(PipedOutputStream+.new(PipedInputStream+))
+This property is described as a finite-state behavior with explicit states and transitions.
 
-3) Event name: create_oi
-   Kind: event
-   Timing: before
-   Parameters: PipedOutputStream o
-   Pointcut: call(PipedInputStream+.new(PipedOutputStream+)) && args(o)
+The monitored events involved in this property are:
 
-4) Event name: connect1
-   Kind: event
-   Timing: before
-   Parameters: PipedOutputStream o
-   Pointcut: call(* PipedInputStream+.connect(PipedOutputStream+)) && args(o)
+1) create is a creation event observed after the call. It takes none as parameter, returns PipedOutputStream o, and matches:
+   call(PipedOutputStream+.new())
 
-5) Event name: connect2
-   Kind: event
-   Timing: before
-   Parameters: PipedOutputStream o
-   Pointcut: call(* PipedOutputStream+.connect(PipedInputStream+)) && target(o)
+2) create_io is a creation event observed after the call. It takes none as parameter, returns PipedOutputStream o, and matches:
+   call(PipedOutputStream+.new(PipedInputStream+))
 
-6) Event name: write
-   Kind: event
-   Timing: before
-   Parameters: PipedOutputStream o
-   Pointcut: call(* PipedOutputStream+.write(..)) && target(o)
+3) create_oi is a event observed before the call. It takes PipedOutputStream o as parameter and matches:
+   call(PipedInputStream+.new(PipedOutputStream+)) && args(o)
 
-The finite state behavior is defined as follows:
+4) connect1 is a event observed before the call. It takes PipedOutputStream o as parameter and matches:
+   call(* PipedInputStream+.connect(PipedOutputStream+)) && args(o)
 
-		initial [
-			create -> unconnected
-			create_io -> connected
-		]
-		unconnected [
-			create_oi -> connected
-			connect1 -> connected
-			connect2 -> connected
-		]
-		connected [
-			write -> connected
-		]
+5) connect2 is a event observed before the call. It takes PipedOutputStream o as parameter and matches:
+   call(* PipedOutputStream+.connect(PipedInputStream+)) && target(o)
 
-Any execution that deviates from the state transition behavior described above constitutes a violation.
+6) write is a event observed before the call. It takes PipedOutputStream o as parameter and matches:
+   call(* PipedOutputStream+.write(..)) && target(o)
 
-The violation message that must be used in the JSON output is:
+The FSM structure is the following:
+
+The execution begins in the state initial.
+
+From initial, create moves it to unconnected and create_io moves it to connected.
+
+When the monitor is in unconnected, create_oi moves it to connected, connect1 moves it to connected, and connect2 moves it to connected.
+
+When the monitor is in connected, write keeps it in connected.
+
+In plain terms, this property means:
+
+The monitored execution starts in the state 'initial'. The property distinguishes the following states: initial, unconnected, connected. The behavior evolves through the occurrence of these events: create, create_io, create_oi, connect1, connect2, write. The property describes a protocol that must be respected; violating the expected transition behavior should trigger a failure. Semantically, the monitored rule is about the following condition: An unconnected PipedOutputStream performed write() operation.
+
+Any execution that does not follow this transition behavior, or that reaches an invalid behavior according to the rule below, must be treated as a violation.
+
+The violation message that must appear in the JSON output is:
 
 "An unconnected PipedOutputStream performed write() operation."
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Return ONLY the IR JSON.

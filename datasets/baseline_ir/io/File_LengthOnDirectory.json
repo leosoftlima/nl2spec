@@ -7,30 +7,75 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "bad_length",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "File",
-            "name": "f"
-          }
-        ],
-        "pointcut_raw": "call(* File+.length()) && target(f) && condition(f.isDirectory())",
         "body": {
-          "raw_lines": [
-            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, \"length() was invoked on a File instance that represents a directory.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "bad_length",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "File",
+                  "name": "f"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* File+.length()"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "f"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "condition",
+                    "parameters": [
+                      {
+                        "value": "f.isDirectory()"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "length() was invoked on a File instance that represents a directory."
+          }
+        ]
+      }
     }
   }
 }

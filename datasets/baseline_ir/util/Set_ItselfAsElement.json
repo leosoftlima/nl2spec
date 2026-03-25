@@ -7,60 +7,143 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "add",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Set",
-            "name": "s"
-          },
-          {
-            "type": "Object",
-            "name": "elem"
-          }
-        ],
-        "pointcut_raw": "call(* Set+.add(Object)) && target(s) && args(elem) && condition(elem == s)",
         "body": {
-          "raw_lines": [
-            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, \"A set cannot contain itself as an element.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "add",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Set",
+                  "name": "s"
+                },
+                {
+                  "type": "Object",
+                  "name": "elem"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Set+.add(Object)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "s"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "elem"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "condition",
+                    "parameters": [
+                      {
+                        "value": "elem == s"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       },
       {
-        "kind": "event",
         "name": "addall",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Set",
-            "name": "s"
-          },
-          {
-            "type": "Collection",
-            "name": "src"
-          }
-        ],
-        "pointcut_raw": "call(* Set+.addAll(Collection)) && target(s) && args(src)",
         "body": {
-          "raw_lines": [
-            "\t\tfor (Object elem : src) {",
-            "\t\t\tif (elem == s) {",
-            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"A set cannot contain itself as an element.\");",
-            "\t\t\t}",
-            "\t\t}"
+          "methods": [
+            {
+              "action": "event",
+              "name": "addall",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Set",
+                  "name": "s"
+                },
+                {
+                  "type": "Collection",
+                  "name": "src"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Set+.addAll(Collection)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "s"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "src"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "A set cannot contain itself as an element."
+          }
+        ]
+      }
     }
   }
 }

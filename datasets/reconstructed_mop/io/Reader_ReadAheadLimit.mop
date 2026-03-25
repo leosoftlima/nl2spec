@@ -1,0 +1,44 @@
+Reader_ReadAheadLimit(Reader r) {
+
+    event mark before(Reader r, int l) :
+        call(* Reader+.mark(int)) && target(r) && args(l) && if ( r instanceof BufferedReader || r instanceof LineNumberReader ) {
+        this.limit = l;
+        this.rest = l;
+        }
+
+    event read1 after(Reader r) returning(int n) :
+        call(* Reader+.read()) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader ) {
+        if (n != -1) {
+        this.rest -= 1;
+        if (this.rest < 0)
+        this.LOC = __LOC;
+        }
+
+    event readn after(Reader r) returning(int n) :
+        call(* Reader+.read(char[], ..)) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader ) {
+        if (n != -1) {
+        this.rest -= n;
+        if (this.rest < 0)
+        this.LOC = __LOC;
+        }
+
+    event badreset before(Reader r) :
+        call(* Reader+.reset(..)) && target(r) && condition(rest < 0) && if ( r instanceof BufferedReader || r instanceof LineNumberReader ) {
+        this.limit = 0;
+        this.rest = 0;
+        }
+
+    event goodreset before(Reader r) :
+        call(* Reader+.reset(..)) && target(r) && condition(rest >= 0) && if ( r instanceof BufferedReader || r instanceof LineNumberReader ) {
+        this.rest = this.limit;
+        }
+
+    ere : (mark | read1 | readn | goodreset)* badreset+
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "The position mark has been invalidated.");
+        if (this.LOC != null) {
+        RVMLogging.out.println(Level.CRITICAL, "read() at line " + this.LOC + " invalidated the mark.");
+    }
+}

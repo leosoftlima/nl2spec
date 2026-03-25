@@ -1,73 +1,59 @@
-The system behavior is defined in terms of explicit states and transitions.
+This specification should use the following name and parameters:
 
-The monitored events are:
+- name: ByteArrayOutputStream_FlushBeforeRetrieve
+- parameters: ByteArrayOutputStream b, OutputStream o
 
-1) Event name: outputstreaminit
-   Kind: creation
-   Timing: after
-   Parameters: ByteArrayOutputStream b
-   Returning: OutputStream o
-   Pointcut: call(OutputStream+.new(..)) && args(b, ..)
+Use this exact name consistently throughout the generated JSON.
+Keep the parameter list exactly as shown.
 
-2) Event name: write
-   Kind: event
-   Timing: before
-   Parameters: OutputStream o
-   Pointcut: call(* OutputStream+.write*(..)) && target(o)
+This property is described as a finite-state behavior with explicit states and transitions.
 
-3) Event name: flush
-   Kind: event
-   Timing: before
-   Parameters: OutputStream o
-   Pointcut: call(* OutputStream+.flush(..)) && target(o)
+The monitored events involved in this property are:
 
-4) Event name: close
-   Kind: event
-   Timing: before
-   Parameters: OutputStream o
-   Pointcut: call(* OutputStream+.close(..)) && target(o)
+1) outputstreaminit is a creation event observed after the call. It takes ByteArrayOutputStream b as parameter, returns OutputStream o, and matches:
+   call(OutputStream+.new(..)) && args(b, ..)
 
-5) Event name: tobytearray
-   Kind: event
-   Timing: before
-   Parameters: ByteArrayOutputStream b
-   Pointcut: call(* ByteArrayOutputStream+.toByteArray(..)) && target(b)
+2) write is a event observed before the call. It takes OutputStream o as parameter and matches:
+   call(* OutputStream+.write*(..)) && target(o)
 
-6) Event name: tostring
-   Kind: event
-   Timing: before
-   Parameters: ByteArrayOutputStream b
-   Pointcut: call(* ByteArrayOutputStream+.toString(..)) && target(b)
+3) flush is a event observed before the call. It takes OutputStream o as parameter and matches:
+   call(* OutputStream+.flush(..)) && target(o)
 
-The finite state behavior is defined as follows:
+4) close is a event observed before the call. It takes OutputStream o as parameter and matches:
+   call(* OutputStream+.close(..)) && target(o)
 
-		initial [
-			outputstreaminit -> outputstreamcreated
-		]
-		outputstreamcreated [
-			write -> writing
-			flush -> flushed
-			close -> closed
-		]
-		writing [
-			write -> writing
-			flush -> flushed
-			close -> closed
-		]
-		flushed [
-			flush -> flushed
-			write -> writing
-			tobytearray -> flushed
-			tostring -> flushed
-			close -> closed
-		]
-		closed [
-			tobytearray -> closed
-			tostring -> closed
-		]
+5) tobytearray is a event observed before the call. It takes ByteArrayOutputStream b as parameter and matches:
+   call(* ByteArrayOutputStream+.toByteArray(..)) && target(b)
 
-Any execution that deviates from the state transition behavior described above constitutes a violation.
+6) tostring is a event observed before the call. It takes ByteArrayOutputStream b as parameter and matches:
+   call(* ByteArrayOutputStream+.toString(..)) && target(b)
 
-The violation message that must be used in the JSON output is:
+The FSM structure is the following:
+
+The execution begins in the state initial.
+
+From initial, outputstreaminit moves it to outputstreamcreated.
+
+When the monitor is in outputstreamcreated, write moves it to writing, flush moves it to flushed, and close moves it to closed.
+
+When the monitor is in writing, write keeps it in writing, flush moves it to flushed, and close moves it to closed.
+
+When the monitor is in flushed, flush keeps it in flushed, write moves it to writing, tobytearray keeps it in flushed, tostring keeps it in flushed, and close moves it to closed.
+
+When the monitor is in closed, tobytearray keeps it in closed and tostring keeps it in closed.
+
+In plain terms, this property means:
+
+The monitored execution starts in the state 'initial'. The property distinguishes the following states: initial, outputstreamcreated, writing, flushed, closed. The behavior evolves through the occurrence of these events: outputstreaminit, write, flush, close, tobytearray, tostring. The property describes a protocol that must be respected; violating the expected transition behavior should trigger a failure. Semantically, the monitored rule is about the following condition: flush() or close() should be invoked before toByteArray() or toString() to get the complete contents.
+
+Any execution that does not follow this transition behavior, or that reaches an invalid behavior according to the rule below, must be treated as a violation.
+
+The violation message that must appear in the JSON output is:
 
 "flush() or close() should be invoked before toByteArray() or toString() to get the complete contents."
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Return ONLY the IR JSON.

@@ -12,87 +12,144 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "create_bound",
-        "timing": "after",
-        "parameters": [],
-        "pointcut": {
-          "raw": "call(ServerSocket.new(int, ..))",
-          "calls": [
-            "ServerSocket.new(int, ..)"
-          ]
-        },
-        "returning": {
-          "type": "ServerSocket",
-          "name": "sock"
-        }
-      },
-      {
-        "kind": "creation",
-        "name": "create_unbound",
-        "timing": "after",
-        "parameters": [],
-        "pointcut": {
-          "raw": "call(ServerSocket.new())",
-          "calls": [
-            "ServerSocket.new()"
-          ]
-        },
-        "returning": {
-          "type": "ServerSocket",
-          "name": "sock"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "bind",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ServerSocket",
-            "name": "sock"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* ServerSocket+.bind(..)) && target(sock)",
-          "calls": [
-            "* ServerSocket+.bind(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "set",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ServerSocket",
-            "name": "sock"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* ServerSocket+.setPerformancePreferences(..)) && target(sock)",
-          "calls": [
-            "* ServerSocket+.setPerformancePreferences(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "create_bound",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "ServerSocket",
+                "name": "sock"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "ServerSocket.new(int, ..)"
+                    }
+                  ]
+                }
+              ],
+              "operation": []
+            },
+            {
+              "action": "creation event",
+              "name": "create_unbound",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "ServerSocket",
+                "name": "sock"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "ServerSocket.new()"
+                    }
+                  ]
+                }
+              ],
+              "operation": []
+            },
+            {
+              "action": "event",
+              "name": "bind",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ServerSocket",
+                  "name": "sock"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* ServerSocket+.bind(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "sock"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "set",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ServerSocket",
+                  "name": "sock"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* ServerSocket+.setPerformancePreferences(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "sock"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "(create_bound | create_unbound set* bind+) set",
-      "raw_lines": [
-        "(create_bound | create_unbound set* bind+) set"
-      ]
+    "ere": {
+      "expression": "(create_bound | create_unbound set* bind+) set"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"Invoking ServerSocket.setPerformancePreferences() after the socket has been bound will have no effect.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"Invoking ServerSocket.setPerformancePreferences() after the socket has been bound will have no effect.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

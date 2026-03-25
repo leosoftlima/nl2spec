@@ -12,301 +12,520 @@
     ]
   },
   "ir": {
-    "type": "fsm",
     "events": [
       {
-        "kind": "event",
-        "name": "sort1",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object[]",
-            "name": "arr"
-          }
-        ],
-        "pointcut_raw": "call(void Arrays.sort(Object[])) && args(arr)",
         "body": {
-          "raw_lines": [
-            "\t\tthis.fromIndex = 0;",
-            "\t\tthis.toIndex = arr.length;"
+          "methods": [
+            {
+              "action": "event",
+              "name": "sort1",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object[]",
+                  "name": "arr"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "void Arrays.sort(Object[])"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "arr"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ],
+              "raw_body": [
+                "\t\tthis.fromIndex = 0;",
+                "\t\tthis.toIndex = arr.length;"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "sort1",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object[]",
+                  "name": "arr"
+                },
+                {
+                  "type": "int",
+                  "name": "from"
+                },
+                {
+                  "type": "int",
+                  "name": "to"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "void Arrays.sort(Object[], int, int)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "arr, from, to"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ],
+              "raw_body": [
+                "\t\tthis.fromIndex = from;",
+                "\t\tthis.toIndex = to;"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "sort2",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object[]",
+                  "name": "arr"
+                },
+                {
+                  "type": "Comparator",
+                  "name": "comp2"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "void Arrays.sort(Object[], Comparator)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "arr, comp2"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ],
+              "raw_body": [
+                "\t\tthis.fromIndex = 0;",
+                "\t\tthis.toIndex = arr.length;",
+                "\t\tthis.comp = comp2;"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "sort2",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object[]",
+                  "name": "arr"
+                },
+                {
+                  "type": "int",
+                  "name": "from"
+                },
+                {
+                  "type": "int",
+                  "name": "to"
+                },
+                {
+                  "type": "Comparator",
+                  "name": "comp2"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "void Arrays.sort(Object[], int, int, Comparator)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "arr, from, to, comp2"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ],
+              "raw_body": [
+                "\t\tthis.fromIndex = from;",
+                "\t\tthis.toIndex = to;",
+                "\t\tthis.comp = comp2;"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "modify",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object[]",
+                  "name": "arr"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "set",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "Object[] *"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "arr"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ],
+              "raw_body": [
+                "\t\tthis.toIndex = 0;"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "bsearch1",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object[]",
+                  "name": "arr"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "int Arrays.binarySearch(Object[], Object)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "arr, .."
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "this.fromIndex <= 0 && arr.length <= this.toIndex"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "bsearch1",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object[]",
+                  "name": "arr"
+                },
+                {
+                  "type": "int",
+                  "name": "from"
+                },
+                {
+                  "type": "int",
+                  "name": "to"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "int Arrays.binarySearch(Object[], int, int, Object)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "arr, from, to, .."
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "this.fromIndex <= from && to <= this.toIndex"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "bsearch2",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object[]",
+                  "name": "arr"
+                },
+                {
+                  "type": "Comparator",
+                  "name": "comp2"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "int Arrays.binarySearch(Object[], Object, Comparator)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "arr, .., comp2"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "this.fromIndex <= 0 && arr.length <= this.toIndex && this.comp == comp2"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "bsearch2",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object[]",
+                  "name": "arr"
+                },
+                {
+                  "type": "int",
+                  "name": "from"
+                },
+                {
+                  "type": "int",
+                  "name": "to"
+                },
+                {
+                  "type": "Comparator",
+                  "name": "comp2"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "int Arrays.binarySearch(Object[], int, int, Object, Comparator)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "arr, from, to, .., comp2"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "this.fromIndex <= from && to <= this.toIndex && this.comp == comp2"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            }
           ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "sort1",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object[]",
-            "name": "arr"
-          },
-          {
-            "type": "int",
-            "name": "from"
-          },
-          {
-            "type": "int",
-            "name": "to"
-          }
-        ],
-        "pointcut_raw": "call(void Arrays.sort(Object[], int, int)) && args(arr, from, to)",
-        "body": {
-          "raw_lines": [
-            "\t\tthis.fromIndex = from;",
-            "\t\tthis.toIndex = to;"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "sort2",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object[]",
-            "name": "arr"
-          },
-          {
-            "type": "Comparator",
-            "name": "comp2"
-          }
-        ],
-        "pointcut_raw": "call(void Arrays.sort(Object[], Comparator)) && args(arr, comp2)",
-        "body": {
-          "raw_lines": [
-            "\t\tthis.fromIndex = 0;",
-            "\t\tthis.toIndex = arr.length;",
-            "\t\tthis.comp = comp2;"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "sort2",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object[]",
-            "name": "arr"
-          },
-          {
-            "type": "int",
-            "name": "from"
-          },
-          {
-            "type": "int",
-            "name": "to"
-          },
-          {
-            "type": "Comparator",
-            "name": "comp2"
-          }
-        ],
-        "pointcut_raw": "call(void Arrays.sort(Object[], int, int, Comparator)) && args(arr, from, to, comp2)",
-        "body": {
-          "raw_lines": [
-            "\t\tthis.fromIndex = from;",
-            "\t\tthis.toIndex = to;",
-            "\t\tthis.comp = comp2;"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "modify",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object[]",
-            "name": "arr"
-          }
-        ],
-        "pointcut_raw": "set(Object[] *) && args(arr)",
-        "body": {
-          "raw_lines": [
-            "\t\tthis.toIndex = 0;"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "bsearch1",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object[]",
-            "name": "arr"
-          }
-        ],
-        "pointcut_raw": "call(int Arrays.binarySearch(Object[], Object)) && args(arr, ..) && condition(this.fromIndex <= 0 && arr.length <= this.toIndex)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "bsearch1",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object[]",
-            "name": "arr"
-          },
-          {
-            "type": "int",
-            "name": "from"
-          },
-          {
-            "type": "int",
-            "name": "to"
-          }
-        ],
-        "pointcut_raw": "call(int Arrays.binarySearch(Object[], int, int, Object)) && args(arr, from, to, ..) && condition(this.fromIndex <= from && to <= this.toIndex)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "bsearch2",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object[]",
-            "name": "arr"
-          },
-          {
-            "type": "Comparator",
-            "name": "comp2"
-          }
-        ],
-        "pointcut_raw": "call(int Arrays.binarySearch(Object[], Object, Comparator)) && args(arr, .., comp2) && condition(this.fromIndex <= 0 && arr.length <= this.toIndex && this.comp == comp2)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "bsearch2",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object[]",
-            "name": "arr"
-          },
-          {
-            "type": "int",
-            "name": "from"
-          },
-          {
-            "type": "int",
-            "name": "to"
-          },
-          {
-            "type": "Comparator",
-            "name": "comp2"
-          }
-        ],
-        "pointcut_raw": "call(int Arrays.binarySearch(Object[], int, int, Object, Comparator)) && args(arr, from, to, .., comp2) && condition(this.fromIndex <= from && to <= this.toIndex && this.comp == comp2)",
-        "body": {
-          "raw_lines": []
         }
       }
     ],
     "fsm": {
-      "raw_block": "\t\tunsorted [\n\t\t\tsort1 -> sorted1\n\t\t\tsort2 -> sorted2\n\t\t\tmodify -> unsorted\n\t\t]\n\t\tsorted1 [\n\t\t\tsort1 -> sorted1\n\t\t\tsort2 -> sorted2\n\t\t\tmodify -> unsorted\n\t\t\tbsearch1 -> sorted1\n\t\t]\n\t\tsorted2 [\n\t\t\tsort1 -> sorted1\n\t\t\tsort2 -> sorted2\n\t\t\tmodify -> unsorted\n\t\t\tbsearch2 -> sorted2\n\t\t]",
-      "raw_lines": [
-        "\t\tunsorted [",
-        "\t\t\tsort1 -> sorted1",
-        "\t\t\tsort2 -> sorted2",
-        "\t\t\tmodify -> unsorted",
-        "\t\t]",
-        "\t\tsorted1 [",
-        "\t\t\tsort1 -> sorted1",
-        "\t\t\tsort2 -> sorted2",
-        "\t\t\tmodify -> unsorted",
-        "\t\t\tbsearch1 -> sorted1",
-        "\t\t]",
-        "\t\tsorted2 [",
-        "\t\t\tsort1 -> sorted1",
-        "\t\t\tsort2 -> sorted2",
-        "\t\t\tmodify -> unsorted",
-        "\t\t\tbsearch2 -> sorted2",
-        "\t\t]"
-      ]
-    },
-    "analysis": {
+      "type": "fsm",
+      "initial_state": "unsorted",
       "states": [
-        "sorted1",
-        "sorted2",
-        "unsorted"
-      ],
-      "initial": "unsorted",
-      "transitions": [
         {
-          "from": "unsorted",
-          "event": "sort1",
-          "to": "sorted1"
+          "name": "unsorted",
+          "transitions": [
+            {
+              "event": "sort1",
+              "target": "sorted1"
+            },
+            {
+              "event": "sort2",
+              "target": "sorted2"
+            },
+            {
+              "event": "modify",
+              "target": "unsorted"
+            }
+          ]
         },
         {
-          "from": "unsorted",
-          "event": "sort2",
-          "to": "sorted2"
+          "name": "sorted1",
+          "transitions": [
+            {
+              "event": "sort1",
+              "target": "sorted1"
+            },
+            {
+              "event": "sort2",
+              "target": "sorted2"
+            },
+            {
+              "event": "modify",
+              "target": "unsorted"
+            },
+            {
+              "event": "bsearch1",
+              "target": "sorted1"
+            }
+          ]
         },
         {
-          "from": "unsorted",
-          "event": "modify",
-          "to": "unsorted"
-        },
-        {
-          "from": "sorted1",
-          "event": "sort1",
-          "to": "sorted1"
-        },
-        {
-          "from": "sorted1",
-          "event": "sort2",
-          "to": "sorted2"
-        },
-        {
-          "from": "sorted1",
-          "event": "modify",
-          "to": "unsorted"
-        },
-        {
-          "from": "sorted1",
-          "event": "bsearch1",
-          "to": "sorted1"
-        },
-        {
-          "from": "sorted2",
-          "event": "sort1",
-          "to": "sorted1"
-        },
-        {
-          "from": "sorted2",
-          "event": "sort2",
-          "to": "sorted2"
-        },
-        {
-          "from": "sorted2",
-          "event": "modify",
-          "to": "unsorted"
-        },
-        {
-          "from": "sorted2",
-          "event": "bsearch2",
-          "to": "sorted2"
+          "name": "sorted2",
+          "transitions": [
+            {
+              "event": "sort1",
+              "target": "sorted1"
+            },
+            {
+              "event": "sort2",
+              "target": "sorted2"
+            },
+            {
+              "event": "modify",
+              "target": "unsorted"
+            },
+            {
+              "event": "bsearch2",
+              "target": "sorted2"
+            }
+          ]
         }
       ]
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The array or part of the array must be sorted prior to making binarySearch() call.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The array or part of the array must be sorted prior to making binarySearch() call.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

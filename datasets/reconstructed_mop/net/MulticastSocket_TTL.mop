@@ -1,0 +1,13 @@
+MulticastSocket_TTL() {
+
+    event set1 before(byte ttl) :
+        call(* MulticastSocket+.setTTL(byte)) && args(ttl) {
+        		this.check(__DEFAULT_MESSAGE, ttl & 0xff);
+        }
+
+    event set2 before(int ttl) :
+        call(* MulticastSocket+.setTimeToLive(int)) && args(ttl) {
+        		this.check(__DEFAULT_MESSAGE, ttl);
+        }
+
+}

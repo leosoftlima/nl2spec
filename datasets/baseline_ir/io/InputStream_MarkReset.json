@@ -7,25 +7,106 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "mark_or_reset",
-        "timing": "before",
-        "parameters": [],
-        "pointcut_raw": "(call(* InputStream+.mark(..)) || call(* InputStream+.reset(..))) && ( target(FileInputStream) || target(PushbackInputStream) || target(ObjectInputStream) || target(PipedInputStream) || target(SequenceInputStream) )",
         "body": {
-          "raw_lines": [
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"FileInputStream, PushbackInputStream, ObjectInputStream, PipedInputStream and SequenceInputStream do not support mark() and reset().\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "mark_or_reset",
+              "timing": "before",
+              "parameters": [],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* InputStream+.mark(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* InputStream+.reset(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "FileInputStream"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "PushbackInputStream"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "ObjectInputStream"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "PipedInputStream"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "SequenceInputStream"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "||",
+                  "&&",
+                  "||",
+                  "||",
+                  "||",
+                  "||"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "FileInputStream, PushbackInputStream, ObjectInputStream, PipedInputStream and SequenceInputStream do not support mark() and reset()."
+          }
+        ]
+      }
     }
   }
 }

@@ -83,8 +83,8 @@ def extract_events(text: str) -> List[Dict[str, Any]]:
             params_raw, cursor = extract_balanced_round(text, cursor)
             cursor = skip_ws(text, cursor)
 
-        # returning(...) também é opcional
-        returning_obj = {"type": "", "name": ""}
+        # returning(...) é opcional
+        returning_obj = None
         if text[cursor:cursor + 9].lower() == "returning":
             ret_open = text.find("(", cursor)
             ret_raw, cursor = extract_balanced_round(text, ret_open)
@@ -111,12 +111,16 @@ def extract_events(text: str) -> List[Dict[str, Any]]:
             "action": action,
             "name": name,
             "timing": timing,
-            "parameters": parse_parameters(params_raw or ""),
-            "returning": returning_obj,
-            "procediments": ":",
-            "function": pointcut_struct["function"],
-            "operation": pointcut_struct["operation"]
+            "parameters": parse_parameters(params_raw or "")
         }
+
+        # returning deve entrar aqui, antes de procediments
+        if returning_obj is not None:
+            method["returning"] = returning_obj
+
+        method["procediments"] = ":"
+        method["function"] = pointcut_struct["function"]
+        method["operation"] = pointcut_struct["operation"]
 
         methods.append(method)
 

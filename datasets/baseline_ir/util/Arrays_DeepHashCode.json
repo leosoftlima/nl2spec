@@ -7,33 +7,66 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "invalid_deephashcode",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object[]",
-            "name": "arr"
-          }
-        ],
-        "pointcut_raw": "call(int Arrays.deepHashCode(Object[])) && args(arr)",
         "body": {
-          "raw_lines": [
-            "\t\tArrayList<Object[]> enclosing = new ArrayList<Object[]>();",
-            "\t\tif (cycle(enclosing, arr)){",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The specified array contains itself as an element.\");",
-            "\t\t}"
+          "methods": [
+            {
+              "action": "event",
+              "name": "invalid_deephashcode",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object[]",
+                  "name": "arr"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "int Arrays.deepHashCode(Object[])"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "arr"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The specified array contains itself as an element."
+          }
+        ]
+      }
     }
   }
 }

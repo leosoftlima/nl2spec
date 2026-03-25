@@ -7,29 +7,54 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "constructor_create",
-        "timing": "after",
-        "parameters": [],
-        "pointcut_raw": "call(Long+.new(long))",
         "body": {
-          "raw_lines": [
-            "            RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "            RVMLogging.out.println(Level.CRITICAL, \"Using the constructor Long(long value) might be inefficient. Use valueOf(long) if it is appropriate.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "constructor_create",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "Long",
+                "name": "l"
+              },
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "Long+.new(long)"
+                      }
+                    ]
+                  }
+                ],
+                "operation": []
+              }
+            }
           ]
-        },
-        "returning": {
-          "type": "Long",
-          "name": "l"
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "Using the constructor Long(long value) might be inefficient. Use valueOf(long) if it is appropriate."
+          }
+        ]
+      }
     }
   }
 }

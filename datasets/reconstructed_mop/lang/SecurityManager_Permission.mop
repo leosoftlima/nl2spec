@@ -1,0 +1,17 @@
+SecurityManager_Permission(SecurityManager manager, Object context) {
+
+    event get after(SecurityManager manager) returning(Object context) :
+        call (* SecurityManager.getSecurityContext(..)) && target(manager) {
+        }
+
+    event check before(SecurityManager manager, Object context) :
+        call(* SecurityManager.checkPermission(Permission, Object)) && target(manager) && args(.., context) {
+        }
+
+    ere : get (get | check)*
+
+    @fail {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "The context argument to checkPermission must come from getSecurityContext method call.");
+    }
+}

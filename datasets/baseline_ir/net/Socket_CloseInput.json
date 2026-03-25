@@ -16,76 +16,137 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "getinput",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Socket",
-            "name": "sock"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(InputStream Socket+.getInputStream()) && target(sock)",
-          "calls": [
-            "InputStream Socket+.getInputStream()"
-          ]
-        },
-        "returning": {
-          "type": "InputStream",
-          "name": "input"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "close",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Socket",
-            "name": "sock"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Socket+.close(..)) && target(sock)",
-          "calls": [
-            "* Socket+.close(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "use",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "InputStream",
-            "name": "input"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* InputStream+.*(..)) && target(input)",
-          "calls": [
-            "* InputStream+.*(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "getinput",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Socket",
+                  "name": "sock"
+                }
+              ],
+              "returning": {
+                "type": "InputStream",
+                "name": "input"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "InputStream Socket+.getInputStream()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "sock"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "close",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Socket",
+                  "name": "sock"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Socket+.close(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "sock"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "use",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "InputStream",
+                  "name": "input"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* InputStream+.*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "input"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "getinput close use+",
-      "raw_lines": [
-        "getinput close use+"
-      ]
+    "ere": {
+      "expression": "getinput close use+"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The input stream of a closed socket is about to be used.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The input stream of a closed socket is about to be used.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

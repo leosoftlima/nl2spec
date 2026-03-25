@@ -1,14 +1,21 @@
+This specification is written in the EVENT formalism.
+
+This specification is called Double_StaticFactory.
+
+
 The following events are monitored in this specification:
 
-1) Event name: constructor_create
-   Kind: event
-   Timing: after
-   Parameters: none
-   Returning: Double d
-   Pointcut: call(Double+.new(double))
+constructor_create is an event observed after the call. It captures the returned value as Double d. It matches: call(Double+.new(double)).
 
-A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+A violation occurs when a monitored event is triggered under the pointcut conditions described above and its associated violation handler is activated.
 
 The violation message that must be used in the JSON output is:
 
-"A violation must be reported when this condition occurs."
+"Using the constructor Double(double value) might be inefficient. Use valueOf(double) if it is appropriate."
+
+The generated JSON must include the field:
+
+"domain": "lang"
+
+Return ONLY the IR JSON.
+Do not include explanations, markdown, comments, or extra text.

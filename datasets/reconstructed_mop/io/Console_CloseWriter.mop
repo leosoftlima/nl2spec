@@ -1,0 +1,13 @@
+Console_CloseWriter(Writer w) {
+
+    event close before(Writer w) :
+        call(* Writer+.close(..)) && target(w) {
+        }
+
+    ere : getwriter close+
+
+    @match {
+        RVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.WARNING, "Invoking close() on the object returned by Console.writer() does not close the underlying stream.");
+    }
+}

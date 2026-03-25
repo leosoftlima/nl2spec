@@ -1,0 +1,17 @@
+RandomAccessFile_ManipulateAfterClose(RandomAccessFile f) {
+
+    event manipulate before(RandomAccessFile f) :
+        ( call(* RandomAccessFile+.read*(..)) || call(* RandomAccessFile+.write*(..)) ) && target(f) {
+        }
+
+    creation event close before(RandomAccessFile f) :
+        call(* RandomAccessFile+.close(..)) && target(f) {
+        }
+
+    ere : close+ manipulate+
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "A closed random access file cannot perform input or output operations.");
+    }
+}

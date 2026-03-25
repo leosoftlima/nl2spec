@@ -12,265 +12,403 @@
     ]
   },
   "ir": {
-    "type": "fsm",
     "events": [
       {
-        "kind": "event",
-        "name": "hasnexttrue",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "ListIterator",
-            "name": "i"
-          }
-        ],
-        "pointcut_raw": "call(* ListIterator.hasNext()) && target(i) && condition(b)",
-        "returning": {
-          "type": "boolean",
-          "name": "b"
-        },
         "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "hasnextfalse",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "ListIterator",
-            "name": "i"
-          }
-        ],
-        "pointcut_raw": "call(* ListIterator.hasNext()) && target(i) && condition(!b)",
-        "returning": {
-          "type": "boolean",
-          "name": "b"
-        },
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "next",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ListIterator",
-            "name": "i"
-          }
-        ],
-        "pointcut_raw": "call(* ListIterator.next()) && target(i)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "hasprevioustrue",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "ListIterator",
-            "name": "i"
-          }
-        ],
-        "pointcut_raw": "call(* ListIterator.hasPrevious()) && target(i) && condition(b)",
-        "returning": {
-          "type": "boolean",
-          "name": "b"
-        },
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "haspreviousfalse",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "ListIterator",
-            "name": "i"
-          }
-        ],
-        "pointcut_raw": "call(* ListIterator.hasPrevious()) && target(i) && condition(!b)",
-        "returning": {
-          "type": "boolean",
-          "name": "b"
-        },
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "previous",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ListIterator",
-            "name": "i"
-          }
-        ],
-        "pointcut_raw": "call(* ListIterator.previous()) && target(i)",
-        "body": {
-          "raw_lines": []
+          "methods": [
+            {
+              "action": "event",
+              "name": "hasnexttrue",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "ListIterator",
+                  "name": "i"
+                }
+              ],
+              "returning": {
+                "type": "boolean",
+                "name": "b"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "ListIterator.hasNext()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "i"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "b"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "hasnextfalse",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "ListIterator",
+                  "name": "i"
+                }
+              ],
+              "returning": {
+                "type": "boolean",
+                "name": "b"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "ListIterator.hasNext()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "i"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "!b"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "next",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ListIterator",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "ListIterator.next()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "hasprevioustrue",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "ListIterator",
+                  "name": "i"
+                }
+              ],
+              "returning": {
+                "type": "boolean",
+                "name": "b"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "ListIterator.hasPrevious()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "i"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "b"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "haspreviousfalse",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "ListIterator",
+                  "name": "i"
+                }
+              ],
+              "returning": {
+                "type": "boolean",
+                "name": "b"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "ListIterator.hasPrevious()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "i"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "!b"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "previous",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ListIterator",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "ListIterator.previous()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
+          ]
         }
       }
     ],
     "fsm": {
-      "raw_block": "\t\tna [\n\t\t\thasnexttrue -> nextavailable\n\t\t\thasnextfalse -> na\n\t\t\thasprevioustrue -> prevavailable\n\t\t\thaspreviousfalse -> na\n\t\t]\n\t\tnextavailable [\n\t\t\thasprevioustrue -> bothavailable\n\t\t\thaspreviousfalse -> nextavailable\n\t\t\thasnexttrue -> nextavailable\n\t\t\thasnextfalse -> na\n\t\t\tnext -> prevavailable\n\t\t]\n\t\tprevavailable [\n\t\t\thasnexttrue -> bothavailable\n\t\t\thasnextfalse -> prevavailable\n\t\t\thasprevioustrue -> prevavailable\n\t\t\thaspreviousfalse -> na\n\t\t\tprevious -> nextavailable\n\t\t]\n\t\tbothavailable [\n\t\t\thasnexttrue -> bothavailable\n\t\t\thasnextfalse -> prevavailable\n\t\t\thasprevioustrue -> bothavailable\n\t\t\thaspreviousfalse -> nextavailable\n\t\t\tnext -> prevavailable\n\t\t\tprevious -> nextavailable\n\t\t]",
-      "raw_lines": [
-        "\t\tna [",
-        "\t\t\thasnexttrue -> nextavailable",
-        "\t\t\thasnextfalse -> na",
-        "\t\t\thasprevioustrue -> prevavailable",
-        "\t\t\thaspreviousfalse -> na",
-        "\t\t]",
-        "\t\tnextavailable [",
-        "\t\t\thasprevioustrue -> bothavailable",
-        "\t\t\thaspreviousfalse -> nextavailable",
-        "\t\t\thasnexttrue -> nextavailable",
-        "\t\t\thasnextfalse -> na",
-        "\t\t\tnext -> prevavailable",
-        "\t\t]",
-        "\t\tprevavailable [",
-        "\t\t\thasnexttrue -> bothavailable",
-        "\t\t\thasnextfalse -> prevavailable",
-        "\t\t\thasprevioustrue -> prevavailable",
-        "\t\t\thaspreviousfalse -> na",
-        "\t\t\tprevious -> nextavailable",
-        "\t\t]",
-        "\t\tbothavailable [",
-        "\t\t\thasnexttrue -> bothavailable",
-        "\t\t\thasnextfalse -> prevavailable",
-        "\t\t\thasprevioustrue -> bothavailable",
-        "\t\t\thaspreviousfalse -> nextavailable",
-        "\t\t\tnext -> prevavailable",
-        "\t\t\tprevious -> nextavailable",
-        "\t\t]"
-      ]
-    },
-    "analysis": {
+      "type": "fsm",
+      "initial_state": "na",
       "states": [
-        "bothavailable",
-        "na",
-        "nextavailable",
-        "prevavailable"
-      ],
-      "initial": "na",
-      "transitions": [
         {
-          "from": "na",
-          "event": "hasnexttrue",
-          "to": "nextavailable"
+          "name": "na",
+          "transitions": [
+            {
+              "event": "hasnexttrue",
+              "target": "nextavailable"
+            },
+            {
+              "event": "hasnextfalse",
+              "target": "na"
+            },
+            {
+              "event": "hasprevioustrue",
+              "target": "prevavailable"
+            },
+            {
+              "event": "haspreviousfalse",
+              "target": "na"
+            }
+          ]
         },
         {
-          "from": "na",
-          "event": "hasnextfalse",
-          "to": "na"
+          "name": "nextavailable",
+          "transitions": [
+            {
+              "event": "hasprevioustrue",
+              "target": "bothavailable"
+            },
+            {
+              "event": "haspreviousfalse",
+              "target": "nextavailable"
+            },
+            {
+              "event": "hasnexttrue",
+              "target": "nextavailable"
+            },
+            {
+              "event": "hasnextfalse",
+              "target": "na"
+            },
+            {
+              "event": "next",
+              "target": "prevavailable"
+            }
+          ]
         },
         {
-          "from": "na",
-          "event": "hasprevioustrue",
-          "to": "prevavailable"
+          "name": "prevavailable",
+          "transitions": [
+            {
+              "event": "hasnexttrue",
+              "target": "bothavailable"
+            },
+            {
+              "event": "hasnextfalse",
+              "target": "prevavailable"
+            },
+            {
+              "event": "hasprevioustrue",
+              "target": "prevavailable"
+            },
+            {
+              "event": "haspreviousfalse",
+              "target": "na"
+            },
+            {
+              "event": "previous",
+              "target": "nextavailable"
+            }
+          ]
         },
         {
-          "from": "na",
-          "event": "haspreviousfalse",
-          "to": "na"
-        },
-        {
-          "from": "nextavailable",
-          "event": "hasprevioustrue",
-          "to": "bothavailable"
-        },
-        {
-          "from": "nextavailable",
-          "event": "haspreviousfalse",
-          "to": "nextavailable"
-        },
-        {
-          "from": "nextavailable",
-          "event": "hasnexttrue",
-          "to": "nextavailable"
-        },
-        {
-          "from": "nextavailable",
-          "event": "hasnextfalse",
-          "to": "na"
-        },
-        {
-          "from": "nextavailable",
-          "event": "next",
-          "to": "prevavailable"
-        },
-        {
-          "from": "prevavailable",
-          "event": "hasnexttrue",
-          "to": "bothavailable"
-        },
-        {
-          "from": "prevavailable",
-          "event": "hasnextfalse",
-          "to": "prevavailable"
-        },
-        {
-          "from": "prevavailable",
-          "event": "hasprevioustrue",
-          "to": "prevavailable"
-        },
-        {
-          "from": "prevavailable",
-          "event": "haspreviousfalse",
-          "to": "na"
-        },
-        {
-          "from": "prevavailable",
-          "event": "previous",
-          "to": "nextavailable"
-        },
-        {
-          "from": "bothavailable",
-          "event": "hasnexttrue",
-          "to": "bothavailable"
-        },
-        {
-          "from": "bothavailable",
-          "event": "hasnextfalse",
-          "to": "prevavailable"
-        },
-        {
-          "from": "bothavailable",
-          "event": "hasprevioustrue",
-          "to": "bothavailable"
-        },
-        {
-          "from": "bothavailable",
-          "event": "haspreviousfalse",
-          "to": "nextavailable"
-        },
-        {
-          "from": "bothavailable",
-          "event": "next",
-          "to": "prevavailable"
-        },
-        {
-          "from": "bothavailable",
-          "event": "previous",
-          "to": "nextavailable"
+          "name": "bothavailable",
+          "transitions": [
+            {
+              "event": "hasnexttrue",
+              "target": "bothavailable"
+            },
+            {
+              "event": "hasnextfalse",
+              "target": "prevavailable"
+            },
+            {
+              "event": "hasprevioustrue",
+              "target": "bothavailable"
+            },
+            {
+              "event": "haspreviousfalse",
+              "target": "nextavailable"
+            },
+            {
+              "event": "next",
+              "target": "prevavailable"
+            },
+            {
+              "event": "previous",
+              "target": "nextavailable"
+            }
+          ]
         }
       ]
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.WARNING, \"ListIterator.hasNext()/hasPrevious() was not called before calling next()/previous().\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "WARNING",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "WARNING",
+            "message": "\"ListIterator.hasNext()/hasPrevious() was not called before calling next()/previous().\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

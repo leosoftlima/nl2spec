@@ -7,30 +7,129 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "clone",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object",
-            "name": "o"
-          }
-        ],
-        "pointcut_raw": "call(* Object.clone()) && !within(org.apache.xerces.dom.NodeImpl) && !within(org.apache.batik.bridge.UpdateManager) && !within(org.codehaus.janino.ScriptEvaluator) && !within(org.apache.batik.ext.awt.image.codec.png.PNGEncodeParam) && !within(org.apache.batik.ext.awt.image.spi.MagicNumberRegistryEntry) && !within(org.apache.xerces.util.XMLCatalogResolver) && target(o) && condition(o.getClass().getCanonicalName().equals(\"java.lang.Object\"))",
         "body": {
-          "raw_lines": [
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"Using the clone method on an Object instance will result in throwing an exception.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "clone",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object",
+                  "name": "o"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Object.clone()"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "within",
+                    "parameters": [
+                      {
+                        "value": "org.apache.xerces.dom.NodeImpl"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "within",
+                    "parameters": [
+                      {
+                        "value": "org.apache.batik.bridge.UpdateManager"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "within",
+                    "parameters": [
+                      {
+                        "value": "org.codehaus.janino.ScriptEvaluator"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "within",
+                    "parameters": [
+                      {
+                        "value": "org.apache.batik.ext.awt.image.codec.png.PNGEncodeParam"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "within",
+                    "parameters": [
+                      {
+                        "value": "org.apache.batik.ext.awt.image.spi.MagicNumberRegistryEntry"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "within",
+                    "parameters": [
+                      {
+                        "value": "org.apache.xerces.util.XMLCatalogResolver"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "o"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "condition",
+                    "parameters": [
+                      {
+                        "value": "o.getClass().getCanonicalName().equals(\"java.lang.Object\")"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&",
+                  "&&",
+                  "&&",
+                  "&&",
+                  "&&",
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "Using the clone method on an Object instance will result in throwing an exception."
+          }
+        ]
+      }
     }
   }
 }

@@ -110,7 +110,7 @@ def stage_llm(ctx, flags):
     stats_root = BASE_OUTPUT / "statistics"
     stats_root.mkdir(parents=True, exist_ok=True)
 
-    csv_path = stats_root / "generation_times.csv"
+    csv_path = stats_root / f"generation_times_{selection}_{provider}_{model_name}_{shot_mode}.csv"
 
     if csv_path.exists():
         log.info("Deleting previous generation_times.csv: %s", csv_path.resolve())
@@ -147,9 +147,50 @@ def stage_llm(ctx, flags):
         # PROCESS ALL PROMPTS
         # ----------------------------
         max_prompts = 300
+        allowed_specs = {
+            "BufferedInputStream_SynchronizedFill",
+            "Closeable_MultipleClose",
+            "Console_CloseReader",
+            "OutputStream_ManipulateAfterClose",
+            "Reader_ReadAheadLimit",
+            "Writer_ManipulateAfterClose",
+            "InputStream_MarkAfterClose",
+            
+            "Appendable_ThreadSafe",
+            "Math_ContendedRandom",
+            "SecurityManager_Permission",
+            "StrictMath_ContendedRandom",
+            "Thread_SetDaemonBeforeStart",
+            
+            "HttpURLConnection_SetBeforeConnect",
+            "ServerSocket_ReuseAddress",
+            "Socket_CloseInput",
+            "Socket_OutputStreamUnavailable",
+            "SocketImpl_CloseOutput",
+            "URLConnection_SetBeforeConnect",
+            "URLConnection_Connect",
+            
+            "ArrayDeque_UnsafeIterator",
+            "Collection_UnsynchronizedAddAll",
+            "Collections_SynchronizedCollection",
+            "Dictionary_Obsolete",
+            "Iterator_RemoveOnce",
+            "List_UnsynchronizedSubList",
+            "Map_CollectionViewAdd",
+            "Map_UnsynchronizedAddAll",
+            "Properties_ManipulateAfterLoad",
+            "Scanner_ManipulateAfterClose",
+            "ServiceLoaderIterator_Remove",
+
+        }
         for prompt_file in prompts_root.rglob("*.txt"):
             spec_id = prompt_file.stem
             ir_type = prompt_file.parent.name
+            
+            # só deixa passar os nomes escolhidos
+            if allowed_specs and spec_id not in allowed_specs:
+                continue
+            
             prompt = prompt_file.read_text(encoding="utf-8")
             
             domain = extract_domain_from_prompt(prompt)
@@ -268,8 +309,6 @@ def save_token_info(
             elapsed_ms
         ])
         
-import re
-
 import re
 
 def extract_domain_from_prompt(prompt: str) -> str:

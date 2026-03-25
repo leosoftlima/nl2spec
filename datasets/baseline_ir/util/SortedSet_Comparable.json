@@ -12,62 +12,143 @@
     ]
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "add",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "SortedSet",
-            "name": "s"
-          },
-          {
-            "type": "Object",
-            "name": "e"
-          }
-        ],
-        "pointcut_raw": "( call(* Collection+.add*(..)) || call(* Queue+.offer*(..)) ) && target(s) && args(e)",
         "body": {
-          "raw_lines": [
-            "\t\tif (s.comparator() == null && !(e instanceof Comparable)) {",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"A non-comparable object is being inserted into a SortedSet object.\");",
-            "\t\t}"
+          "methods": [
+            {
+              "action": "event",
+              "name": "add",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "SortedSet",
+                  "name": "s"
+                },
+                {
+                  "type": "Object",
+                  "name": "e"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Collection+.add*(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Queue+.offer*(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "s"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "e"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "||",
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       },
       {
-        "kind": "event",
         "name": "addall",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "SortedSet",
-            "name": "s"
-          },
-          {
-            "type": "Collection",
-            "name": "c"
-          }
-        ],
-        "pointcut_raw": "call(* Collection+.addAll(Collection)) && target(s) && args(c)",
         "body": {
-          "raw_lines": [
-            "\t\tfor (Object elem : c) {",
-            "\t\t\tif (s.comparator() == null && !(elem instanceof Comparable)) {",
-            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"A non-comparable object is being inserted into a SortedSet object.\");",
-            "\t\t\t}",
-            "\t\t}"
+          "methods": [
+            {
+              "action": "event",
+              "name": "addall",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "SortedSet",
+                  "name": "s"
+                },
+                {
+                  "type": "Collection",
+                  "name": "c"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Collection+.addAll(Collection)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "s"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "c"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "A non-comparable object is being inserted into a SortedSet object."
+          }
+        ]
+      }
     }
   }
 }

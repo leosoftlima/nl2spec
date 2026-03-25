@@ -12,72 +12,131 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "createWithoutThrowable",
-        "timing": "after",
-        "parameters": [],
-        "pointcut": {
-          "raw": "call(Throwable+.new()) || call(Throwable+.new(String))",
-          "calls": [
-            "Throwable+.new()",
-            "Throwable+.new(String)"
-          ]
-        },
-        "returning": {
-          "type": "Throwable",
-          "name": "t"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "createWithThrowable",
-        "timing": "after",
-        "parameters": [],
-        "pointcut": {
-          "raw": "call(Throwable+.new(String, Throwable)) || call(Throwable+.new(Throwable))",
-          "calls": [
-            "Throwable+.new(String, Throwable)",
-            "Throwable+.new(Throwable)"
-          ]
-        },
-        "returning": {
-          "type": "Throwable",
-          "name": "t"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "initCause",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Throwable",
-            "name": "t"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Throwable+.initCause(..)) && target(t)",
-          "calls": [
-            "* Throwable+.initCause(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "createWithoutThrowable",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "Throwable",
+                "name": "t"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Throwable+.new()"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Throwable+.new(String)"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "createWithThrowable",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "Throwable",
+                "name": "t"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Throwable+.new(String, Throwable)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Throwable+.new(Throwable)"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "initCause",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Throwable",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Throwable+.initCause(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "(createWithoutThrowable initCause initCause+) | (createWithThrowable initCause+)",
-      "raw_lines": [
-        "(createWithoutThrowable initCause initCause+) | (createWithThrowable initCause+)"
-      ]
+    "ere": {
+      "expression": "(createWithoutThrowable initCause initCause+) | (createWithThrowable initCause+)"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.WARNING, \"initCause should not be called more than once.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "WARNING",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "WARNING",
+            "message": "\"initCause should not be called more than once.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

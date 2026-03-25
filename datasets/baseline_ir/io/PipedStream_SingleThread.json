@@ -20,147 +20,292 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "create1",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "PipedOutputStream",
-            "name": "o"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(PipedInputStream+.new(PipedOutputStream+)) && args(o)",
-          "calls": [
-            "PipedInputStream+.new(PipedOutputStream+)"
-          ]
-        },
-        "returning": {
-          "type": "PipedInputStream",
-          "name": "i"
-        }
-      },
-      {
-        "kind": "creation",
-        "name": "create2",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "PipedInputStream",
-            "name": "i"
-          },
-          {
-            "type": "PipedOutputStream",
-            "name": "o"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* PipedInputStream+.connect(PipedOutputStream+)) && target(i) && args(o)",
-          "calls": [
-            "* PipedInputStream+.connect(PipedOutputStream+)"
-          ]
-        }
-      },
-      {
-        "kind": "creation",
-        "name": "create3",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "PipedInputStream",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(PipedOutputStream+.new(PipedInputStream+)) && args(i)",
-          "calls": [
-            "PipedOutputStream+.new(PipedInputStream+)"
-          ]
-        },
-        "returning": {
-          "type": "PipedOutputStream",
-          "name": "o"
-        }
-      },
-      {
-        "kind": "creation",
-        "name": "create4",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "PipedOutputStream",
-            "name": "o"
-          },
-          {
-            "type": "PipedInputStream",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* PipedOutputStream+.connect(PipedInputStream+)) && target(o) && args(i)",
-          "calls": [
-            "* PipedOutputStream+.connect(PipedInputStream+)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "write",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "PipedOutputStream",
-            "name": "o"
-          },
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* OutputStream+.write(..)) && target(o) && thread(t)",
-          "calls": [
-            "* OutputStream+.write(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "read",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "PipedInputStream",
-            "name": "i"
-          },
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* InputStream+.read(..)) && target(i) && thread(t)",
-          "calls": [
-            "* InputStream+.read(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "create1",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "PipedOutputStream",
+                  "name": "o"
+                }
+              ],
+              "returning": {
+                "type": "PipedInputStream",
+                "name": "i"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "PipedInputStream+.new(PipedOutputStream+)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "o"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "creation event",
+              "name": "create2",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "PipedInputStream",
+                  "name": "i"
+                },
+                {
+                  "type": "PipedOutputStream",
+                  "name": "o"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* PipedInputStream+.connect(PipedOutputStream+)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "o"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "creation event",
+              "name": "create3",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "PipedInputStream",
+                  "name": "i"
+                }
+              ],
+              "returning": {
+                "type": "PipedOutputStream",
+                "name": "o"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "PipedOutputStream+.new(PipedInputStream+)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "creation event",
+              "name": "create4",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "PipedOutputStream",
+                  "name": "o"
+                },
+                {
+                  "type": "PipedInputStream",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* PipedOutputStream+.connect(PipedInputStream+)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "o"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "write",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "PipedOutputStream",
+                  "name": "o"
+                },
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* OutputStream+.write(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "o"
+                    }
+                  ]
+                },
+                {
+                  "name": "thread",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "read",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "PipedInputStream",
+                  "name": "i"
+                },
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* InputStream+.read(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                },
+                {
+                  "name": "thread",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "(create1 | create2 | create3 | create4) (write* | read*)",
-      "raw_lines": [
-        "(create1 | create2 | create3 | create4) (write* | read*)"
-      ]
+    "ere": {
+      "expression": "(create1 | create2 | create3 | create4) (write* | read*)"
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"A single thread attempted to use both a PipedInputStream instance and a PipedOutputStream instance, which may deadlock the thread.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"A single thread attempted to use both a PipedInputStream instance and a PipedOutputStream instance, which may deadlock the thread.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

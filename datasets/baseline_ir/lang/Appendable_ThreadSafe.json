@@ -12,68 +12,164 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "safe_append",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Appendable",
-            "name": "a"
-          },
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Appendable+.append(..)) && target(a) && thread(t) && !target(StringBuffer) && condition(this.owner == null || this.owner == t)",
-          "calls": [
-            "* Appendable+.append(..)"
-          ]
-        },
         "body": {
-          "raw_lines": [
-            "this.owner = t;"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "unsafe_append",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Appendable",
-            "name": "a"
-          },
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Appendable+.append(..)) && target(a) && thread(t) && !target(StringBuffer) && condition(this.owner != null && this.owner != t)",
-          "calls": [
-            "* Appendable+.append(..)"
+          "methods": [
+            {
+              "action": "event",
+              "name": "safe_append",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Appendable",
+                  "name": "a"
+                },
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Appendable+.append(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "a"
+                    }
+                  ]
+                },
+                {
+                  "name": "thread",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "StringBuffer"
+                    }
+                  ],
+                  "negated": true
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "this.owner == null || this.owner == t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&",
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "unsafe_append",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Appendable",
+                  "name": "a"
+                },
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Appendable+.append(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "a"
+                    }
+                  ]
+                },
+                {
+                  "name": "thread",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "StringBuffer"
+                    }
+                  ],
+                  "negated": true
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "this.owner != null && this.owner != t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&",
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "safe_append*",
-      "raw_lines": [
-        "safe_append*"
-      ]
+    "ere": {
+      "expression": "safe_append*"
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"More than two threads attempted to use an Appendable instance, which may lead to a race condition\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"More than two threads attempted to use an Appendable instance, which may lead to a race condition\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

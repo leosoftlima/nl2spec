@@ -12,55 +12,118 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "mark",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Reader",
-            "name": "r"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Reader+.mark(..)) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )",
-          "calls": [
-            "* Reader+.mark(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "reset",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Reader",
-            "name": "r"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Reader+.reset(..)) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )",
-          "calls": [
-            "* Reader+.reset(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "mark",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Reader",
+                  "name": "r"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Reader+.mark(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "r"
+                    }
+                  ]
+                },
+                {
+                  "name": "if",
+                  "arguments": [
+                    {
+                      "value": "r instanceof BufferedReader ||\n\t\t\tr instanceof LineNumberReader"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "reset",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Reader",
+                  "name": "r"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Reader+.reset(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "r"
+                    }
+                  ]
+                },
+                {
+                  "name": "if",
+                  "arguments": [
+                    {
+                      "value": "r instanceof BufferedReader ||\n\t\t\tr instanceof LineNumberReader"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "mark (mark | reset)*",
-      "raw_lines": [
-        "mark (mark | reset)*"
-      ]
+    "ere": {
+      "expression": "mark (mark | reset)*"
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"BufferedReader and LineNumberReader allow reset() only after mark() has been invoked.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"BufferedReader and LineNumberReader allow reset() only after mark() has been invoked.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

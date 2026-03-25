@@ -12,77 +12,159 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "enter",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ServerSocket",
-            "name": "sock"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* ServerSocket+.accept(..)) && target(sock)",
-          "calls": [
-            "* ServerSocket+.accept(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "leave",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "ServerSocket",
-            "name": "sock"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* ServerSocket+.accept(..)) && target(sock)",
-          "calls": [
-            "* ServerSocket+.accept(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "set",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ServerSocket",
-            "name": "sock"
-          },
-          {
-            "type": "int",
-            "name": "timeout"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* ServerSocket+.setSoTimeout(int)) && target(sock) && args(timeout) && condition(timeout != 0)",
-          "calls": [
-            "* ServerSocket+.setSoTimeout(int)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "enter",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ServerSocket",
+                  "name": "sock"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* ServerSocket+.accept(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "sock"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "leave",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "ServerSocket",
+                  "name": "sock"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* ServerSocket+.accept(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "sock"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "set",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ServerSocket",
+                  "name": "sock"
+                },
+                {
+                  "type": "int",
+                  "name": "timeout"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* ServerSocket+.setSoTimeout(int)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "sock"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "timeout"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "timeout != 0"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "set* (enter leave)* set*",
-      "raw_lines": [
-        "set* (enter leave)* set*"
-      ]
+    "ere": {
+      "expression": "set* (enter leave)* set*"
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"ServerSocket.setSoTimeout() should be set prior to entering the blocking operation.\");",
-        "__RESET;"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"ServerSocket.setSoTimeout() should be set prior to entering the blocking operation.\""
+          },
+          {
+            "type": "raw",
+            "value": "__RESET;"
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

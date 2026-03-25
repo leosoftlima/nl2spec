@@ -1,30 +1,47 @@
-The following events are involved in this specification:
+This specification should use the following identifier and signature:
 
-1) Event name: init
-   Kind: creation
-   Timing: after
-   Parameters: Thread t
-   Returning: StringBuffer s
-   Pointcut: call(StringBuffer.new(..)) && thread(t)
+- id: StringBuffer_SingleThreadUsage
+- parameters: StringBuffer s
 
-2) Event name: use
-   Kind: event
-   Timing: before
-   Parameters: StringBuffer s, Thread t
-   Pointcut: call(* StringBuffer.*(..)) && target(s) && thread(t)
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
 
-3) Event name: endprogram
-   Kind: event
-   Timing: after
-   Parameters: none
-   Pointcut: endProgram()
+This property is described as an Extended Regular Expression (ERE) behavior over monitored runtime events.
 
-The required execution pattern is defined by the following regular expression:
+The monitored events involved in this property are:
+
+1) init is observed after the call as a creation event. It receives Thread t, returns StringBuffer s, and matches:
+   Top-level operators between consecutive pointcut atoms: &&
+   call(StringBuffer.new(..)) && thread(t)
+
+2) use is observed before the call as an event. It receives StringBuffer s, Thread t and matches:
+   Top-level operators between consecutive pointcut atoms: &&, &&
+   call(* StringBuffer.*(..)) && target(s) && thread(t)
+
+3) endprogram is observed after the call as an event. It receives none and matches:
+   Top-level operators between consecutive pointcut atoms: none
+   endProgram()
+
+The ERE pattern is the following:
 
 init use+ endprogram
 
-Any execution trace that does not conform to this pattern constitutes a violation.
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
 
-The violation message that must be used in the JSON output is:
+This pattern defines the forbidden behavior that must be represented in the JSON.
 
-"A StringBuffer instance is used in a single thread. You may replace it with a StringBuilder instance, which will be faster under most implementations."
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: match
+- statements:
+1) type=raw; value=if (!this.flag)
+2) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+3) type=log; level=CRITICAL; message="A StringBuffer instance is used in a single thread. You may replace it with a StringBuilder instance, which will be faster under most implementations."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "lang"
+
+Return ONLY the IR JSON.

@@ -7,32 +7,87 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "construct_port",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "int",
-            "name": "port"
-          }
-        ],
-        "pointcut_raw": "( call(ServerSocket.new(int)) || call(ServerSocket.new(int, int)) || call(ServerSocket.new(int, int, InetAddress)) ) && args(port, ..)",
         "body": {
-          "raw_lines": [
-            "\t\tif (0 <= port && port <= 65535)",
-            "\t\t\treturn;",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, \"The specified port \" + port + \" is out of range; [0 ~ 65535]\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "construct_port",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "int",
+                  "name": "port"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "ServerSocket.new(int)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "ServerSocket.new(int, int)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "ServerSocket.new(int, int, InetAddress)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "port"
+                      },
+                      {
+                        "value": ".."
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "||",
+                  "||",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The specified port \" + port + \" is out of range; [0 ~ 65535]"
+          }
+        ]
+      }
     }
   }
 }

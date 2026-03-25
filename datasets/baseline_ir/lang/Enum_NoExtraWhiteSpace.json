@@ -7,34 +7,82 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "valueOf",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Class",
-            "name": "c"
-          },
-          {
-            "type": "String",
-            "name": "name"
-          }
-        ],
-        "pointcut_raw": "call(* Enum+.valueOf(Class, String)) && args(c, name) && condition(name.length() != name.trim().length())",
         "body": {
-          "raw_lines": [
-            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, \"Please use the exact name. No extraneous whitespace characters are permitted\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "valueOf",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Class",
+                  "name": "c"
+                },
+                {
+                  "type": "String",
+                  "name": "name"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Enum+.valueOf(Class, String)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "c"
+                      },
+                      {
+                        "value": "name"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "condition",
+                    "parameters": [
+                      {
+                        "value": "name.length() != name.trim().length()"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "Please use the exact name. No extraneous whitespace characters are permitted"
+          }
+        ]
+      }
     }
   }
 }

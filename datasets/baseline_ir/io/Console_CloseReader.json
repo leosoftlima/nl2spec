@@ -12,38 +12,89 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "close",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Reader",
-            "name": "r"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Reader+.close(..)) && target(r)",
-          "calls": [
-            "* Reader+.close(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "getreader",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "Reader",
+                "name": "r"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Reader+ Console+.reader()"
+                    }
+                  ]
+                }
+              ],
+              "operation": []
+            },
+            {
+              "action": "event",
+              "name": "close",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Reader",
+                  "name": "r"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Reader+.close(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "r"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "getreader close+",
-      "raw_lines": [
-        "getreader close+"
-      ]
+    "ere": {
+      "expression": "getreader close+"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.WARNING, \"Invoking close() on the object returned by Console.reader() does not close the underlying stream.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "WARNING",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "WARNING",
+            "message": "\"Invoking close() on the object returned by Console.reader() does not close the underlying stream.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

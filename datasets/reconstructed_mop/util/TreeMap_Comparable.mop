@@ -1,0 +1,18 @@
+TreeMap_Comparable() {
+
+    event create before(Map src) :
+        call(TreeMap.new(Map)) && args(src) {
+        		validateAll(src, __DEFAULT_MESSAGE);
+        }
+
+    event put before(Object key) :
+        call(* Map+.put(Object, Object)) && args(key, ..) && target(TreeMap) {
+        		validate(key, __DEFAULT_MESSAGE);
+        }
+
+    event putall before(Map src) :
+        call(* Map+.putAll(Map)) && args(src) &&target(TreeMap) {
+        		validateAll(src, __DEFAULT_MESSAGE);
+        }
+
+}

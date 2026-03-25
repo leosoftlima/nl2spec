@@ -20,119 +20,252 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "getset",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "NavigableMap",
-            "name": "m"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(Set NavigableMap+.navigableKeySet()) || call(Set NavigableMap+.descendingKeySet()) ) && target(m)",
-          "calls": [
-            "Set NavigableMap+.navigableKeySet()",
-            "Set NavigableMap+.descendingKeySet()"
-          ]
-        },
-        "returning": {
-          "type": "Set",
-          "name": "s"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "getiter",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Set",
-            "name": "s"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(Iterator Iterable+.iterator()) && target(s)",
-          "calls": [
-            "Iterator Iterable+.iterator()"
-          ]
-        },
-        "returning": {
-          "type": "Iterator",
-          "name": "i"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "modifyMap",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "NavigableMap",
-            "name": "m"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Map+.clear*(..)) || call(* Map+.put*(..)) || call(* Map+.remove*(..)) ) && target(m)",
-          "calls": [
-            "* Map+.clear*(..)",
-            "* Map+.put*(..)",
-            "* Map+.remove*(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "modifySet",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Set",
-            "name": "s"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Collection+.add(..)) || call(* Collection+.addAll(..)) ) && target(s)",
-          "calls": [
-            "* Collection+.add(..)",
-            "* Collection+.addAll(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "useiter",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Iterator",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Iterator.hasNext(..)) || call(* Iterator.next(..)) ) && target(i)",
-          "calls": [
-            "* Iterator.hasNext(..)",
-            "* Iterator.next(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "getset",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "NavigableMap",
+                  "name": "m"
+                }
+              ],
+              "returning": {
+                "type": "Set",
+                "name": "s"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Set NavigableMap+.navigableKeySet()"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Set NavigableMap+.descendingKeySet()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "m"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "getiter",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Set",
+                  "name": "s"
+                }
+              ],
+              "returning": {
+                "type": "Iterator",
+                "name": "i"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Iterator Iterable+.iterator()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "s"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "modifyMap",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "NavigableMap",
+                  "name": "m"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Map+.clear*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Map+.put*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Map+.remove*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "m"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "modifySet",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Set",
+                  "name": "s"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.add(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.addAll(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "s"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "useiter",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Iterator",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Iterator.hasNext(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Iterator.next(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "getset (modifyMap | modifySet)* getiter useiter* (modifyMap | modifySet)+ useiter",
-      "raw_lines": [
-        "getset (modifyMap | modifySet)* getiter useiter* (modifyMap | modifySet)+ useiter"
-      ]
+    "ere": {
+      "expression": "getset (modifyMap | modifySet)* getiter useiter* (modifyMap | modifySet)+ useiter"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The NavigableMap was modified while an iteration over the set is in progress.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The NavigableMap was modified while an iteration over the set is in progress.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

@@ -1,0 +1,17 @@
+ServiceLoaderIterator_Remove(Iterator i) {
+
+    creation event create after(ServiceLoader s) returning(Iterator i) :
+        call(Iterator ServiceLoader.iterator()) && target(s) {
+        }
+
+    event remove before(Iterator i) :
+        call(* Iterator+.remove(..)) && target(i) {
+        }
+
+    ere : create remove
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "The iterator returned by ServiceLoader.iterator() does not support removal.");
+    }
+}

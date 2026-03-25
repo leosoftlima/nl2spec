@@ -1,0 +1,17 @@
+Writer_ManipulateAfterClose(Writer w) {
+
+    event manipulate before(Writer w) :
+        ( call(* Writer+.write*(..)) || call(* Writer+.flush(..)) ) && target(w) && !target(CharArrayWriter) && !target(StringWriter) {
+        }
+
+    creation event close before(Writer w) :
+        call(* Writer+.close(..)) && target(w) && !target(CharArrayWriter) && !target(StringWriter) {
+        }
+
+    ere : close+ manipulate+
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "write() or flush() was invoked after close().");
+    }
+}

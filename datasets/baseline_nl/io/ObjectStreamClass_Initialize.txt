@@ -1,27 +1,36 @@
+This specification is called ObjectStreamClass_Initialize.
+
+It should use these parameters:
+- ObjectStreamClass c
+
+Keep this name and parameter list exactly in the generated JSON.
+
 The following events are monitored:
 
-1) Event name: create
-   Timing: after
-   Parameters: none
-   Returning: ObjectStreamClass c
-   Pointcut: call(ObjectStreamClass+.new())
+create is an event observed after the call. It does not take explicit event parameters. It captures the returned value as ObjectStreamClass c. It matches: call(ObjectStreamClass+.new())
 
-2) Event name: init
-   Timing: before
-   Parameters: ObjectStreamClass c
-   Pointcut: ( call(* ObjectStreamClass+.initProxy(..)) || call(* ObjectStreamClass+.initNonProxy(..)) || call(* ObjectStreamClass+.readNonProxy(..)) ) && target(c)
+init is an event observed before the call. It takes ObjectStreamClass c as parameter. It matches: call(* ObjectStreamClass+.initProxy(..)) && call(* ObjectStreamClass+.initNonProxy(..)) && call(* ObjectStreamClass+.readNonProxy(..)) && target(c)
 
-3) Event name: endProg
-   Timing: before
-   Parameters: none
-   Pointcut: endProgram()
+endProg is an event observed before the call. It does not take explicit event parameters. It matches: endProgram()
 
-The temporal property that must hold during execution is defined by the following formula:
+The temporal property that must hold during execution is:
 
-[](create => o init)
+ltl: [](create => o init)
 
-If this temporal property is violated at any point during execution, it constitutes a violation.
+In plain language, this means:
 
-The violation message that must be used in the JSON output is:
+it must always hold that whenever create occurs, then init occurs in the next step
 
-"An ObjectStreamClass object was instantiated, but was not initialized using initProxy(), initNonProxy() or readNonProxy()"
+If this temporal property is violated during execution, the JSON output must use the following violation behavior:
+
+When the property is violation, the monitor logs __DEFAULT_MESSAGE and logs "An ObjectStreamClass object was instantiated, but was not initialized using initProxy(), initNonProxy() or readNonProxy()"
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Follow the same JSON structure used in the examples.
+Reuse the exact event names consistently.
+Do not invent new events, operators, or fields.
+
+Return ONLY the IR JSON.

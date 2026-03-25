@@ -7,32 +7,96 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "construct",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "int",
-            "name": "port"
-          }
-        ],
-        "pointcut_raw": "( call(InetSocketAddress.new(int)) || call(InetSocketAddress.new(InetAddress, int)) || call(InetSocketAddress.new(String, int)) || call(* InetSocketAddress.createUnresolved(String, int)) ) && args(.., port)",
         "body": {
-          "raw_lines": [
-            "\t\tif (0 <= port && port <= 65535)",
-            "\t\t\treturn;",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, \"The specified port \" + port + \" is out of range; [0 ~ 65535]\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "construct",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "int",
+                  "name": "port"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "InetSocketAddress.new(int)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "InetSocketAddress.new(InetAddress, int)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "InetSocketAddress.new(String, int)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* InetSocketAddress.createUnresolved(String, int)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": ".."
+                      },
+                      {
+                        "value": "port"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "||",
+                  "||",
+                  "||",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The specified port \" + port + \" is out of range; [0 ~ 65535]"
+          }
+        ]
+      }
     }
   }
 }

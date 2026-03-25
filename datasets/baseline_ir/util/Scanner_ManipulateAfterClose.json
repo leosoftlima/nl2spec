@@ -16,83 +16,243 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "create",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Closeable",
-            "name": "c"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(Scanner+.new(InputStream, ..)) || call(Scanner+.new(Readable, ..)) || call(Scanner+.new(ReadableByteChannel, ..)) ) && args(c, ..)",
-          "calls": [
-            "Scanner+.new(InputStream, ..)",
-            "Scanner+.new(Readable, ..)",
-            "Scanner+.new(ReadableByteChannel, ..)"
-          ]
-        },
-        "returning": {
-          "type": "Scanner",
-          "name": "s"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "close",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Scanner",
-            "name": "s"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Scanner+.close()) && target(s) && !args(ByteArrayInputStream) && !args(StringBufferInputStream)",
-          "calls": [
-            "* Scanner+.close()"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "manipulate",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Closeable",
-            "name": "c"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* InputStream+.read(..)) || call(* InputStream+.available(..)) || call(* InputStream+.reset(..)) || call(* InputStream+.skip(..)) || call(* Readable+.read(..)) || call(* ReadableByteChannel+.read(..)) ) && target(c) && !target(ByteArrayInputStream) && !target(StringBufferInputStream)",
-          "calls": [
-            "* InputStream+.read(..)",
-            "* InputStream+.available(..)",
-            "* InputStream+.reset(..)",
-            "* InputStream+.skip(..)",
-            "* Readable+.read(..)",
-            "* ReadableByteChannel+.read(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "create",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Closeable",
+                  "name": "c"
+                }
+              ],
+              "returning": {
+                "type": "Scanner",
+                "name": "s"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Scanner+.new(InputStream, ..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Scanner+.new(Readable, ..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Scanner+.new(ReadableByteChannel, ..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "c"
+                    },
+                    {
+                      "value": ".."
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "close",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Scanner",
+                  "name": "s"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Scanner+.close()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "s"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "ByteArrayInputStream"
+                    }
+                  ],
+                  "negated": true
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "StringBufferInputStream"
+                    }
+                  ],
+                  "negated": true
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "manipulate",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Closeable",
+                  "name": "c"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* InputStream+.read(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* InputStream+.available(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* InputStream+.reset(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* InputStream+.skip(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Readable+.read(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* ReadableByteChannel+.read(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "c"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "ByteArrayInputStream"
+                    }
+                  ],
+                  "negated": true
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "StringBufferInputStream"
+                    }
+                  ],
+                  "negated": true
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "||",
+                "||",
+                "||",
+                "&&",
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "create close+ manipulate",
-      "raw_lines": [
-        "create close+ manipulate"
-      ]
+    "ere": {
+      "expression": "create close+ manipulate"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The source stream or reader was used after the Scanner had been closed.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The source stream or reader was used after the Scanner had been closed.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

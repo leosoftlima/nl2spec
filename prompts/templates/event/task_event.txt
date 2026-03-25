@@ -7,7 +7,7 @@ The following events are monitored in this specification:
 
 {{EVENT_BLOCK}}
 
-A violation occurs when one of these monitored events is triggered under the pointcut conditions described above.
+A violation occurs when a monitored event is triggered under the pointcut conditions described above and its associated violation handler is activated.
 
 The violation message that must be used in the JSON output is:
 

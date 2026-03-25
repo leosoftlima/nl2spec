@@ -1,14 +1,21 @@
+This specification is written in the EVENT formalism.
+
+This specification is called Long_StaticFactory.
+
+
 The following events are monitored in this specification:
 
-1) Event name: constructor_create
-   Kind: event
-   Timing: after
-   Parameters: none
-   Returning: Long l
-   Pointcut: call(Long+.new(long))
+constructor_create is an event observed after the call. It captures the returned value as Long l. It matches: call(Long+.new(long)).
 
-A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+A violation occurs when a monitored event is triggered under the pointcut conditions described above and its associated violation handler is activated.
 
 The violation message that must be used in the JSON output is:
 
-"A violation must be reported when this condition occurs."
+"Using the constructor Long(long value) might be inefficient. Use valueOf(long) if it is appropriate."
+
+The generated JSON must include the field:
+
+"domain": "lang"
+
+Return ONLY the IR JSON.
+Do not include explanations, markdown, comments, or extra text.

@@ -51,7 +51,7 @@ def stage_fewshot(ctx, flags):
         for file_path in domain_dir.glob("*.json"):
 
             spec_json = json.loads(file_path.read_text(encoding="utf-8"))
-            ir_type = spec_json.get("ir", {}).get("type", "").lower()
+            ir_type = spec_json.get("formalism", {}).lower()
 
             rows_by_type.setdefault(ir_type, [])
 
@@ -98,7 +98,7 @@ def stage_fewshot(ctx, flags):
         ir_dir = results_root / ir_type
         ir_dir.mkdir(parents=True, exist_ok=True)
 
-        filename = f"{selection}_k{k}.csv"
+        filename = f"{selection}_{shot_mode}.csv"
         output_file = ir_dir / filename
 
         with open(output_file, "w", newline="", encoding="utf-8") as csvfile:

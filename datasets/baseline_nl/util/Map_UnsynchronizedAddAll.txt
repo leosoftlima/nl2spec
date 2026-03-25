@@ -1,29 +1,46 @@
-The following events are involved in this specification:
+This specification should use the following identifier and signature:
 
-1) Event name: enter
-   Kind: creation
-   Timing: before
-   Parameters: Map t, Map s
-   Pointcut: call(boolean Map+.putAll(..)) && target(t) && args(s)
+- id: Map_UnsynchronizedAddAll
+- parameters: Map t, Map s
 
-2) Event name: modify
-   Kind: event
-   Timing: before
-   Parameters: Map s
-   Pointcut: ( call(* Map+.clear(..)) || call(* Map+.put*(..)) || call(* Map+.remove*(..)) ) && target(s)
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
 
-3) Event name: leave
-   Kind: event
-   Timing: after
-   Parameters: Map t, Map s
-   Pointcut: call(void Map+.putAll(..)) && target(t) && args(s)
+This property is described as an Extended Regular Expression (ERE) behavior over monitored runtime events.
 
-The required execution pattern is defined by the following regular expression:
+The monitored events involved in this property are:
+
+1) enter is observed before the call as a creation event. It receives Map t, Map s and matches:
+   Top-level operators between consecutive pointcut atoms: &&, &&
+   call(boolean Map+.putAll(..)) && target(t) && args(s)
+
+2) modify is observed before the call as an event. It receives Map s and matches:
+   Top-level operators between consecutive pointcut atoms: ||, ||, &&
+   call(* Map+.clear(..)) || call(* Map+.put*(..)) || call(* Map+.remove*(..)) && target(s)
+
+3) leave is observed after the call as an event. It receives Map t, Map s and matches:
+   Top-level operators between consecutive pointcut atoms: &&, &&
+   call(void Map+.putAll(..)) && target(t) && args(s)
+
+The ERE pattern is the following:
 
 (enter leave modify*)*
 
-Any execution trace that does not conform to this pattern constitutes a violation.
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
 
-The violation message that must be used in the JSON output is:
+This pattern defines the forbidden behavior that must be represented in the JSON.
 
-"The source map of putAll() has been modified."
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: fail
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="The source map of putAll() has been modified."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Return ONLY the IR JSON.

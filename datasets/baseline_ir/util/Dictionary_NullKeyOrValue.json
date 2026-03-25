@@ -7,38 +7,95 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "putnull",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Dictionary",
-            "name": "d"
-          },
-          {
-            "type": "Object",
-            "name": "key"
-          },
-          {
-            "type": "Object",
-            "name": "value"
-          }
-        ],
-        "pointcut_raw": "call(* Dictionary+.put(..)) && args(key, value) && target(d) && condition(key == null || value == null)",
         "body": {
-          "raw_lines": [
-            "\t\tRVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.WARNING, \"Dictionary allow neither null key nor null value.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "putnull",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Dictionary",
+                  "name": "d"
+                },
+                {
+                  "type": "Object",
+                  "name": "key"
+                },
+                {
+                  "type": "Object",
+                  "name": "value"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Dictionary+.put(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "key"
+                      },
+                      {
+                        "value": "value"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "d"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "condition",
+                    "parameters": [
+                      {
+                        "value": "key == null || value == null"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "WARNING",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "WARNING",
+            "message": "Dictionary allow neither null key nor null value."
+          }
+        ]
+      }
     }
   }
 }

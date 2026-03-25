@@ -7,32 +7,69 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "encode",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "String",
-            "name": "enc"
-          }
-        ],
-        "pointcut_raw": "call(* URLEncoder.encode(String, String)) && args(*, enc)",
         "body": {
-          "raw_lines": [
-            "\t\tif (enc.equalsIgnoreCase(\"utf-8\") || enc.equalsIgnoreCase(\"utf8\"))",
-            "\t\t\treturn;",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, \"The used encoding '\" + enc + \"' may introduce incompatibilites.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "encode",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "String",
+                  "name": "enc"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* URLEncoder.encode(String, String)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "*"
+                      },
+                      {
+                        "value": "enc"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The used encoding '\" + enc + \"' may introduce incompatibilites."
+          }
+        ]
+      }
     }
   }
 }

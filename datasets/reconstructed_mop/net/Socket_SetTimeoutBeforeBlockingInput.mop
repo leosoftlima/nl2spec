@@ -1,0 +1,38 @@
+Socket_SetTimeoutBeforeBlockingInput(Socket sock, InputStream input) {
+
+    creation event getinput after(Socket sock) returning(InputStream input) :
+        call(InputStream Socket+.getInputStream()) && target(sock) {
+        }
+
+    event enter before(InputStream input) :
+        call(* InputStream+.read(..)) && target(input) {
+        }
+
+    event leave after(InputStream input) :
+        call(* InputStream+.read(..)) && target(input) {
+        }
+
+    event set before(Socket sock, int timeout) :
+        call(* Socket+.setSoTimeout(int)) && target(sock) && args(timeout) && condition(timeout != 0) {
+        }
+
+    fsm :
+		start [
+			getinput -> unblocked
+		]
+		unblocked [
+			getinput -> unblocked
+			set -> unblocked
+			enter -> blocked
+		]
+		blocked [
+			getinput -> blocked
+			leave -> unblocked
+		]
+
+    @fail {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "Socket.setSoTimeout() should be set prior to entering the blocking operation.");
+        __RESET;
+    }
+}

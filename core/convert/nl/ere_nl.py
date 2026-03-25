@@ -101,16 +101,21 @@ class ERENL:
                     f"{idx}) {name} is observed {timing} the call as {article} {action}. "
                     f"It receives {params}, returns {returning}, and matches:"
                 )
+                
             else:
                 lines.append(
                     f"{idx}) {name} is observed {timing} the call as {article} {action}. "
                     f"It receives {params} and matches:"
                 )
-
+            lines.append(f"   Top-level operators between consecutive pointcut atoms: {self._render_operations_inline(ev)}")
             lines.append(f"   {pointcut}")
             lines.append("")
 
         return "\n".join(lines).strip()
+    
+    def _render_operations_inline(self, ev: dict) -> str:
+        ops = ev.get("operation", []) or []
+        return ", ".join(ops) if ops else "none"
 
     def _render_pointcut(self, ev: dict) -> str:
         funcs = ev.get("function", []) or []

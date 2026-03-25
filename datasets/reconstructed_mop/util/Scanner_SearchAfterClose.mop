@@ -1,0 +1,17 @@
+Scanner_SearchAfterClose(Scanner s) {
+
+    creation event close before(Scanner s) :
+        call(* Scanner+.close(..)) && target(s) {
+        }
+
+    event search before(Scanner s) :
+        ( call(* Scanner+.find*(..)) || call(* Scanner+.has*(..)) || call(* Scanner+.match(..)) || call(* Scanner+.next*(..)) || call(* Scanner+.skip(..)) ) && target(s) {
+        }
+
+    ere : close+ search+
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "A closed Scanner object attempted to perform search operations.");
+    }
+}

@@ -12,38 +12,67 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "close",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Closeable",
-            "name": "c"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Closeable+.close(..)) && target(c)",
-          "calls": [
-            "* Closeable+.close(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "close",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Closeable",
+                  "name": "c"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Closeable+.close(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "c"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "close close+",
-      "raw_lines": [
-        "close close+"
-      ]
+    "ere": {
+      "expression": "close close+"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"close() was invoked multiple times.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"close() was invoked multiple times.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

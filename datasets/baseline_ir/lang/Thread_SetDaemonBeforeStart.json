@@ -12,53 +12,96 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "start",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut": {
-          "raw": "startThread() && thread(t)",
-          "calls": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "setDaemon",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Thread+.setDaemon(..)) && target(t)",
-          "calls": [
-            "* Thread+.setDaemon(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "start",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "startThread",
+                  "arguments": []
+                },
+                {
+                  "name": "thread",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "setDaemon",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Thread+.setDaemon(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "setDaemon* start",
-      "raw_lines": [
-        "setDaemon* start"
-      ]
+    "ere": {
+      "expression": "setDaemon* start"
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"setDaemon should not be set after the thread started\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"setDaemon should not be set after the thread started\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

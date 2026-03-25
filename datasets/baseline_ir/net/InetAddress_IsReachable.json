@@ -7,64 +7,128 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "isreachable",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "int",
-            "name": "timeout"
-          }
-        ],
-        "pointcut_raw": "call(* InetAddress+.isReachable(int)) && args(timeout)",
         "body": {
-          "raw_lines": [
-            "\t\tif (timeout < 0) {",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The timeout value for InetAddress.isReachable() should not be a negative value.\");",
-            "\t\t}"
+          "methods": [
+            {
+              "action": "event",
+              "name": "isreachable",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "int",
+                  "name": "timeout"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* InetAddress+.isReachable(int)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "timeout"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       },
       {
-        "kind": "event",
         "name": "isreachable",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "int",
-            "name": "ttl"
-          },
-          {
-            "type": "int",
-            "name": "timeout"
-          }
-        ],
-        "pointcut_raw": "call(* InetAddress+.isReachable(NetworkInterface, int, int)) && args(*, ttl, timeout)",
         "body": {
-          "raw_lines": [
-            "\t\tif (ttl < 0 || timeout < 0) {",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tif (ttl < 0 && timeout < 0) {",
-            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The ttl value and the timeout value for InetAddress.isReachable() should not be negative values.\");",
-            "\t\t\t}",
-            "\t\t\telse if (ttl < 0) {",
-            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The ttl value for InetAddress.isReachable() should not be a negative value.\");",
-            "\t\t\t}",
-            "\t\t\telse {",
-            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The timeout value for InetAddress.isReachable() should not be a negative value.\");",
-            "\t\t\t}",
-            "\t\t}"
+          "methods": [
+            {
+              "action": "event",
+              "name": "isreachable",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "int",
+                  "name": "ttl"
+                },
+                {
+                  "type": "int",
+                  "name": "timeout"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* InetAddress+.isReachable(NetworkInterface, int, int)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "*"
+                      },
+                      {
+                        "value": "ttl"
+                      },
+                      {
+                        "value": "timeout"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The timeout value for InetAddress.isReachable() should not be a negative value."
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The ttl value and the timeout value for InetAddress.isReachable() should not be negative values."
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The ttl value for InetAddress.isReachable() should not be a negative value."
+          }
+        ]
+      }
     }
   }
 }

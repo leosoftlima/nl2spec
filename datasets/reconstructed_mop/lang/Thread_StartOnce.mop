@@ -1,0 +1,13 @@
+Thread_StartOnce(Thread t) {
+
+    event start before(Thread t) :
+        call(* Thread+.start()) && target(t) {
+        }
+
+    ere : start start+
+
+    @match {
+        RVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.WARNING, "Thread should not be started more than once.");
+    }
+}

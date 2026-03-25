@@ -16,82 +16,177 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "enter",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Map",
-            "name": "t"
-          },
-          {
-            "type": "Map",
-            "name": "s"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(boolean Map+.putAll(..)) && target(t) && args(s)",
-          "calls": [
-            "boolean Map+.putAll(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "modify",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Map",
-            "name": "s"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Map+.clear(..)) || call(* Map+.put*(..)) || call(* Map+.remove*(..)) ) && target(s)",
-          "calls": [
-            "* Map+.clear(..)",
-            "* Map+.put*(..)",
-            "* Map+.remove*(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "leave",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Map",
-            "name": "t"
-          },
-          {
-            "type": "Map",
-            "name": "s"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(void Map+.putAll(..)) && target(t) && args(s)",
-          "calls": [
-            "void Map+.putAll(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "enter",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Map",
+                  "name": "t"
+                },
+                {
+                  "type": "Map",
+                  "name": "s"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "boolean Map+.putAll(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "s"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "modify",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Map",
+                  "name": "s"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Map+.clear(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Map+.put*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Map+.remove*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "s"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "leave",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Map",
+                  "name": "t"
+                },
+                {
+                  "type": "Map",
+                  "name": "s"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "void Map+.putAll(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "s"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "(enter leave modify*)*",
-      "raw_lines": [
-        "(enter leave modify*)*"
-      ]
+    "ere": {
+      "expression": "(enter leave modify*)*"
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The source map of putAll() has been modified.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The source map of putAll() has been modified.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

@@ -1,0 +1,21 @@
+StringTokenizer_HasMoreElements(StringTokenizer i) {
+
+    event hasnexttrue after(StringTokenizer i) returning(boolean b) :
+        ( call(boolean StringTokenizer.hasMoreTokens()) || call(boolean StringTokenizer.hasMoreElements()) ) && target(i) && condition(b) {
+        }
+
+    event hasnextfalse after(StringTokenizer i) returning(boolean b) :
+        ( call(boolean StringTokenizer.hasMoreTokens()) || call(boolean StringTokenizer.hasMoreElements()) ) && target(i) && condition(!b) {
+        }
+
+    event next before(StringTokenizer i) :
+        ( call(* StringTokenizer.nextToken()) || call(* StringTokenizer.nextElement()) ) && target(i) {
+        }
+
+    ltl : [](next => (*) hasnexttrue)
+
+    @violation {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "StringTokenizer.hasMoreTokens()/hasMoreElements() did not return false before calling nextToken()/nextElement().");
+    }
+}

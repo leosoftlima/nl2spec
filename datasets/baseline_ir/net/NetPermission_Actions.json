@@ -7,32 +7,69 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "construct",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "String",
-            "name": "actions"
-          }
-        ],
-        "pointcut_raw": "call(NetPermission.new(String, String)) && args(.., actions)",
         "body": {
-          "raw_lines": [
-            "\t\tif (actions != null) {",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The 'actions' value should be null.\");",
-            "\t\t}"
+          "methods": [
+            {
+              "action": "event",
+              "name": "construct",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "String",
+                  "name": "actions"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "NetPermission.new(String, String)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": ".."
+                      },
+                      {
+                        "value": "actions"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The 'actions' value should be null."
+          }
+        ]
+      }
     }
   }
 }

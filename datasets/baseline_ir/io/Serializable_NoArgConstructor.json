@@ -7,50 +7,51 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "staticinit",
-        "timing": "after",
-        "parameters": [],
-        "pointcut_raw": "staticinitialization(Serializable+)",
         "body": {
-          "raw_lines": [
-            "\t\torg.aspectj.lang.Signature initsig = __STATICSIG;",
-            "\t\tClass klass = initsig.getDeclaringType();",
-            "\t\tif (klass != null) {",
-            "\t\t\tClass nonserialzable = klass;",
-            "\t\t\twhile (Serializable.class.isAssignableFrom(nonserialzable)) {",
-            "\t\t\t\tnonserialzable = nonserialzable.getSuperclass();",
-            "\t\t\t\tif (nonserialzable == null)",
-            "\t\t\t\t\tbreak;",
-            "\t\t\t}",
-            "\t\t\tif (nonserialzable != null) {",
-            "\t\t\t\tboolean samepackage = klass.getClassLoader() == nonserialzable.getClassLoader() &&",
-            "\t\t\t\t\tgetPackageName(klass).equals(getPackageName(nonserialzable));",
-            "\t\t\t\tboolean inaccessible = true;",
-            "\t\t\t\ttry {",
-            "\t\t\t\t\tConstructor ctor = nonserialzable.getDeclaredConstructor((Class[]) null);",
-            "\t\t\t\t\tint mod = ctor.getModifiers();",
-            "\t\t\t\t\tinaccessible = (mod & Modifier.PRIVATE) != 0 ||",
-            "\t\t\t\t\t\t((mod & (Modifier.PUBLIC | Modifier.PROTECTED)) == 0 && !samepackage);",
-            "\t\t\t\t}",
-            "\t\t\t\tcatch (NoSuchMethodException e) {",
-            "\t\t\t\t}",
-            "\t\t\t\tif (inaccessible) {",
-            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The superclass of \" + klass.getName() + \" does not have an accessible no-arg constructor.\");",
-            "\t\t\t\t}",
-            "\t\t\t}",
-            "\t\t}"
+          "methods": [
+            {
+              "action": "event",
+              "name": "staticinit",
+              "timing": "after",
+              "parameters": [],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "staticinitialization",
+                    "parameters": [
+                      {
+                        "value": "Serializable+"
+                      }
+                    ]
+                  }
+                ],
+                "operation": []
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The superclass of \" + klass.getName() + \" does not have an accessible no-arg constructor."
+          }
+        ]
+      }
     }
   }
 }

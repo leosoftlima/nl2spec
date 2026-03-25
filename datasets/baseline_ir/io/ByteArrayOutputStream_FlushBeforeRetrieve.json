@@ -16,220 +16,332 @@
     ]
   },
   "ir": {
-    "type": "fsm",
     "events": [
       {
-        "kind": "creation",
-        "name": "outputstreaminit",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "ByteArrayOutputStream",
-            "name": "b"
-          }
-        ],
-        "pointcut_raw": "call(OutputStream+.new(..)) && args(b, ..)",
-        "returning": {
-          "type": "OutputStream",
-          "name": "o"
-        },
         "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "write",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "OutputStream",
-            "name": "o"
-          }
-        ],
-        "pointcut_raw": "call(* OutputStream+.write*(..)) && target(o)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "flush",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "OutputStream",
-            "name": "o"
-          }
-        ],
-        "pointcut_raw": "call(* OutputStream+.flush(..)) && target(o)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "close",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "OutputStream",
-            "name": "o"
-          }
-        ],
-        "pointcut_raw": "call(* OutputStream+.close(..)) && target(o)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "tobytearray",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ByteArrayOutputStream",
-            "name": "b"
-          }
-        ],
-        "pointcut_raw": "call(* ByteArrayOutputStream+.toByteArray(..)) && target(b)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "tostring",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ByteArrayOutputStream",
-            "name": "b"
-          }
-        ],
-        "pointcut_raw": "call(* ByteArrayOutputStream+.toString(..)) && target(b)",
-        "body": {
-          "raw_lines": []
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "outputstreaminit",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "ByteArrayOutputStream",
+                  "name": "b"
+                }
+              ],
+              "returning": {
+                "type": "OutputStream",
+                "name": "o"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "OutputStream+.new(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "b, .."
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "write",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "OutputStream",
+                  "name": "o"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "OutputStream+.write*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "o"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "flush",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "OutputStream",
+                  "name": "o"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "OutputStream+.flush(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "o"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "close",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "OutputStream",
+                  "name": "o"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "OutputStream+.close(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "o"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "tobytearray",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ByteArrayOutputStream",
+                  "name": "b"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "ByteArrayOutputStream+.toByteArray(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "b"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "tostring",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ByteArrayOutputStream",
+                  "name": "b"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "ByteArrayOutputStream+.toString(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "b"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
+          ]
         }
       }
     ],
     "fsm": {
-      "raw_block": "\t\tinitial [\n\t\t\toutputstreaminit -> outputstreamcreated\n\t\t]\n\t\toutputstreamcreated [\n\t\t\twrite -> writing\n\t\t\tflush -> flushed\n\t\t\tclose -> closed\n\t\t]\n\t\twriting [\n\t\t\twrite -> writing\n\t\t\tflush -> flushed\n\t\t\tclose -> closed\n\t\t]\n\t\tflushed [\n\t\t\tflush -> flushed\n\t\t\twrite -> writing\n\t\t\ttobytearray -> flushed\n\t\t\ttostring -> flushed\n\t\t\tclose -> closed\n\t\t]\n\t\tclosed [\n\t\t\ttobytearray -> closed\n\t\t\ttostring -> closed\n\t\t]",
-      "raw_lines": [
-        "\t\tinitial [",
-        "\t\t\toutputstreaminit -> outputstreamcreated",
-        "\t\t]",
-        "\t\toutputstreamcreated [",
-        "\t\t\twrite -> writing",
-        "\t\t\tflush -> flushed",
-        "\t\t\tclose -> closed",
-        "\t\t]",
-        "\t\twriting [",
-        "\t\t\twrite -> writing",
-        "\t\t\tflush -> flushed",
-        "\t\t\tclose -> closed",
-        "\t\t]",
-        "\t\tflushed [",
-        "\t\t\tflush -> flushed",
-        "\t\t\twrite -> writing",
-        "\t\t\ttobytearray -> flushed",
-        "\t\t\ttostring -> flushed",
-        "\t\t\tclose -> closed",
-        "\t\t]",
-        "\t\tclosed [",
-        "\t\t\ttobytearray -> closed",
-        "\t\t\ttostring -> closed",
-        "\t\t]"
-      ]
-    },
-    "analysis": {
+      "type": "fsm",
+      "initial_state": "initial",
       "states": [
-        "closed",
-        "flushed",
-        "initial",
-        "outputstreamcreated",
-        "writing"
-      ],
-      "initial": "initial",
-      "transitions": [
         {
-          "from": "initial",
-          "event": "outputstreaminit",
-          "to": "outputstreamcreated"
+          "name": "initial",
+          "transitions": [
+            {
+              "event": "outputstreaminit",
+              "target": "outputstreamcreated"
+            }
+          ]
         },
         {
-          "from": "outputstreamcreated",
-          "event": "write",
-          "to": "writing"
+          "name": "outputstreamcreated",
+          "transitions": [
+            {
+              "event": "write",
+              "target": "writing"
+            },
+            {
+              "event": "flush",
+              "target": "flushed"
+            },
+            {
+              "event": "close",
+              "target": "closed"
+            }
+          ]
         },
         {
-          "from": "outputstreamcreated",
-          "event": "flush",
-          "to": "flushed"
+          "name": "writing",
+          "transitions": [
+            {
+              "event": "write",
+              "target": "writing"
+            },
+            {
+              "event": "flush",
+              "target": "flushed"
+            },
+            {
+              "event": "close",
+              "target": "closed"
+            }
+          ]
         },
         {
-          "from": "outputstreamcreated",
-          "event": "close",
-          "to": "closed"
+          "name": "flushed",
+          "transitions": [
+            {
+              "event": "flush",
+              "target": "flushed"
+            },
+            {
+              "event": "write",
+              "target": "writing"
+            },
+            {
+              "event": "tobytearray",
+              "target": "flushed"
+            },
+            {
+              "event": "tostring",
+              "target": "flushed"
+            },
+            {
+              "event": "close",
+              "target": "closed"
+            }
+          ]
         },
         {
-          "from": "writing",
-          "event": "write",
-          "to": "writing"
-        },
-        {
-          "from": "writing",
-          "event": "flush",
-          "to": "flushed"
-        },
-        {
-          "from": "writing",
-          "event": "close",
-          "to": "closed"
-        },
-        {
-          "from": "flushed",
-          "event": "flush",
-          "to": "flushed"
-        },
-        {
-          "from": "flushed",
-          "event": "write",
-          "to": "writing"
-        },
-        {
-          "from": "flushed",
-          "event": "tobytearray",
-          "to": "flushed"
-        },
-        {
-          "from": "flushed",
-          "event": "tostring",
-          "to": "flushed"
-        },
-        {
-          "from": "flushed",
-          "event": "close",
-          "to": "closed"
-        },
-        {
-          "from": "closed",
-          "event": "tobytearray",
-          "to": "closed"
-        },
-        {
-          "from": "closed",
-          "event": "tostring",
-          "to": "closed"
+          "name": "closed",
+          "transitions": [
+            {
+              "event": "tobytearray",
+              "target": "closed"
+            },
+            {
+              "event": "tostring",
+              "target": "closed"
+            }
+          ]
         }
       ]
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"flush() or close() should be invoked before toByteArray() or toString() to get the complete contents.\" + __LOC);"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"flush() or close() should be invoked before toByteArray() or toString() to get the complete contents.\" + __LOC"
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

@@ -1,0 +1,9 @@
+Double_StaticFactory() {
+
+    event constructor_create after() returning(Double d) :
+        call(Double+.new(double)) {
+                    RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+                    RVMLogging.out.println(Level.CRITICAL, "Using the constructor Double(double value) might be inefficient. Use valueOf(double) if it is appropriate.");
+        }
+
+}

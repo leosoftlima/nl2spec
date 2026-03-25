@@ -12,38 +12,67 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "use",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Enumeration",
-            "name": "e"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Enumeration+.*(..)) && target(e)",
-          "calls": [
-            "* Enumeration+.*(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "use",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Enumeration",
+                  "name": "e"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Enumeration+.*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "e"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "use",
-      "raw_lines": [
-        "use"
-      ]
+    "ere": {
+      "expression": "use"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The Enumeration interface is obsolete. New implementations should consider using the Interface interface.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The Enumeration interface is obsolete. New implementations should consider using the Interface interface.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

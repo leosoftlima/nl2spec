@@ -1,43 +1,62 @@
-The following events are involved in this specification:
+This specification should use the following identifier and signature:
 
-1) Event name: mark
-   Kind: event
-   Timing: before
-   Parameters: Reader r, int l
-   Pointcut: call(* Reader+.mark(int)) && target(r) && args(l) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )
+- id: Reader_ReadAheadLimit
+- parameters: Reader r
 
-2) Event name: read1
-   Kind: event
-   Timing: after
-   Parameters: Reader r
-   Returning: int n
-   Pointcut: call(* Reader+.read()) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
 
-3) Event name: readn
-   Kind: event
-   Timing: after
-   Parameters: Reader r
-   Returning: int n
-   Pointcut: call(* Reader+.read(char[], ..)) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )
+This property is described as an Extended Regular Expression (ERE) behavior over monitored runtime events.
 
-4) Event name: badreset
-   Kind: event
-   Timing: before
-   Parameters: Reader r
-   Pointcut: call(* Reader+.reset(..)) && target(r) && condition(rest < 0) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )
+The monitored events involved in this property are:
 
-5) Event name: goodreset
-   Kind: event
-   Timing: before
-   Parameters: Reader r
-   Pointcut: call(* Reader+.reset(..)) && target(r) && condition(rest >= 0) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )
+1) mark is observed before the call as an event. It receives Reader r, int l and matches:
+   Top-level operators between consecutive pointcut atoms: &&, &&, &&
+   call(* Reader+.mark(int)) && target(r) && args(l) && if(r instanceof BufferedReader ||
+			r instanceof LineNumberReader)
 
-The required execution pattern is defined by the following regular expression:
+2) read1 is observed after the call as an event. It receives Reader r, returns int n, and matches:
+   Top-level operators between consecutive pointcut atoms: &&, &&
+   call(* Reader+.read()) && target(r) && if(r instanceof BufferedReader ||
+			r instanceof LineNumberReader)
+
+3) readn is observed after the call as an event. It receives Reader r, returns int n, and matches:
+   Top-level operators between consecutive pointcut atoms: &&, &&
+   call(* Reader+.read(char[], ..)) && target(r) && if(r instanceof BufferedReader ||
+			r instanceof LineNumberReader)
+
+4) badreset is observed before the call as an event. It receives Reader r and matches:
+   Top-level operators between consecutive pointcut atoms: &&, &&, &&
+   call(* Reader+.reset(..)) && target(r) && condition(rest < 0) && if(r instanceof BufferedReader ||
+			r instanceof LineNumberReader)
+
+5) goodreset is observed before the call as an event. It receives Reader r and matches:
+   Top-level operators between consecutive pointcut atoms: &&, &&, &&
+   call(* Reader+.reset(..)) && target(r) && condition(rest >= 0) && if(r instanceof BufferedReader ||
+			r instanceof LineNumberReader)
+
+The ERE pattern is the following:
 
 (mark | read1 | readn | goodreset)* badreset+
 
-Any execution trace that does not conform to this pattern constitutes a violation.
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
 
-The violation message that must be used in the JSON output is:
+This pattern defines the forbidden behavior that must be represented in the JSON.
 
-"The position mark has been invalidated."
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: match
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="The position mark has been invalidated."
+3) type=raw; value=if (this.LOC != null) {
+4) type=log; level=CRITICAL; message="read() at line " + this.LOC + " invalidated the mark."
+5) type=raw; value=}
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Return ONLY the IR JSON.

@@ -7,32 +7,66 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "set",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "int",
-            "name": "timeout"
-          }
-        ],
-        "pointcut_raw": "call(* ServerSocket+.setSoTimeout(int)) && args(timeout)",
         "body": {
-          "raw_lines": [
-            "\t\tif (timeout > 0)",
-            "\t\t\treturn;",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, \"An invalid timeout value \" + timeout + \" was set to a ServerSocket object.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "set",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "int",
+                  "name": "timeout"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* ServerSocket+.setSoTimeout(int)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "timeout"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "An invalid timeout value \" + timeout + \" was set to a ServerSocket object."
+          }
+        ]
+      }
     }
   }
 }

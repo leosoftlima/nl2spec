@@ -20,125 +20,255 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "sync",
-        "timing": "after",
-        "parameters": [],
-        "pointcut": {
-          "raw": "call(* Collections.synchronizedMap(Map)) || call(* Collections.synchronizedSortedMap(SortedMap))",
-          "calls": [
-            "* Collections.synchronizedMap(Map)",
-            "* Collections.synchronizedSortedMap(SortedMap)"
-          ]
-        },
-        "returning": {
-          "type": "Map",
-          "name": "syncMap"
-        },
         "body": {
-          "raw_lines": [
-            "this.map = syncMap;"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "createSet",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Map",
-            "name": "syncMap"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(Set Map+.keySet()) || call(Set Map+.entrySet()) || call(Collection Map+.values()) ) && target(syncMap)",
-          "calls": [
-            "Set Map+.keySet()",
-            "Set Map+.entrySet()",
-            "Collection Map+.values()"
-          ]
-        },
-        "returning": {
-          "type": "Collection",
-          "name": "col"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "syncCreateIter",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Collection",
-            "name": "col"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Collection+.iterator()) && target(col) && condition(Thread.holdsLock(map))",
-          "calls": [
-            "* Collection+.iterator()"
-          ]
-        },
-        "returning": {
-          "type": "Iterator",
-          "name": "iter"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "asyncCreateIter",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Collection",
-            "name": "col"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Collection+.iterator()) && target(col) && condition(!Thread.holdsLock(map))",
-          "calls": [
-            "* Collection+.iterator()"
-          ]
-        },
-        "returning": {
-          "type": "Iterator",
-          "name": "iter"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "accessIter",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Iterator",
-            "name": "iter"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Iterator.*(..)) && target(iter) && condition(!Thread.holdsLock(map))",
-          "calls": [
-            "* Iterator.*(..)"
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "sync",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "Map",
+                "name": "syncMap"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collections.synchronizedMap(Map)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collections.synchronizedSortedMap(SortedMap)"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "createSet",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Map",
+                  "name": "syncMap"
+                }
+              ],
+              "returning": {
+                "type": "Collection",
+                "name": "col"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Set Map+.keySet()"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Set Map+.entrySet()"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Collection Map+.values()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "syncMap"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "syncCreateIter",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Collection",
+                  "name": "col"
+                }
+              ],
+              "returning": {
+                "type": "Iterator",
+                "name": "iter"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.iterator()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "col"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "Thread.holdsLock(map)"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "asyncCreateIter",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Collection",
+                  "name": "col"
+                }
+              ],
+              "returning": {
+                "type": "Iterator",
+                "name": "iter"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.iterator()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "col"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "!Thread.holdsLock(map)"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "accessIter",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Iterator",
+                  "name": "iter"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Iterator.*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "iter"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "!Thread.holdsLock(map)"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "sync createSet (asyncCreateIter | (syncCreateIter accessIter))",
-      "raw_lines": [
-        "sync createSet (asyncCreateIter | (syncCreateIter accessIter))"
-      ]
+    "ere": {
+      "expression": "sync createSet (asyncCreateIter | (syncCreateIter accessIter))"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"A collection view of a synchronized map was accessed in a thread-unsafe manner.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"A collection view of a synchronized map was accessed in a thread-unsafe manner.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

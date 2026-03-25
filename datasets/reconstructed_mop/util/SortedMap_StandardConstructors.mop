@@ -1,0 +1,21 @@
+SortedMap_StandardConstructors() {
+
+    event staticinit after() :
+        staticinitialization(SortedMap+) {
+        		Signature initsig = __STATICSIG;
+        		Class klass = initsig.getDeclaringType();
+        		if (klass != null) {
+        			try {
+        				Constructor ctor1 = klass.getDeclaredConstructor((Class[]) null);
+        				Constructor ctor2 = klass.getDeclaredConstructor(Comparator.class);
+        				Constructor ctor3 = klass.getDeclaredConstructor(Map.class);
+        				Constructor ctor4 = klass.getDeclaredConstructor(SortedMap.class);
+        			}
+        			catch (NoSuchMethodException e) {
+        				RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        				RVMLogging.out.println(Level.CRITICAL, klass.getName() + " does not define the 'standard' SortedMap constructors.");
+        			}
+        		}
+        }
+
+}

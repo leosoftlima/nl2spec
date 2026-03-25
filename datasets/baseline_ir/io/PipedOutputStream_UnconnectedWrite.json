@@ -12,160 +12,262 @@
     ]
   },
   "ir": {
-    "type": "fsm",
     "events": [
       {
-        "kind": "creation",
-        "name": "create",
-        "timing": "after",
-        "parameters": [],
-        "pointcut_raw": "call(PipedOutputStream+.new())",
-        "returning": {
-          "type": "PipedOutputStream",
-          "name": "o"
-        },
         "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "creation",
-        "name": "create_io",
-        "timing": "after",
-        "parameters": [],
-        "pointcut_raw": "call(PipedOutputStream+.new(PipedInputStream+))",
-        "returning": {
-          "type": "PipedOutputStream",
-          "name": "o"
-        },
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "create_oi",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "PipedOutputStream",
-            "name": "o"
-          }
-        ],
-        "pointcut_raw": "call(PipedInputStream+.new(PipedOutputStream+)) && args(o)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "connect1",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "PipedOutputStream",
-            "name": "o"
-          }
-        ],
-        "pointcut_raw": "call(* PipedInputStream+.connect(PipedOutputStream+)) && args(o)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "connect2",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "PipedOutputStream",
-            "name": "o"
-          }
-        ],
-        "pointcut_raw": "call(* PipedOutputStream+.connect(PipedInputStream+)) && target(o)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "write",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "PipedOutputStream",
-            "name": "o"
-          }
-        ],
-        "pointcut_raw": "call(* PipedOutputStream+.write(..)) && target(o)",
-        "body": {
-          "raw_lines": []
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "create",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "PipedOutputStream",
+                "name": "o"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "PipedOutputStream+.new()"
+                    }
+                  ]
+                }
+              ],
+              "operation": []
+            },
+            {
+              "action": "creation event",
+              "name": "create_io",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "PipedOutputStream",
+                "name": "o"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "PipedOutputStream+.new(PipedInputStream+)"
+                    }
+                  ]
+                }
+              ],
+              "operation": []
+            },
+            {
+              "action": "event",
+              "name": "create_oi",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "PipedOutputStream",
+                  "name": "o"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "PipedInputStream+.new(PipedOutputStream+)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "o"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "connect1",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "PipedOutputStream",
+                  "name": "o"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "PipedInputStream+.connect(PipedOutputStream+)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "o"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "connect2",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "PipedOutputStream",
+                  "name": "o"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "PipedOutputStream+.connect(PipedInputStream+)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "o"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "write",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "PipedOutputStream",
+                  "name": "o"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "PipedOutputStream+.write(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "o"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
+          ]
         }
       }
     ],
     "fsm": {
-      "raw_block": "\t\tinitial [\n\t\t\tcreate -> unconnected\n\t\t\tcreate_io -> connected\n\t\t]\n\t\tunconnected [\n\t\t\tcreate_oi -> connected\n\t\t\tconnect1 -> connected\n\t\t\tconnect2 -> connected\n\t\t]\n\t\tconnected [\n\t\t\twrite -> connected\n\t\t]",
-      "raw_lines": [
-        "\t\tinitial [",
-        "\t\t\tcreate -> unconnected",
-        "\t\t\tcreate_io -> connected",
-        "\t\t]",
-        "\t\tunconnected [",
-        "\t\t\tcreate_oi -> connected",
-        "\t\t\tconnect1 -> connected",
-        "\t\t\tconnect2 -> connected",
-        "\t\t]",
-        "\t\tconnected [",
-        "\t\t\twrite -> connected",
-        "\t\t]"
-      ]
-    },
-    "analysis": {
+      "type": "fsm",
+      "initial_state": "initial",
       "states": [
-        "connected",
-        "initial",
-        "unconnected"
-      ],
-      "initial": "initial",
-      "transitions": [
         {
-          "from": "initial",
-          "event": "create",
-          "to": "unconnected"
+          "name": "initial",
+          "transitions": [
+            {
+              "event": "create",
+              "target": "unconnected"
+            },
+            {
+              "event": "create_io",
+              "target": "connected"
+            }
+          ]
         },
         {
-          "from": "initial",
-          "event": "create_io",
-          "to": "connected"
+          "name": "unconnected",
+          "transitions": [
+            {
+              "event": "create_oi",
+              "target": "connected"
+            },
+            {
+              "event": "connect1",
+              "target": "connected"
+            },
+            {
+              "event": "connect2",
+              "target": "connected"
+            }
+          ]
         },
         {
-          "from": "unconnected",
-          "event": "create_oi",
-          "to": "connected"
-        },
-        {
-          "from": "unconnected",
-          "event": "connect1",
-          "to": "connected"
-        },
-        {
-          "from": "unconnected",
-          "event": "connect2",
-          "to": "connected"
-        },
-        {
-          "from": "connected",
-          "event": "write",
-          "to": "connected"
+          "name": "connected",
+          "transitions": [
+            {
+              "event": "write",
+              "target": "connected"
+            }
+          ]
         }
       ]
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"An unconnected PipedOutputStream performed write() operation.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"An unconnected PipedOutputStream performed write() operation.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

@@ -1,0 +1,29 @@
+Map_UnsafeIterator(Map m, Collection c, Iterator i) {
+
+    creation event getset after(Map m) returning(Collection c) :
+        ( call(Set Map+.keySet()) || call(Set Map+.entrySet()) || call(Collection Map+.values()) ) && target(m) {
+        }
+
+    event getiter after(Collection c) returning(Iterator i) :
+        call(Iterator Iterable+.iterator()) && target(c) {
+        }
+
+    event modifyMap before(Map m) :
+        ( call(* Map+.clear*(..)) || call(* Map+.put*(..)) || call(* Map+.remove(..)) ) && target(m) {
+        }
+
+    event modifyCol before(Collection c) :
+        ( call(* Collection+.clear(..)) || call(* Collection+.offer*(..)) || call(* Collection+.pop(..)) || call(* Collection+.push(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(c) {
+        }
+
+    event useiter before(Iterator i) :
+        ( call(* Iterator.hasNext(..)) || call(* Iterator.next(..)) ) && target(i) {
+        }
+
+    ere : getset (modifyMap | modifyCol)* getiter useiter* (modifyMap | modifyCol)+ useiter
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "The map was modified while an iteration over the set is in progress.");
+    }
+}

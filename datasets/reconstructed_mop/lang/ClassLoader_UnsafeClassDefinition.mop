@@ -1,0 +1,9 @@
+ClassLoader_UnsafeClassDefinition() {
+
+    event defineClass before(String name) :
+        call(* ClassLoader+.defineClass(String, ..)) && args(name, ..) && condition(name.startsWith("java.")) {
+        			RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        			RVMLogging.out.println(Level.CRITICAL, "An invalid binary name is used");
+        }
+
+}

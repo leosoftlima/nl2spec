@@ -7,63 +7,171 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "create",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Map",
-            "name": "src"
-          }
-        ],
-        "pointcut_raw": "call(TreeMap.new(Map)) && args(src)",
         "body": {
-          "raw_lines": [
-            "\t\tvalidateAll(src, __DEFAULT_MESSAGE);"
+          "methods": [
+            {
+              "action": "event",
+              "name": "create",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Map",
+                  "name": "src"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "TreeMap.new(Map)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "src"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       },
       {
-        "kind": "event",
         "name": "put",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object",
-            "name": "key"
-          }
-        ],
-        "pointcut_raw": "call(* Map+.put(Object, Object)) && args(key, ..) && target(TreeMap)",
         "body": {
-          "raw_lines": [
-            "\t\tvalidate(key, __DEFAULT_MESSAGE);"
+          "methods": [
+            {
+              "action": "event",
+              "name": "put",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object",
+                  "name": "key"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Map+.put(Object, Object)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "key"
+                      },
+                      {
+                        "value": ".."
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "TreeMap"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       },
       {
-        "kind": "event",
         "name": "putall",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Map",
-            "name": "src"
-          }
-        ],
-        "pointcut_raw": "call(* Map+.putAll(Map)) && args(src) &&target(TreeMap)",
         "body": {
-          "raw_lines": [
-            "\t\tvalidateAll(src, __DEFAULT_MESSAGE);"
+          "methods": [
+            {
+              "action": "event",
+              "name": "putall",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Map",
+                  "name": "src"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Map+.putAll(Map)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "src"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "TreeMap"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "msg"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "A non-comparable object is being inserted into a TreeMap object."
+          }
+        ]
+      }
     }
   }
 }

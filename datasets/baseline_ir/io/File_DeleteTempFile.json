@@ -3,6 +3,7 @@
   "formalism": "ltl",
   "domain": "io",
   "signature": {
+    "name": "File_DeleteTempFile",
     "parameters": [
       {
         "type": "File",
@@ -11,83 +12,157 @@
     ]
   },
   "ir": {
-    "type": "ltl",
     "events": [
       {
-        "name": "explicit",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "File",
-            "name": "f"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* File+.delete(..)) && target(f)",
-          "joinpoints": [
+        "body": {
+          "methods": [
             {
-              "kind": "call",
-              "pattern": "* File+.delete(..)",
-              "simple": "delete(..)",
-              "declaring_type": "File+"
+              "action": "event",
+              "name": "create",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "File",
+                "name": "f"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "File+ File.createTempFile(..)"
+                    }
+                  ]
+                }
+              ],
+              "operation": []
             }
-          ],
-          "bindings": [
-            {
-              "type": "target",
-              "variable": "f"
-            }
-          ],
-          "exclusions": []
+          ]
         }
       },
       {
-        "name": "implicit",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "File",
-            "name": "f"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* File+.deleteOnExit(..)) && target(f)",
-          "joinpoints": [
+        "body": {
+          "methods": [
             {
-              "kind": "call",
-              "pattern": "* File+.deleteOnExit(..)",
-              "simple": "deleteOnExit(..)",
-              "declaring_type": "File+"
+              "action": "event",
+              "name": "explicit",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "File",
+                  "name": "f"
+                }
+              ],
+              "returning": null,
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "* File+.delete(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "f"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
             }
-          ],
-          "bindings": [
-            {
-              "type": "target",
-              "variable": "f"
-            }
-          ],
-          "exclusions": []
+          ]
         }
       },
       {
-        "name": "endProg",
-        "timing": "before",
-        "parameters": [],
-        "pointcut": {
-          "raw": "endProgram()",
-          "joinpoints": [],
-          "bindings": [],
-          "exclusions": []
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "implicit",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "File",
+                  "name": "f"
+                }
+              ],
+              "returning": null,
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "* File+.deleteOnExit(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "f"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "endProg",
+              "timing": "before",
+              "parameters": [],
+              "returning": null,
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "endProgram",
+                  "parameters": []
+                }
+              ],
+              "operation": []
+            }
+          ]
         }
       }
     ],
-    "formula": {
-      "raw": "[](create => o (explicit or implicit))"
+    "ltl": {
+      "name": "ltl",
+      "value": "[](create => o (explicit or implicit))"
     },
     "violation": {
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"A temporary file has not been deleted.\");"
+      "tag": "violation",
+      "statements": [
+        {
+          "type": "log",
+          "value": "__DEFAULT_MESSAGE"
+        },
+        {
+          "type": "log",
+          "value": "\"A temporary file has not been deleted.\""
+        }
       ]
     }
   }

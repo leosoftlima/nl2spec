@@ -7,34 +7,51 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "staticinit",
-        "timing": "after",
-        "parameters": [],
-        "pointcut_raw": "staticinitialization(Random+)",
         "body": {
-          "raw_lines": [
-            "\t\tSignature initsig = __STATICSIG;",
-            "\t\tClass klass = initsig.getDeclaringType();",
-            "\t\tif (klass != null) {",
-            "\t\t\ttry {",
-            "\t\t\t\tMethod nextmethod = klass.getDeclaredMethod(\"next\", Integer.class);",
-            "\t\t\t}",
-            "\t\t\tcatch (NoSuchMethodException e) {",
-            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\t\tRVMLogging.out.println(Level.CRITICAL, klass.getName() + \" does not override int next(int bits).\");",
-            "\t\t\t}",
-            "\t\t}"
+          "methods": [
+            {
+              "action": "event",
+              "name": "staticinit",
+              "timing": "after",
+              "parameters": [],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "staticinitialization",
+                    "parameters": [
+                      {
+                        "value": "Random+"
+                      }
+                    ]
+                  }
+                ],
+                "operation": []
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "klass.getName() + \" does not override int next(int bits).\""
+          }
+        ]
+      }
     }
   }
 }

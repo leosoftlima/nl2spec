@@ -1,23 +1,44 @@
-The following events are involved in this specification:
+This specification should use the following identifier and signature:
 
-1) Event name: mark
-   Kind: event
-   Timing: before
-   Parameters: Reader r
-   Pointcut: call(* Reader+.mark(..)) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )
+- id: Reader_UnmarkedReset
+- parameters: Reader r
 
-2) Event name: reset
-   Kind: event
-   Timing: before
-   Parameters: Reader r
-   Pointcut: call(* Reader+.reset(..)) && target(r) && if ( r instanceof BufferedReader || r instanceof LineNumberReader )
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
 
-The required execution pattern is defined by the following regular expression:
+This property is described as an Extended Regular Expression (ERE) behavior over monitored runtime events.
+
+The monitored events involved in this property are:
+
+1) mark is observed before the call as an event. It receives Reader r and matches:
+   Top-level operators between consecutive pointcut atoms: &&, &&
+   call(* Reader+.mark(..)) && target(r) && if(r instanceof BufferedReader ||
+			r instanceof LineNumberReader)
+
+2) reset is observed before the call as an event. It receives Reader r and matches:
+   Top-level operators between consecutive pointcut atoms: &&, &&
+   call(* Reader+.reset(..)) && target(r) && if(r instanceof BufferedReader ||
+			r instanceof LineNumberReader)
+
+The ERE pattern is the following:
 
 mark (mark | reset)*
 
-Any execution trace that does not conform to this pattern constitutes a violation.
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
 
-The violation message that must be used in the JSON output is:
+This pattern defines the forbidden behavior that must be represented in the JSON.
 
-"BufferedReader and LineNumberReader allow reset() only after mark() has been invoked."
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: fail
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="BufferedReader and LineNumberReader allow reset() only after mark() has been invoked."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Return ONLY the IR JSON.

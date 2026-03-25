@@ -7,48 +7,140 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "bad_notify",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object",
-            "name": "o"
-          }
-        ],
-        "pointcut_raw": "(call(* Object+.notify(..)) || call(* Object+.notifyAll(..)))&& target(o) && if(!Thread.holdsLock(o))",
         "body": {
-          "raw_lines": [
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"notify() and notifyAll() can be called only by the owner of this object's monitor.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "bad_notify",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object",
+                  "name": "o"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Object+.notify(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Object+.notifyAll(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "o"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "if",
+                    "parameters": [
+                      {
+                        "value": "!Thread.holdsLock(o)"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "||",
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       },
       {
-        "kind": "event",
         "name": "bad_wait",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object",
-            "name": "o"
-          }
-        ],
-        "pointcut_raw": "call(* Object+.wait(..)) && target(o) && if(!Thread.holdsLock(o))",
         "body": {
-          "raw_lines": [
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"wait() can be called only by the owner of this object's monitor.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "bad_wait",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object",
+                  "name": "o"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Object+.wait(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "o"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "if",
+                    "parameters": [
+                      {
+                        "value": "!Thread.holdsLock(o)"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "notify() and notifyAll() can be called only by the owner of this object's monitor."
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "wait() can be called only by the owner of this object's monitor."
+          }
+        ]
+      }
     }
   }
 }

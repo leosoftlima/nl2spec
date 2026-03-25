@@ -7,54 +7,131 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "invalid_sort",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "List",
-            "name": "list"
-          },
-          {
-            "type": "Comparator",
-            "name": "comp"
-          }
-        ],
-        "pointcut_raw": "call(void Collections.sort(List, Comparator)) && args(list, comp)",
         "body": {
-          "raw_lines": [
-            "\t\tthis.validate(list.toArray(), comp, __DEFAULT_MESSAGE);"
+          "methods": [
+            {
+              "action": "event",
+              "name": "invalid_sort",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "List",
+                  "name": "list"
+                },
+                {
+                  "type": "Comparator",
+                  "name": "comp"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "void Collections.sort(List, Comparator)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "list"
+                      },
+                      {
+                        "value": "comp"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       },
       {
-        "kind": "event",
         "name": "invalid_minmax",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Collection",
-            "name": "col"
-          },
-          {
-            "type": "Comparator",
-            "name": "comp"
-          }
-        ],
-        "pointcut_raw": "( call(* Collections.min(Collection, Comparator)) || call(* Collections.max(Collection, Comparator)) ) && args(col, comp)",
         "body": {
-          "raw_lines": [
-            "\t\tthis.validate(col.toArray(), comp, __DEFAULT_MESSAGE);"
+          "methods": [
+            {
+              "action": "event",
+              "name": "invalid_minmax",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Collection",
+                  "name": "col"
+                },
+                {
+                  "type": "Comparator",
+                  "name": "comp"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Collections.min(Collection, Comparator)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Collections.max(Collection, Comparator)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "col"
+                      },
+                      {
+                        "value": "comp"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "||",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "msg"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "i + \"-th element and \" + j + \"-th element are not comparable.\""
+          }
+        ]
+      }
     }
   }
 }

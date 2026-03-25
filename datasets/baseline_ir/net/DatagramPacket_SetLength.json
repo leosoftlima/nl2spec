@@ -7,38 +7,79 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "setlength",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "DatagramPacket",
-            "name": "packet"
-          },
-          {
-            "type": "int",
-            "name": "length"
-          }
-        ],
-        "pointcut_raw": "call(void DatagramPacket.setLength(int)) && target(packet) && args(length)",
         "body": {
-          "raw_lines": [
-            "\t\tint offset = packet.getOffset();",
-            "\t\tbyte[] buffer = packet.getData();",
-            "\t\tif (length + offset <= buffer.length)",
-            "\t\t\treturn;",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, \"The length argument is out of range; \" + offset + \" + \" + length + \" > \" + buffer.length);"
+          "methods": [
+            {
+              "action": "event",
+              "name": "setlength",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "DatagramPacket",
+                  "name": "packet"
+                },
+                {
+                  "type": "int",
+                  "name": "length"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "void DatagramPacket.setLength(int)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "target",
+                    "parameters": [
+                      {
+                        "value": "packet"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "length"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The length argument is out of range; \" + offset + \" + \" + length + \" > \" + buffer.length"
+          }
+        ]
+      }
     }
   }
 }

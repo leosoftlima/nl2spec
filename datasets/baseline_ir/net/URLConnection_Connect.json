@@ -12,66 +12,199 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "explicit",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "URLConnection",
-            "name": "c"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* URLConnection+.connect(..)) && target(c)",
-          "calls": [
-            "* URLConnection+.connect(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "implicit",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "URLConnection",
-            "name": "c"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* URLConnection+.getContent(..)) || call(* URLConnection+.getContentEncoding(..)) || call(* URLConnection+.getContentLength(..)) || call(* URLConnection+.getContentType(..)) || call(* URLConnection+.getDate(..)) || call(* URLConnection+.getExpiration(..)) || call(* URLConnection+.getHeaderField(..)) || call(* URLConnection+.getHeaderFieldInt(..)) || call(* URLConnection+.getHeaderFields(..)) || call(* URLConnection+.getInputStream(..)) || call(* URLConnection+.getLastModified(..)) || call(* URLConnection+.getOutputStream(..)) ) && target(c)",
-          "calls": [
-            "* URLConnection+.getContent(..)",
-            "* URLConnection+.getContentEncoding(..)",
-            "* URLConnection+.getContentLength(..)",
-            "* URLConnection+.getContentType(..)",
-            "* URLConnection+.getDate(..)",
-            "* URLConnection+.getExpiration(..)",
-            "* URLConnection+.getHeaderField(..)",
-            "* URLConnection+.getHeaderFieldInt(..)",
-            "* URLConnection+.getHeaderFields(..)",
-            "* URLConnection+.getInputStream(..)",
-            "* URLConnection+.getLastModified(..)",
-            "* URLConnection+.getOutputStream(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "explicit",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "URLConnection",
+                  "name": "c"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* URLConnection+.connect(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "c"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "implicit",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "URLConnection",
+                  "name": "c"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* URLConnection+.getContent(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* URLConnection+.getContentEncoding(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* URLConnection+.getContentLength(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* URLConnection+.getContentType(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* URLConnection+.getDate(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* URLConnection+.getExpiration(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* URLConnection+.getHeaderField(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* URLConnection+.getHeaderFieldInt(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* URLConnection+.getHeaderFields(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* URLConnection+.getInputStream(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* URLConnection+.getLastModified(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* URLConnection+.getOutputStream(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "c"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "||",
+                "||",
+                "||",
+                "||",
+                "||",
+                "||",
+                "||",
+                "||",
+                "||",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "(explicit | implicit) explicit+",
-      "raw_lines": [
-        "(explicit | implicit) explicit+"
-      ]
+    "ere": {
+      "expression": "(explicit | implicit) explicit+"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"URLConnection.connect() has been called multiple twice.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"URLConnection.connect() has been called multiple twice.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

@@ -1,0 +1,17 @@
+URLConnection_Connect(URLConnection c) {
+
+    event explicit before(URLConnection c) :
+        call(* URLConnection+.connect(..)) && target(c) {
+        }
+
+    event implicit before(URLConnection c) :
+        ( call(* URLConnection+.getContent(..)) || call(* URLConnection+.getContentEncoding(..)) || call(* URLConnection+.getContentLength(..)) || call(* URLConnection+.getContentType(..)) || call(* URLConnection+.getDate(..)) || call(* URLConnection+.getExpiration(..)) || call(* URLConnection+.getHeaderField(..)) || call(* URLConnection+.getHeaderFieldInt(..)) || call(* URLConnection+.getHeaderFields(..)) || call(* URLConnection+.getInputStream(..)) || call(* URLConnection+.getLastModified(..)) || call(* URLConnection+.getOutputStream(..)) ) && target(c) {
+        }
+
+    ere : (explicit | implicit) explicit+
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "URLConnection.connect() has been called multiple twice.");
+    }
+}

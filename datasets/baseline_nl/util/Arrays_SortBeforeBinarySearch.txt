@@ -1,83 +1,64 @@
-The system behavior is defined in terms of explicit states and transitions.
+This specification should use the following name and parameters:
 
-The monitored events are:
+- name: Arrays_SortBeforeBinarySearch
+- parameters: Object[] arr
 
-1) Event name: sort1
-   Kind: event
-   Timing: before
-   Parameters: Object[] arr
-   Pointcut: call(void Arrays.sort(Object[])) && args(arr)
+Use this exact name consistently throughout the generated JSON.
+Keep the parameter list exactly as shown.
 
-2) Event name: sort1
-   Kind: event
-   Timing: before
-   Parameters: Object[] arr, int from, int to
-   Pointcut: call(void Arrays.sort(Object[], int, int)) && args(arr, from, to)
+This property is described as a finite-state behavior with explicit states and transitions.
 
-3) Event name: sort2
-   Kind: event
-   Timing: before
-   Parameters: Object[] arr, Comparator comp2
-   Pointcut: call(void Arrays.sort(Object[], Comparator)) && args(arr, comp2)
+The monitored events involved in this property are:
 
-4) Event name: sort2
-   Kind: event
-   Timing: before
-   Parameters: Object[] arr, int from, int to, Comparator comp2
-   Pointcut: call(void Arrays.sort(Object[], int, int, Comparator)) && args(arr, from, to, comp2)
+1) sort1 is a event observed before the call. It takes Object[] arr as parameter and matches:
+   call(void Arrays.sort(Object[])) && args(arr)
 
-5) Event name: modify
-   Kind: event
-   Timing: before
-   Parameters: Object[] arr
-   Pointcut: set(Object[] *) && args(arr)
+2) sort1 is a event observed before the call. It takes Object[] arr, int from, int to as parameter and matches:
+   call(void Arrays.sort(Object[], int, int)) && args(arr, from, to)
 
-6) Event name: bsearch1
-   Kind: event
-   Timing: before
-   Parameters: Object[] arr
-   Pointcut: call(int Arrays.binarySearch(Object[], Object)) && args(arr, ..) && condition(this.fromIndex <= 0 && arr.length <= this.toIndex)
+3) sort2 is a event observed before the call. It takes Object[] arr, Comparator comp2 as parameter and matches:
+   call(void Arrays.sort(Object[], Comparator)) && args(arr, comp2)
 
-7) Event name: bsearch1
-   Kind: event
-   Timing: before
-   Parameters: Object[] arr, int from, int to
-   Pointcut: call(int Arrays.binarySearch(Object[], int, int, Object)) && args(arr, from, to, ..) && condition(this.fromIndex <= from && to <= this.toIndex)
+4) sort2 is a event observed before the call. It takes Object[] arr, int from, int to, Comparator comp2 as parameter and matches:
+   call(void Arrays.sort(Object[], int, int, Comparator)) && args(arr, from, to, comp2)
 
-8) Event name: bsearch2
-   Kind: event
-   Timing: before
-   Parameters: Object[] arr, Comparator comp2
-   Pointcut: call(int Arrays.binarySearch(Object[], Object, Comparator)) && args(arr, .., comp2) && condition(this.fromIndex <= 0 && arr.length <= this.toIndex && this.comp == comp2)
+5) modify is a event observed before the call. It takes Object[] arr as parameter and matches:
+   set(Object[] *) && args(arr)
 
-9) Event name: bsearch2
-   Kind: event
-   Timing: before
-   Parameters: Object[] arr, int from, int to, Comparator comp2
-   Pointcut: call(int Arrays.binarySearch(Object[], int, int, Object, Comparator)) && args(arr, from, to, .., comp2) && condition(this.fromIndex <= from && to <= this.toIndex && this.comp == comp2)
+6) bsearch1 is a event observed before the call. It takes Object[] arr as parameter and matches:
+   call(int Arrays.binarySearch(Object[], Object)) && args(arr, ..) && condition(this.fromIndex <= 0 && arr.length <= this.toIndex)
 
-The finite state behavior is defined as follows:
+7) bsearch1 is a event observed before the call. It takes Object[] arr, int from, int to as parameter and matches:
+   call(int Arrays.binarySearch(Object[], int, int, Object)) && args(arr, from, to, ..) && condition(this.fromIndex <= from && to <= this.toIndex)
 
-		unsorted [
-			sort1 -> sorted1
-			sort2 -> sorted2
-			modify -> unsorted
-		]
-		sorted1 [
-			sort1 -> sorted1
-			sort2 -> sorted2
-			modify -> unsorted
-			bsearch1 -> sorted1
-		]
-		sorted2 [
-			sort1 -> sorted1
-			sort2 -> sorted2
-			modify -> unsorted
-			bsearch2 -> sorted2
-		]
+8) bsearch2 is a event observed before the call. It takes Object[] arr, Comparator comp2 as parameter and matches:
+   call(int Arrays.binarySearch(Object[], Object, Comparator)) && args(arr, .., comp2) && condition(this.fromIndex <= 0 && arr.length <= this.toIndex && this.comp == comp2)
 
-Any execution that deviates from the state transition behavior described above constitutes a violation.
+9) bsearch2 is a event observed before the call. It takes Object[] arr, int from, int to, Comparator comp2 as parameter and matches:
+   call(int Arrays.binarySearch(Object[], int, int, Object, Comparator)) && args(arr, from, to, .., comp2) && condition(this.fromIndex <= from && to <= this.toIndex && this.comp == comp2)
 
-The violation message that must be used in the JSON output is:
+The FSM structure is the following:
+
+The execution begins in the state unsorted.
+
+From unsorted, sort1 moves it to sorted1, sort2 moves it to sorted2, and modify keeps it in unsorted.
+
+When the monitor is in sorted1, sort1 keeps it in sorted1, sort2 moves it to sorted2, modify moves it to unsorted, and bsearch1 keeps it in sorted1.
+
+When the monitor is in sorted2, sort1 moves it to sorted1, sort2 keeps it in sorted2, modify moves it to unsorted, and bsearch2 keeps it in sorted2.
+
+In plain terms, this property means:
+
+The monitored execution starts in the state 'unsorted'. The property distinguishes the following states: unsorted, sorted1, sorted2. The behavior evolves through the occurrence of these events: sort1, sort1, sort2, sort2, modify, bsearch1, bsearch1, bsearch2, bsearch2. The property describes a protocol that must be respected; violating the expected transition behavior should trigger a failure. Semantically, the monitored rule is about the following condition: The array or part of the array must be sorted prior to making binarySearch() call.
+
+Any execution that does not follow this transition behavior, or that reaches an invalid behavior according to the rule below, must be treated as a violation.
+
+The violation message that must appear in the JSON output is:
 
 "The array or part of the array must be sorted prior to making binarySearch() call."
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Return ONLY the IR JSON.

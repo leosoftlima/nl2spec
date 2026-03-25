@@ -3,6 +3,7 @@
   "formalism": "ltl",
   "domain": "io",
   "signature": {
+    "name": "ObjectInput_Close",
     "parameters": [
       {
         "type": "ObjectInput",
@@ -11,77 +12,115 @@
     ]
   },
   "ir": {
-    "type": "ltl",
     "events": [
       {
-        "name": "create",
-        "timing": "after",
-        "parameters": [],
-        "pointcut": {
-          "raw": "call(ObjectInput+.new(..))",
-          "joinpoints": [
+        "body": {
+          "methods": [
             {
-              "kind": "call",
-              "pattern": "ObjectInput+.new(..)",
-              "simple": "new(..)",
-              "declaring_type": "ObjectInput+"
+              "action": "event",
+              "name": "create",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "ObjectInput",
+                "name": "i"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "ObjectInput+.new(..)"
+                    }
+                  ]
+                }
+              ],
+              "operation": []
             }
-          ],
-          "bindings": [],
-          "exclusions": []
-        },
-        "returning": {
-          "type": "ObjectInput",
-          "name": "i"
+          ]
         }
       },
       {
-        "name": "close",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ObjectInput",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* ObjectInput+.close(..)) && target(i)",
-          "joinpoints": [
+        "body": {
+          "methods": [
             {
-              "kind": "call",
-              "pattern": "* ObjectInput+.close(..)",
-              "simple": "close(..)",
-              "declaring_type": "ObjectInput+"
+              "action": "event",
+              "name": "close",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ObjectInput",
+                  "name": "i"
+                }
+              ],
+              "returning": null,
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "* ObjectInput+.close(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
             }
-          ],
-          "bindings": [
-            {
-              "type": "target",
-              "variable": "i"
-            }
-          ],
-          "exclusions": []
+          ]
         }
       },
       {
-        "name": "endProg",
-        "timing": "before",
-        "parameters": [],
-        "pointcut": {
-          "raw": "endProgram()",
-          "joinpoints": [],
-          "bindings": [],
-          "exclusions": []
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "endProg",
+              "timing": "before",
+              "parameters": [],
+              "returning": null,
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "endProgram",
+                  "parameters": []
+                }
+              ],
+              "operation": []
+            }
+          ]
         }
       }
     ],
-    "formula": {
-      "raw": "[](create => o close)"
+    "ltl": {
+      "name": "ltl",
+      "value": "[](create => o close)"
     },
     "violation": {
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"close() was not called.\");"
+      "tag": "violation",
+      "statements": [
+        {
+          "type": "log",
+          "value": "__DEFAULT_MESSAGE"
+        },
+        {
+          "type": "log",
+          "value": "\"close() was not called.\""
+        }
       ]
     }
   }

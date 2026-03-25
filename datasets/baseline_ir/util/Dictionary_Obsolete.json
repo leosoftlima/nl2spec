@@ -12,38 +12,67 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "use",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Dictionary",
-            "name": "d"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Dictionary+.*(..)) && target(d)",
-          "calls": [
-            "* Dictionary+.*(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "use",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Dictionary",
+                  "name": "d"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Dictionary+.*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "d"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "use",
-      "raw_lines": [
-        "use"
-      ]
+    "ere": {
+      "expression": "use"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The Dictionary class is obsolete. New implementations should implement the Map interface.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The Dictionary class is obsolete. New implementations should implement the Map interface.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

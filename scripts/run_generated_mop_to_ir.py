@@ -13,7 +13,7 @@ from core.convert.mop_to_ir import convert_mop_file_to_ir, detect_formalism
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-MOP_ROOT = PROJECT_ROOT / "datasets" / "raw_mop"
+MOP_ROOT = PROJECT_ROOT / "datasets" / "dataset_mop"
 OUT_ROOT = PROJECT_ROOT / "datasets" / "baseline_ir_temp"
 
 

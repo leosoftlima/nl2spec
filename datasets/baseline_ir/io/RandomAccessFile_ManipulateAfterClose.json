@@ -12,56 +12,109 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "manipulate",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "RandomAccessFile",
-            "name": "f"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* RandomAccessFile+.read*(..)) || call(* RandomAccessFile+.write*(..)) ) && target(f)",
-          "calls": [
-            "* RandomAccessFile+.read*(..)",
-            "* RandomAccessFile+.write*(..)"
-          ]
-        }
-      },
-      {
-        "kind": "creation",
-        "name": "close",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "RandomAccessFile",
-            "name": "f"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* RandomAccessFile+.close(..)) && target(f)",
-          "calls": [
-            "* RandomAccessFile+.close(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "manipulate",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "RandomAccessFile",
+                  "name": "f"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* RandomAccessFile+.read*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* RandomAccessFile+.write*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "f"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "creation event",
+              "name": "close",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "RandomAccessFile",
+                  "name": "f"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* RandomAccessFile+.close(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "f"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "close+ manipulate+",
-      "raw_lines": [
-        "close+ manipulate+"
-      ]
+    "ere": {
+      "expression": "close+ manipulate+"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"A closed random access file cannot perform input or output operations.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"A closed random access file cannot perform input or output operations.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

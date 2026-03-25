@@ -7,38 +7,85 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "constructor_runtimeperm",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "String",
-            "name": "name"
-          },
-          {
-            "type": "String",
-            "name": "actions"
-          }
-        ],
-        "pointcut_raw": "call(RuntimePermission.new(String, String)) && args(name, actions) && condition(actions != null)",
         "body": {
-          "raw_lines": [
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The actions string should be null.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "constructor_runtimeperm",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "String",
+                  "name": "name"
+                },
+                {
+                  "type": "String",
+                  "name": "actions"
+                }
+              ],
+              "returning": {
+                "type": "RuntimePermission",
+                "name": "r"
+              },
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "RuntimePermission.new(String, String)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "name"
+                      },
+                      {
+                        "value": "actions"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "condition",
+                    "parameters": [
+                      {
+                        "value": "actions != null"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
-        },
-        "returning": {
-          "type": "RuntimePermission",
-          "name": "r"
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The actions string should be null."
+          }
+        ]
+      }
     }
   }
 }

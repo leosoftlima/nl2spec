@@ -1,0 +1,17 @@
+ResourceBundleControl_MutateFormatList(List l) {
+
+    creation event create after() returning(List l) :
+        ( call(List ResourceBundle.Control.getFormats(..)) || call(List ResourceBundle.Control.getCandidateLocales(..)) ) {
+        }
+
+    event mutate before(List l) :
+        ( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(l) {
+        }
+
+    ere : create mutate
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "The list returned by ResourceBundle.Control.getFormats() or getCandidateLocales() was mutated.");
+    }
+}

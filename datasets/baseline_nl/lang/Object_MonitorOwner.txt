@@ -1,19 +1,23 @@
+This specification is written in the EVENT formalism.
+
+This specification is called Object_MonitorOwner.
+
+
 The following events are monitored in this specification:
 
-1) Event name: bad_notify
-   Kind: event
-   Timing: before
-   Parameters: Object o
-   Pointcut: (call(* Object+.notify(..)) || call(* Object+.notifyAll(..)))&& target(o) && if(!Thread.holdsLock(o))
+bad_notify is an event observed before the call. It takes Object o as parameter. It matches: call(* Object+.notify(..)) || call(* Object+.notifyAll(..)) && target(o) && if(!Thread.holdsLock(o)).
 
-2) Event name: bad_wait
-   Kind: event
-   Timing: before
-   Parameters: Object o
-   Pointcut: call(* Object+.wait(..)) && target(o) && if(!Thread.holdsLock(o))
+bad_wait is an event observed before the call. It takes Object o as parameter. It matches: call(* Object+.wait(..)) && target(o) && if(!Thread.holdsLock(o)).
 
-A violation occurs when any of the monitored events is triggered under the pointcut conditions described above.
+A violation occurs when a monitored event is triggered under the pointcut conditions described above and its associated violation handler is activated.
 
 The violation message that must be used in the JSON output is:
 
-"A violation must be reported when this condition occurs."
+"wait() can be called only by the owner of this object's monitor."
+
+The generated JSON must include the field:
+
+"domain": "lang"
+
+Return ONLY the IR JSON.
+Do not include explanations, markdown, comments, or extra text.

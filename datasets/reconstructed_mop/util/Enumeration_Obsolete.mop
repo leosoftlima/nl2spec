@@ -1,0 +1,13 @@
+Enumeration_Obsolete(Enumeration e) {
+
+    event use before(Enumeration e) :
+        call(* Enumeration+.*(..)) && target(e) {
+        }
+
+    ere : use
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "The Enumeration interface is obsolete. New implementations should consider using the Interface interface.");
+    }
+}

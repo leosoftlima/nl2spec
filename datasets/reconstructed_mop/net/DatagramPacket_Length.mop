@@ -1,0 +1,13 @@
+DatagramPacket_Length() {
+
+    event construct_len before(byte[] buffer, int length) :
+        ( call(DatagramPacket.new(byte[], int)) || call(DatagramPacket.new(byte[], int, InetAddress, int)) || call(DatagramPacket.new(byte[], int, SocketAddress)) ) && args(buffer, length, ..) {
+        		this.validateOffsetLength(buffer, 0, length, __DEFAULT_MESSAGE);
+        }
+
+    event construct_offlen before(byte[] buffer, int offset, int length) :
+        ( call(DatagramPacket.new(byte[], int, int)) || call(DatagramPacket.new(byte[], int, int, InetAddress, int)) || call(DatagramPacket.new(byte[], int, int, SocketAddress)) ) && args(buffer, offset, length, ..) {
+        		this.validateOffsetLength(buffer, offset, length, __DEFAULT_MESSAGE);
+        }
+
+}

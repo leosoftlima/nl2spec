@@ -12,38 +12,67 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "start",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Thread+.start()) && target(t)",
-          "calls": [
-            "* Thread+.start()"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "start",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Thread+.start()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "start start+",
-      "raw_lines": [
-        "start start+"
-      ]
+    "ere": {
+      "expression": "start start+"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.WARNING, \"Thread should not be started more than once.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "WARNING",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "WARNING",
+            "message": "\"Thread should not be started more than once.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

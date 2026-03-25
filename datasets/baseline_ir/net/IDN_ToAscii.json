@@ -7,33 +7,78 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "toascii",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "String",
-            "name": "input"
-          }
-        ],
-        "pointcut_raw": "( call(* IDN.toASCII(String)) || call(* IDN.toASCII(String, int)) ) && args(input, ..)",
         "body": {
-          "raw_lines": [
-            "\t\tboolean safe = this.isAsciiSafe(input);",
-            "\t\tif (!safe) {",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The input to IDN.toASCII() should not be used in an internationalized domain name.\");",
-            "\t\t}"
+          "methods": [
+            {
+              "action": "event",
+              "name": "toascii",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "String",
+                  "name": "input"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* IDN.toASCII(String)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* IDN.toASCII(String, int)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "input"
+                      },
+                      {
+                        "value": ".."
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "||",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The input to IDN.toASCII() should not be used in an internationalized domain name."
+          }
+        ]
+      }
     }
   }
 }

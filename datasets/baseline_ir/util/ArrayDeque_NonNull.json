@@ -7,30 +7,102 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "insertnull",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object",
-            "name": "e"
-          }
-        ],
-        "pointcut_raw": "( call(* ArrayDeque.add*(..)) || call(* ArrayDeque.offer*(..)) || call(* ArrayDeque.push(..)) ) && args(Object+) && args(e) && condition(e == null)",
         "body": {
-          "raw_lines": [
-            "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\tRVMLogging.out.println(Level.CRITICAL, \"ArrayDeque does not permit null.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "insertnull",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object",
+                  "name": "e"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* ArrayDeque.add*(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* ArrayDeque.offer*(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* ArrayDeque.push(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "Object+"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "e"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "condition",
+                    "parameters": [
+                      {
+                        "value": "e == null"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "||",
+                  "||",
+                  "&&",
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "ArrayDeque does not permit null."
+          }
+        ]
+      }
     }
   }
 }

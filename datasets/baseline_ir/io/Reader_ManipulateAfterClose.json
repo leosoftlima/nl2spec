@@ -12,59 +12,136 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "manipulate",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Reader",
-            "name": "r"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Reader+.read(..)) || call(* Reader+.ready(..)) || call(* Reader+.mark(..)) || call(* Reader+.reset(..)) || call(* Reader+.skip(..)) ) && target(r)",
-          "calls": [
-            "* Reader+.read(..)",
-            "* Reader+.ready(..)",
-            "* Reader+.mark(..)",
-            "* Reader+.reset(..)",
-            "* Reader+.skip(..)"
-          ]
-        }
-      },
-      {
-        "kind": "creation",
-        "name": "close",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Reader",
-            "name": "r"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Reader+.close(..)) && target(r)",
-          "calls": [
-            "* Reader+.close(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "manipulate",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Reader",
+                  "name": "r"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Reader+.read(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Reader+.ready(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Reader+.mark(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Reader+.reset(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Reader+.skip(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "r"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "||",
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "creation event",
+              "name": "close",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Reader",
+                  "name": "r"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Reader+.close(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "r"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "close+ manipulate+",
-      "raw_lines": [
-        "close+ manipulate+"
-      ]
+    "ere": {
+      "expression": "close+ manipulate+"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"read(), ready(), mark(), reset() or skip() was invoked after close().\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"read(), ready(), mark(), reset() or skip() was invoked after close().\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

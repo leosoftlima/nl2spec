@@ -1,0 +1,22 @@
+ServerSocket_SetTimeoutBeforeBlocking(ServerSocket sock) {
+
+    creation event enter before(ServerSocket sock) :
+        call(* ServerSocket+.accept(..)) && target(sock) {
+        }
+
+    event leave after(ServerSocket sock) :
+        call(* ServerSocket+.accept(..)) && target(sock) {
+        }
+
+    event set before(ServerSocket sock, int timeout) :
+        call(* ServerSocket+.setSoTimeout(int)) && target(sock) && args(timeout) && condition(timeout != 0) {
+        }
+
+    ere : set* (enter leave)* set*
+
+    @fail {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "ServerSocket.setSoTimeout() should be set prior to entering the blocking operation.");
+        __RESET;
+    }
+}

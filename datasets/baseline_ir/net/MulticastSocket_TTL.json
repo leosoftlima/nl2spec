@@ -7,46 +7,108 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "set1",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "byte",
-            "name": "ttl"
-          }
-        ],
-        "pointcut_raw": "call(* MulticastSocket+.setTTL(byte)) && args(ttl)",
         "body": {
-          "raw_lines": [
-            "\t\tthis.check(__DEFAULT_MESSAGE, ttl & 0xff);"
+          "methods": [
+            {
+              "action": "event",
+              "name": "set1",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "byte",
+                  "name": "ttl"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* MulticastSocket+.setTTL(byte)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "ttl"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       },
       {
-        "kind": "event",
         "name": "set2",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "int",
-            "name": "ttl"
-          }
-        ],
-        "pointcut_raw": "call(* MulticastSocket+.setTimeToLive(int)) && args(ttl)",
         "body": {
-          "raw_lines": [
-            "\t\tthis.check(__DEFAULT_MESSAGE, ttl);"
+          "methods": [
+            {
+              "action": "event",
+              "name": "set2",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "int",
+                  "name": "ttl"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* MulticastSocket+.setTimeToLive(int)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "ttl"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "msg"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The specified TTL \" + ttl + \" is out of range; [0 ~ 255]"
+          }
+        ]
+      }
     }
   }
 }

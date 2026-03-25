@@ -1,50 +1,58 @@
-The following events are involved in this specification:
+This specification should use the following identifier and signature:
 
-1) Event name: create
-   Kind: creation
-   Timing: after
-   Parameters: NavigableSet s1
-   Returning: NavigableSet s2
-   Pointcut: call(NavigableSet NavigableSet+.descendingSet()) && target(s1)
+- id: NavigableSet_Modification
+- parameters: NavigableSet s1, NavigableSet s2, Iterator i
 
-2) Event name: getiter1
-   Kind: event
-   Timing: after
-   Parameters: NavigableSet s1
-   Returning: Iterator i
-   Pointcut: call(Iterator Iterable+.iterator()) && target(s1)
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
 
-3) Event name: getiter2
-   Kind: event
-   Timing: after
-   Parameters: NavigableSet s2
-   Returning: Iterator i
-   Pointcut: call(Iterator Iterable+.iterator()) && target(s2)
+This property is described as an Extended Regular Expression (ERE) behavior over monitored runtime events.
 
-4) Event name: modify1
-   Kind: event
-   Timing: before
-   Parameters: NavigableSet s1
-   Pointcut: ( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(s1)
+The monitored events involved in this property are:
 
-5) Event name: modify2
-   Kind: event
-   Timing: before
-   Parameters: NavigableSet s2
-   Pointcut: ( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(s2)
+1) create is observed after the call as a creation event. It receives NavigableSet s1, returns NavigableSet s2, and matches:
+   Top-level operators between consecutive pointcut atoms: &&
+   call(NavigableSet NavigableSet+.descendingSet()) && target(s1)
 
-6) Event name: useiter
-   Kind: event
-   Timing: before
-   Parameters: Iterator i
-   Pointcut: ( call(* Iterator.hasNext(..)) || call(* Iterator.next(..)) ) && target(i)
+2) getiter1 is observed after the call as an event. It receives NavigableSet s1, returns Iterator i, and matches:
+   Top-level operators between consecutive pointcut atoms: &&
+   call(Iterator Iterable+.iterator()) && target(s1)
 
-The required execution pattern is defined by the following regular expression:
+3) getiter2 is observed after the call as an event. It receives NavigableSet s2, returns Iterator i, and matches:
+   Top-level operators between consecutive pointcut atoms: &&
+   call(Iterator Iterable+.iterator()) && target(s2)
+
+4) modify1 is observed before the call as an event. It receives NavigableSet s1 and matches:
+   Top-level operators between consecutive pointcut atoms: ||, ||, ||, &&
+   call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) && target(s1)
+
+5) modify2 is observed before the call as an event. It receives NavigableSet s2 and matches:
+   Top-level operators between consecutive pointcut atoms: ||, ||, ||, &&
+   call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) && target(s2)
+
+6) useiter is observed before the call as an event. It receives Iterator i and matches:
+   Top-level operators between consecutive pointcut atoms: ||, &&
+   call(* Iterator.hasNext(..)) || call(* Iterator.next(..)) && target(i)
+
+The ERE pattern is the following:
 
 create (modify1 | modify2)* (getiter1 | getiter2) useiter* (modify1 | modify2)+ useiter
 
-Any execution trace that does not conform to this pattern constitutes a violation.
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
 
-The violation message that must be used in the JSON output is:
+This pattern defines the forbidden behavior that must be represented in the JSON.
 
-"The NavigableSet was modified while an iteration over a NavigableSet that shares the same storage."
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: match
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="The NavigableSet was modified while an iteration over a NavigableSet that shares the same storage."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Return ONLY the IR JSON.

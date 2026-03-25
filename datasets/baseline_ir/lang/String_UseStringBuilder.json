@@ -7,29 +7,54 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "constructor_create",
-        "timing": "after",
-        "parameters": [],
-        "pointcut_raw": "call(String.new(StringBuilder))",
         "body": {
-          "raw_lines": [
-            "            RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "            RVMLogging.out.println(Level.CRITICAL, \"Using the constructor String(StringBuilder builder) is inefficient. Use toString() method on the StringBuilder.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "constructor_create",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "String",
+                "name": "b"
+              },
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "String.new(StringBuilder)"
+                      }
+                    ]
+                  }
+                ],
+                "operation": []
+              }
+            }
           ]
-        },
-        "returning": {
-          "type": "String",
-          "name": "b"
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "Using the constructor String(StringBuilder builder) is inefficient. Use toString() method on the StringBuilder."
+          }
+        ]
+      }
     }
   }
 }

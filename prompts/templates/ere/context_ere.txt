@@ -32,6 +32,12 @@ Event structure:
   - "arguments": [{ "value": "..." }]
 - Use "negated": true only when the pointcut explicitly contains negation such as !cflow(...), !target(...), or !call(...).
 
+Pointcut operator rule:
+- "function" stores the top-level pointcut atoms in order.
+- "operation" stores the logical operators between consecutive top-level pointcut atoms.
+- If "function" has N items, "operation" must have N-1 items.
+- Operators inside condition(...) stay only inside the condition string and must not be added to "operation".
+
 Constraints:
 - Do not invent events, methods, arguments, operators, or violation statements.
 - Preserve event names exactly as described.

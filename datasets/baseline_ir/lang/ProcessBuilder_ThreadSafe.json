@@ -12,69 +12,148 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "safe_oper",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ProcessBuilder",
-            "name": "p"
-          },
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* ProcessBuilder.*(..)) && target(p) && thread(t) && condition(this.owner == null || this.owner == t)",
-          "calls": [
-            "* ProcessBuilder.*(..)"
-          ]
-        },
         "body": {
-          "raw_lines": [
-            "this.owner = t;"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "unsafe_oper",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ProcessBuilder",
-            "name": "p"
-          },
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* ProcessBuilder.*(..)) && target(p) && thread(t) && condition(this.owner != null && this.owner != t)",
-          "calls": [
-            "* ProcessBuilder.*(..)"
+          "methods": [
+            {
+              "action": "event",
+              "name": "safe_oper",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ProcessBuilder",
+                  "name": "p"
+                },
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* ProcessBuilder.*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "p"
+                    }
+                  ]
+                },
+                {
+                  "name": "thread",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "this.owner == null || this.owner == t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "unsafe_oper",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ProcessBuilder",
+                  "name": "p"
+                },
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* ProcessBuilder.*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "p"
+                    }
+                  ]
+                },
+                {
+                  "name": "thread",
+                  "arguments": [
+                    {
+                      "value": "t"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "this.owner != null && this.owner != t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "safe_oper*",
-      "raw_lines": [
-        "safe_oper*"
-      ]
+    "ere": {
+      "expression": "safe_oper*"
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"More than two threads attempted to use a ProcessBuilder instance, which may lead to a race condition\");",
-        "__RESET;"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"More than two threads attempted to use a ProcessBuilder instance, which may lead to a race condition\""
+          },
+          {
+            "type": "raw",
+            "value": "__RESET;"
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

@@ -7,52 +7,138 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "badexception",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Object o) throwing(Exception",
-            "name": "e"
-          }
-        ],
-        "pointcut_raw": "call(* Comparable+.compareTo(..)) && args(o) && if(o == null) && condition(!(e instanceof NullPointerException))",
         "body": {
-          "raw_lines": [
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"NullPointerException should be thrown when an object is compared to null\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "badexception",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Object o) throwing(Exception",
+                  "name": "e"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Comparable+.compareTo(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "o"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "if",
+                    "parameters": [
+                      {
+                        "value": "o == null"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "condition",
+                    "parameters": [
+                      {
+                        "value": "!(e instanceof NullPointerException)"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       },
       {
-        "kind": "event",
         "name": "badcompare",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Object",
-            "name": "o"
-          }
-        ],
-        "pointcut_raw": "call(* Comparable+.compareTo(..)) && args(o) && if(o == null)",
         "body": {
-          "raw_lines": [
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"NullPointerException should be thrown when an object is compared to null\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "badcompare",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Object",
+                  "name": "o"
+                }
+              ],
+              "returning": {
+                "type": "int",
+                "name": "i"
+              },
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* Comparable+.compareTo(..)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "o"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "if",
+                    "parameters": [
+                      {
+                        "value": "o == null"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
-        },
-        "returning": {
-          "type": "int",
-          "name": "i"
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "NullPointerException should be thrown when an object is compared to null"
+          }
+        ]
+      }
     }
   }
 }

@@ -12,114 +12,182 @@
     ]
   },
   "ir": {
-    "type": "fsm",
     "events": [
       {
-        "kind": "creation",
-        "name": "register",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut_raw": "call(* Runtime+.addShutdownHook(..)) && args(t)",
         "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "creation",
-        "name": "unregister",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut_raw": "call(* Runtime+.removeShutdownHook(..)) && args(t)",
-        "body": {
-          "raw_lines": []
-        }
-      },
-      {
-        "kind": "event",
-        "name": "start",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t"
-          }
-        ],
-        "pointcut_raw": "startThread() && thread(t)",
-        "body": {
-          "raw_lines": []
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "register",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "Runtime+.addShutdownHook(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "creation event",
+              "name": "unregister",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "parameters": [
+                    {
+                      "return": "*",
+                      "name": "Runtime+.removeShutdownHook(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "start",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "startThread",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": ""
+                    }
+                  ]
+                },
+                {
+                  "name": "thread",
+                  "parameters": [
+                    {
+                      "return": "",
+                      "name": "t"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
+          ]
         }
       }
     ],
     "fsm": {
-      "raw_block": "\t\tunregistered [\n\t\t\tregister -> registered\n\t\t]\n\t\tregistered [\n\t\t\tunregister -> unregistered\n\t\t\tstart -> started\n\t\t]\n\t\tstarted [\n\t\t\texit -> unsafe\n\t\t]\n\t\tunsafe [\n\t\t\texit -> unsafe\n\t\t]\n\t@unsafe {\n\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);\n\t\tRVMLogging.out.println(Level.CRITICAL, \"Invoking System.exit() in a shutdown hook was suppressed because it may lead to deadlocks.\");",
-      "raw_lines": [
-        "\t\tunregistered [",
-        "\t\t\tregister -> registered",
-        "\t\t]",
-        "\t\tregistered [",
-        "\t\t\tunregister -> unregistered",
-        "\t\t\tstart -> started",
-        "\t\t]",
-        "\t\tstarted [",
-        "\t\t\texit -> unsafe",
-        "\t\t]",
-        "\t\tunsafe [",
-        "\t\t\texit -> unsafe",
-        "\t\t]",
-        "\t@unsafe {",
-        "\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "\t\tRVMLogging.out.println(Level.CRITICAL, \"Invoking System.exit() in a shutdown hook was suppressed because it may lead to deadlocks.\");"
-      ]
-    },
-    "analysis": {
+      "type": "fsm",
+      "initial_state": "unregistered",
       "states": [
-        "registered",
-        "started",
-        "unregistered",
-        "unsafe"
-      ],
-      "initial": "unregistered",
-      "transitions": [
         {
-          "from": "unregistered",
-          "event": "register",
-          "to": "registered"
+          "name": "unregistered",
+          "transitions": [
+            {
+              "event": "register",
+              "target": "registered"
+            }
+          ]
         },
         {
-          "from": "registered",
-          "event": "unregister",
-          "to": "unregistered"
+          "name": "registered",
+          "transitions": [
+            {
+              "event": "unregister",
+              "target": "unregistered"
+            },
+            {
+              "event": "start",
+              "target": "started"
+            }
+          ]
         },
         {
-          "from": "registered",
-          "event": "start",
-          "to": "started"
+          "name": "started",
+          "transitions": [
+            {
+              "event": "exit",
+              "target": "unsafe"
+            }
+          ]
         },
         {
-          "from": "started",
-          "event": "exit",
-          "to": "unsafe"
-        },
-        {
-          "from": "unsafe",
-          "event": "exit",
-          "to": "unsafe"
+          "name": "unsafe",
+          "transitions": [
+            {
+              "event": "exit",
+              "target": "unsafe"
+            }
+          ]
         }
       ]
     },
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "unsafe",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"Invoking System.exit() in a shutdown hook was suppressed because it may lead to deadlocks.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

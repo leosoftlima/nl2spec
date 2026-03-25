@@ -1,0 +1,17 @@
+InputStream_UnmarkedReset(InputStream i) {
+
+    event mark before(InputStream i) :
+        call(* InputStream+.mark(..)) && target(i) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream ) {
+        }
+
+    event reset before(InputStream i) :
+        call(* InputStream+.reset(..)) && target(i) && if ( i instanceof BufferedInputStream || i instanceof DataInputStream || i instanceof LineNumberInputStream ) {
+        }
+
+    ere : mark (mark | reset)*
+
+    @fail {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "BufferedInputStream, DataInputStream and LineNumberInputStream allow reset() only after mark() has been invoked.");
+    }
+}

@@ -16,83 +16,200 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "create",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Collection",
-            "name": "c"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(Iterator Iterable+.iterator()) && target(c)",
-          "calls": [
-            "Iterator Iterable+.iterator()"
-          ]
-        },
-        "returning": {
-          "type": "Iterator",
-          "name": "i"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "modify",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Collection",
-            "name": "c"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.offer*(..)) || call(* Collection+.pop(..)) || call(* Collection+.push(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(c)",
-          "calls": [
-            "* Collection+.add*(..)",
-            "* Collection+.clear(..)",
-            "* Collection+.offer*(..)",
-            "* Collection+.pop(..)",
-            "* Collection+.push(..)",
-            "* Collection+.remove*(..)",
-            "* Collection+.retain*(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "useiter",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Iterator",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Iterator.hasNext(..)) || call(* Iterator.next(..)) ) && target(i)",
-          "calls": [
-            "* Iterator.hasNext(..)",
-            "* Iterator.next(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "create",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Collection",
+                  "name": "c"
+                }
+              ],
+              "returning": {
+                "type": "Iterator",
+                "name": "i"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Iterator Iterable+.iterator()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "c"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "modify",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Collection",
+                  "name": "c"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.add*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.clear(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.offer*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.pop(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.push(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.remove*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.retain*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "c"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "||",
+                "||",
+                "||",
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "useiter",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Iterator",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Iterator.hasNext(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Iterator.next(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "create useiter* modify+ useiter",
-      "raw_lines": [
-        "create useiter* modify+ useiter"
-      ]
+    "ere": {
+      "expression": "create useiter* modify+ useiter"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The collection was modified while an iterator is being used.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The collection was modified while an iterator is being used.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

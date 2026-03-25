@@ -17,6 +17,8 @@ The ERE pattern is the following:
 
 {{ERE_BLOCK}}
 
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
 This pattern defines the forbidden behavior that must be represented in the JSON.
 
 If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:

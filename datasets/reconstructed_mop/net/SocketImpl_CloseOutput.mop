@@ -1,0 +1,21 @@
+SocketImpl_CloseOutput(SocketImpl sock, OutputStream output) {
+
+    creation event getoutput after(SocketImpl sock) returning(OutputStream output) :
+        call(OutputStream SocketImpl+.getOutputStream()) && target(sock) {
+        }
+
+    event close before(SocketImpl sock) :
+        ( call(* SocketImpl+.close(..)) || call(* SocketImpl+.shutdownOutput(..)) ) && target(sock) {
+        }
+
+    event use before(OutputStream output) :
+        call(* OutputStream+.*(..)) && target(output) {
+        }
+
+    ere : getoutput close use+
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "The output stream of a closed socket is about to be used.");
+    }
+}

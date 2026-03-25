@@ -1,0 +1,19 @@
+Collection_StandardConstructors() {
+
+    event staticinit after() :
+        staticinitialization(Collection+) {
+        		Signature initsig = __STATICSIG;
+        		Class klass = initsig.getDeclaringType();
+        		if (klass != null) {
+        			try {
+        				Constructor ctor1 = klass.getDeclaredConstructor((Class[]) null);
+        				Constructor ctor2 = klass.getDeclaredConstructor(Collection.class);
+        			}
+        			catch (NoSuchMethodException e) {
+        				RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        				RVMLogging.out.println(Level.CRITICAL, klass.getName() + " does not define the 'standard' constructors.");
+        			}
+        		}
+        }
+
+}

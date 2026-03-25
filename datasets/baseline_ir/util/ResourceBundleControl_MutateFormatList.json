@@ -12,58 +12,126 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "create",
-        "timing": "after",
-        "parameters": [],
-        "pointcut": {
-          "raw": "( call(List ResourceBundle.Control.getFormats(..)) || call(List ResourceBundle.Control.getCandidateLocales(..)) )",
-          "calls": [
-            "List ResourceBundle.Control.getFormats(..)",
-            "List ResourceBundle.Control.getCandidateLocales(..)"
-          ]
-        },
-        "returning": {
-          "type": "List",
-          "name": "l"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "mutate",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "List",
-            "name": "l"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(l)",
-          "calls": [
-            "* Collection+.add*(..)",
-            "* Collection+.clear(..)",
-            "* Collection+.remove*(..)",
-            "* Collection+.retain*(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "create",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "List",
+                "name": "l"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "List ResourceBundle.Control.getFormats(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "List ResourceBundle.Control.getCandidateLocales(..)"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "mutate",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "List",
+                  "name": "l"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.add*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.clear(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.remove*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.retain*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "l"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "||",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "create mutate",
-      "raw_lines": [
-        "create mutate"
-      ]
+    "ere": {
+      "expression": "create mutate"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The list returned by ResourceBundle.Control.getFormats() or getCandidateLocales() was mutated.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The list returned by ResourceBundle.Control.getFormats() or getCandidateLocales() was mutated.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

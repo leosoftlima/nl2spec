@@ -1,0 +1,17 @@
+Properties_ManipulateAfterLoad(InputStream i) {
+
+    event manipulate before(InputStream i) :
+        ( call(* InputStream+.read(..)) || call(* InputStream+.available(..)) || call(* InputStream+.reset(..)) || call(* InputStream+.skip(..)) ) && target(i) && !target(ByteArrayInputStream) && !target(StringBufferInputStream) {
+        }
+
+    creation event close after(InputStream i) :
+        call(* Properties+.loadFromXML(InputStream)) && args(i) && !args(ByteArrayInputStream) && !args(StringBufferInputStream) {
+        }
+
+    ere : close+ manipulate
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "read(), available(), reset() or skip() was invoked after Properties.loadFromXML() closes the stream.");
+    }
+}

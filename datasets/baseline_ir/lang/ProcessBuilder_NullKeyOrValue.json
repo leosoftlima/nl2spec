@@ -12,107 +12,255 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "createMap",
-        "timing": "after",
-        "parameters": [],
-        "pointcut": {
-          "raw": "call(* ProcessBuilder.environment())",
-          "calls": [
-            "* ProcessBuilder.environment()"
-          ]
-        },
-        "returning": {
-          "type": "Map",
-          "name": "map"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "nullPut",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Map",
-            "name": "map"
-          },
-          {
-            "type": "Object",
-            "name": "key"
-          },
-          {
-            "type": "Object",
-            "name": "value"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Map.put(..)) && args(key, value) && target(map) && condition(key == null || value == null)",
-          "calls": [
-            "* Map.put(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "nullPut",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Map",
-            "name": "map"
-          },
-          {
-            "type": "Map",
-            "name": "map2"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Map.putAll(Map)) && args(map2) && target(map) && condition(map2.containsKey(null) || map2.containsValue(null))",
-          "calls": [
-            "* Map.putAll(Map)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "nullQuery",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Map",
-            "name": "map"
-          },
-          {
-            "type": "Object",
-            "name": "o"
-          }
-        ],
-        "pointcut": {
-          "raw": "(call(* Map.containsKey(..)) || call(* Map.containsValue(..)) || call(* Map.get(..)) || call(* Map.remove(..))) && target(map) && args(o) && condition(o == null)",
-          "calls": [
-            "* Map.containsKey(..)",
-            "* Map.containsValue(..)",
-            "* Map.get(..)",
-            "* Map.remove(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "createMap",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "Map",
+                "name": "map"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* ProcessBuilder.environment()"
+                    }
+                  ]
+                }
+              ],
+              "operation": []
+            },
+            {
+              "action": "event",
+              "name": "nullPut",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Map",
+                  "name": "map"
+                },
+                {
+                  "type": "Object",
+                  "name": "key"
+                },
+                {
+                  "type": "Object",
+                  "name": "value"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Map.put(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "key"
+                    },
+                    {
+                      "value": "value"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "map"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "key == null || value == null"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "nullPut",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Map",
+                  "name": "map"
+                },
+                {
+                  "type": "Map",
+                  "name": "map2"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Map.putAll(Map)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "map2"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "map"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "map2.containsKey(null) || map2.containsValue(null)"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "nullQuery",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Map",
+                  "name": "map"
+                },
+                {
+                  "type": "Object",
+                  "name": "o"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Map.containsKey(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Map.containsValue(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Map.get(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Map.remove(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "map"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "o"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "o == null"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "||",
+                "&&",
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "createMap (nullPut | nullQuery)+",
-      "raw_lines": [
-        "createMap (nullPut | nullQuery)+"
-      ]
+    "ere": {
+      "expression": "createMap (nullPut | nullQuery)+"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.WARNING, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.WARNING, \"null key or value is not permitted in the map from ProcessBuilder.environment()\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "WARNING",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "WARNING",
+            "message": "\"null key or value is not permitted in the map from ProcessBuilder.environment()\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

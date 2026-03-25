@@ -7,29 +7,54 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "constructor_create",
-        "timing": "after",
-        "parameters": [],
-        "pointcut_raw": "call(Short+.new(short))",
         "body": {
-          "raw_lines": [
-            "            RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "            RVMLogging.out.println(Level.CRITICAL, \"Using the constructor Short(short value) might be inefficient. Use valueOf(short) if it is appropriate.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "constructor_create",
+              "timing": "after",
+              "parameters": [],
+              "returning": {
+                "type": "Short",
+                "name": "l"
+              },
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "Short+.new(short)"
+                      }
+                    ]
+                  }
+                ],
+                "operation": []
+              }
+            }
           ]
-        },
-        "returning": {
-          "type": "Short",
-          "name": "l"
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "Using the constructor Short(short value) might be inefficient. Use valueOf(short) if it is appropriate."
+          }
+        ]
+      }
     }
   }
 }

@@ -12,58 +12,167 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "manipulate",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "InputStream",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* InputStream+.read(..)) || call(* InputStream+.available(..)) || call(* InputStream+.reset(..)) || call(* InputStream+.skip(..)) ) && target(i) && !target(ByteArrayInputStream) && !target(StringBufferInputStream)",
-          "calls": [
-            "* InputStream+.read(..)",
-            "* InputStream+.available(..)",
-            "* InputStream+.reset(..)",
-            "* InputStream+.skip(..)"
-          ]
-        }
-      },
-      {
-        "kind": "creation",
-        "name": "close",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "InputStream",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Properties+.loadFromXML(InputStream)) && args(i) && !args(ByteArrayInputStream) && !args(StringBufferInputStream)",
-          "calls": [
-            "* Properties+.loadFromXML(InputStream)"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "manipulate",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "InputStream",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* InputStream+.read(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* InputStream+.available(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* InputStream+.reset(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* InputStream+.skip(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "ByteArrayInputStream"
+                    }
+                  ],
+                  "negated": true
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "StringBufferInputStream"
+                    }
+                  ],
+                  "negated": true
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "||",
+                "&&",
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "creation event",
+              "name": "close",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "InputStream",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Properties+.loadFromXML(InputStream)"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "ByteArrayInputStream"
+                    }
+                  ],
+                  "negated": true
+                },
+                {
+                  "name": "args",
+                  "arguments": [
+                    {
+                      "value": "StringBufferInputStream"
+                    }
+                  ],
+                  "negated": true
+                }
+              ],
+              "operation": [
+                "&&",
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "close+ manipulate",
-      "raw_lines": [
-        "close+ manipulate"
-      ]
+    "ere": {
+      "expression": "close+ manipulate"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"read(), available(), reset() or skip() was invoked after Properties.loadFromXML() closes the stream.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"read(), available(), reset() or skip() was invoked after Properties.loadFromXML() closes the stream.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

@@ -12,91 +12,199 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "create",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "Thread",
-            "name": "t2"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(ServiceLoader ServiceLoader+.load*(..)) && thread(t2)",
-          "calls": [
-            "ServiceLoader ServiceLoader+.load*(..)"
-          ]
-        },
-        "returning": {
-          "type": "ServiceLoader",
-          "name": "s"
-        },
         "body": {
-          "raw_lines": [
-            "this.t = t2;"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "gooduse",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ServiceLoader",
-            "name": "s"
-          },
-          {
-            "type": "Thread",
-            "name": "t2"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* ServiceLoader+.iterator()) || call(* ServiceLoader+.reload()) ) && target(s) && thread(t2) && condition(this.t == t2)",
-          "calls": [
-            "* ServiceLoader+.iterator()",
-            "* ServiceLoader+.reload()"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "baduse",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ServiceLoader",
-            "name": "s"
-          },
-          {
-            "type": "Thread",
-            "name": "t2"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* ServiceLoader+.iterator()) || call(* ServiceLoader+.reload()) ) && target(s) && thread(t2) && condition(this.t != t2)",
-          "calls": [
-            "* ServiceLoader+.iterator()",
-            "* ServiceLoader+.reload()"
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "create",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "Thread",
+                  "name": "t2"
+                }
+              ],
+              "returning": {
+                "type": "ServiceLoader",
+                "name": "s"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "ServiceLoader ServiceLoader+.load*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "thread",
+                  "arguments": [
+                    {
+                      "value": "t2"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "gooduse",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ServiceLoader",
+                  "name": "s"
+                },
+                {
+                  "type": "Thread",
+                  "name": "t2"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* ServiceLoader+.iterator()"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* ServiceLoader+.reload()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "s"
+                    }
+                  ]
+                },
+                {
+                  "name": "thread",
+                  "arguments": [
+                    {
+                      "value": "t2"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "this.t == t2"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "&&",
+                "&&",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "baduse",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ServiceLoader",
+                  "name": "s"
+                },
+                {
+                  "type": "Thread",
+                  "name": "t2"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* ServiceLoader+.iterator()"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* ServiceLoader+.reload()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "s"
+                    }
+                  ]
+                },
+                {
+                  "name": "thread",
+                  "arguments": [
+                    {
+                      "value": "t2"
+                    }
+                  ]
+                },
+                {
+                  "name": "condition",
+                  "arguments": [
+                    {
+                      "value": "this.t != t2"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "&&",
+                "&&",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "create gooduse* baduse",
-      "raw_lines": [
-        "create gooduse* baduse"
-      ]
+    "ere": {
+      "expression": "create gooduse* baduse"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"A ServiceLoader object has been used by multiple threads.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"A ServiceLoader object has been used by multiple threads.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

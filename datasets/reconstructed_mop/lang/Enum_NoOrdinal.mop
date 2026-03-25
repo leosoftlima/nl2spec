@@ -1,0 +1,9 @@
+Enum_NoOrdinal() {
+
+    event ordinal before() :
+        call(* Enum+.ordinal()) {
+        		RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        		RVMLogging.out.println(Level.CRITICAL, "Most programmers will have no use for ordinal() method.");
+        }
+
+}

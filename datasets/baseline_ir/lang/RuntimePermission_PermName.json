@@ -7,42 +7,69 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "constructor_runtimeperm",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "String",
-            "name": "name"
-          }
-        ],
-        "pointcut_raw": "call(RuntimePermission.new(String)) && args(name)",
         "body": {
-          "raw_lines": [
-            "\t\t\tint index = name.indexOf(\"*\");",
-            "\t\t\tif(index != -1 && name.length() > 1){",
-            "\t\t\t\tif(index != name.length() - 1){",
-            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The permission name for RuntimePermission is invalid\");",
-            "\t\t\t\t} else if (name.charAt(index - 1) != '.'){",
-            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\t\t\tRVMLogging.out.println(Level.CRITICAL, \"The permission name for RuntimePermission is invalid\");",
-            "\t\t\t\t}",
-            "\t\t\t}"
+          "methods": [
+            {
+              "action": "event",
+              "name": "constructor_runtimeperm",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "String",
+                  "name": "name"
+                }
+              ],
+              "returning": {
+                "type": "RuntimePermission",
+                "name": "r"
+              },
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "RuntimePermission.new(String)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "name"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&"
+                ]
+              }
+            }
           ]
-        },
-        "returning": {
-          "type": "RuntimePermission",
-          "name": "r"
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "The permission name for RuntimePermission is invalid"
+          }
+        ]
+      }
     }
   }
 }

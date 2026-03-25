@@ -12,72 +12,133 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "event",
-        "name": "remove",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ListIterator",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(void Iterator+.remove()) && target(i)",
-          "calls": [
-            "void Iterator+.remove()"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "next",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ListIterator",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* Iterator+.next()) && target(i)",
-          "calls": [
-            "* Iterator+.next()"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "previous",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "ListIterator",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(* ListIterator+.previous()) && target(i)",
-          "calls": [
-            "* ListIterator+.previous()"
+        "body": {
+          "methods": [
+            {
+              "action": "event",
+              "name": "remove",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ListIterator",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "void Iterator+.remove()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "next",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ListIterator",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Iterator+.next()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "previous",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "ListIterator",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* ListIterator+.previous()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "((next | previous)+ (remove | epsilon))*",
-      "raw_lines": [
-        "((next | previous)+ (remove | epsilon))*"
-      ]
+    "ere": {
+      "expression": "((next | previous)+ (remove | epsilon))*"
     },
     "violation": {
       "tag": "fail",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"ListIterator.remove() can be called only once per call to next()/previous().\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"ListIterator.remove() can be called only once per call to next()/previous().\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }

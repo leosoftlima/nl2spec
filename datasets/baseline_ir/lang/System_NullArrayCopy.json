@@ -7,46 +7,103 @@
     "parameters": []
   },
   "ir": {
-    "type": "event",
     "events": [
       {
-        "kind": "event",
         "name": "null_arraycopy",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Object",
-            "name": "src"
-          },
-          {
-            "type": "int",
-            "name": "srcPos"
-          },
-          {
-            "type": "Object",
-            "name": "dest"
-          },
-          {
-            "type": "int",
-            "name": "destPos"
-          },
-          {
-            "type": "int",
-            "name": "length"
-          }
-        ],
-        "pointcut_raw": "call(* System.arraycopy(Object, int, Object, int, int)) && args(src, srcPos, dest, destPos, length) && condition(src == null || dest == null)",
         "body": {
-          "raw_lines": [
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-            "\t\t\tRVMLogging.out.println(Level.CRITICAL, \"src or dest should not be null.\");"
+          "methods": [
+            {
+              "action": "event",
+              "name": "null_arraycopy",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Object",
+                  "name": "src"
+                },
+                {
+                  "type": "int",
+                  "name": "srcPos"
+                },
+                {
+                  "type": "Object",
+                  "name": "dest"
+                },
+                {
+                  "type": "int",
+                  "name": "destPos"
+                },
+                {
+                  "type": "int",
+                  "name": "length"
+                }
+              ],
+              "returning": null,
+              "procediments": {
+                "function": [
+                  {
+                    "name": "call",
+                    "parameters": [
+                      {
+                        "value": "* System.arraycopy(Object, int, Object, int, int)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "args",
+                    "parameters": [
+                      {
+                        "value": "src"
+                      },
+                      {
+                        "value": "srcPos"
+                      },
+                      {
+                        "value": "dest"
+                      },
+                      {
+                        "value": "destPos"
+                      },
+                      {
+                        "value": "length"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "condition",
+                    "parameters": [
+                      {
+                        "value": "src == null || dest == null"
+                      }
+                    ]
+                  }
+                ],
+                "operation": [
+                  "&&",
+                  "&&"
+                ]
+              }
+            }
           ]
         }
       }
     ],
     "violation": {
-      "tag": null,
-      "raw_block": []
+      "tag": "fail",
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "src or dest should not be null."
+          }
+        ]
+      }
     }
   }
 }

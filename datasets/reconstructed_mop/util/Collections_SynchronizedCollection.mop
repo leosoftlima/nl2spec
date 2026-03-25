@@ -1,0 +1,26 @@
+Collections_SynchronizedCollection(Collection col, Iterator iter) {
+
+    creation event sync after() returning(Collection col) :
+        call(* Collections.synchronizedCollection(Collection)) || call(* Collections.synchronizedSet(Set)) || call(* Collections.synchronizedSortedSet(SortedSet)) || call(* Collections.synchronizedList(List)) {
+        this.col = col;
+        }
+
+    event syncCreateIter after(Collection col) returning(Iterator iter) :
+        call(* Collection+.iterator()) && target(col) && condition(Thread.holdsLock(col)) {
+        }
+
+    event asyncCreateIter after(Collection col) returning(Iterator iter) :
+        call(* Collection+.iterator()) && target(col) && condition(!Thread.holdsLock(col)) {
+        }
+
+    event accessIter before(Iterator iter) :
+        call(* Iterator.*(..)) && target(iter) && condition(!Thread.holdsLock(this.col)) {
+        }
+
+    ere : (sync asyncCreateIter) | (sync syncCreateIter accessIter)
+
+    @match {
+        RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+        RVMLogging.out.println(Level.CRITICAL, "A synchronized collection was accessed in a thread-unsafe manner.");
+    }
+}

@@ -20,142 +20,307 @@
     ]
   },
   "ir": {
-    "type": "ere",
     "events": [
       {
-        "kind": "creation",
-        "name": "create",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "NavigableSet",
-            "name": "s1"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(NavigableSet NavigableSet+.descendingSet()) && target(s1)",
-          "calls": [
-            "NavigableSet NavigableSet+.descendingSet()"
-          ]
-        },
-        "returning": {
-          "type": "NavigableSet",
-          "name": "s2"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "getiter1",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "NavigableSet",
-            "name": "s1"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(Iterator Iterable+.iterator()) && target(s1)",
-          "calls": [
-            "Iterator Iterable+.iterator()"
-          ]
-        },
-        "returning": {
-          "type": "Iterator",
-          "name": "i"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "getiter2",
-        "timing": "after",
-        "parameters": [
-          {
-            "type": "NavigableSet",
-            "name": "s2"
-          }
-        ],
-        "pointcut": {
-          "raw": "call(Iterator Iterable+.iterator()) && target(s2)",
-          "calls": [
-            "Iterator Iterable+.iterator()"
-          ]
-        },
-        "returning": {
-          "type": "Iterator",
-          "name": "i"
-        }
-      },
-      {
-        "kind": "event",
-        "name": "modify1",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "NavigableSet",
-            "name": "s1"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(s1)",
-          "calls": [
-            "* Collection+.add*(..)",
-            "* Collection+.clear(..)",
-            "* Collection+.remove*(..)",
-            "* Collection+.retain*(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "modify2",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "NavigableSet",
-            "name": "s2"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Collection+.add*(..)) || call(* Collection+.clear(..)) || call(* Collection+.remove*(..)) || call(* Collection+.retain*(..)) ) && target(s2)",
-          "calls": [
-            "* Collection+.add*(..)",
-            "* Collection+.clear(..)",
-            "* Collection+.remove*(..)",
-            "* Collection+.retain*(..)"
-          ]
-        }
-      },
-      {
-        "kind": "event",
-        "name": "useiter",
-        "timing": "before",
-        "parameters": [
-          {
-            "type": "Iterator",
-            "name": "i"
-          }
-        ],
-        "pointcut": {
-          "raw": "( call(* Iterator.hasNext(..)) || call(* Iterator.next(..)) ) && target(i)",
-          "calls": [
-            "* Iterator.hasNext(..)",
-            "* Iterator.next(..)"
+        "body": {
+          "methods": [
+            {
+              "action": "creation event",
+              "name": "create",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "NavigableSet",
+                  "name": "s1"
+                }
+              ],
+              "returning": {
+                "type": "NavigableSet",
+                "name": "s2"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "NavigableSet NavigableSet+.descendingSet()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "s1"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "getiter1",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "NavigableSet",
+                  "name": "s1"
+                }
+              ],
+              "returning": {
+                "type": "Iterator",
+                "name": "i"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Iterator Iterable+.iterator()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "s1"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "getiter2",
+              "timing": "after",
+              "parameters": [
+                {
+                  "type": "NavigableSet",
+                  "name": "s2"
+                }
+              ],
+              "returning": {
+                "type": "Iterator",
+                "name": "i"
+              },
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "Iterator Iterable+.iterator()"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "s2"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "modify1",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "NavigableSet",
+                  "name": "s1"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.add*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.clear(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.remove*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.retain*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "s1"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "modify2",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "NavigableSet",
+                  "name": "s2"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.add*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.clear(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.remove*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Collection+.retain*(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "s2"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "||",
+                "||",
+                "&&"
+              ]
+            },
+            {
+              "action": "event",
+              "name": "useiter",
+              "timing": "before",
+              "parameters": [
+                {
+                  "type": "Iterator",
+                  "name": "i"
+                }
+              ],
+              "procediments": ":",
+              "function": [
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Iterator.hasNext(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "call",
+                  "arguments": [
+                    {
+                      "value": "* Iterator.next(..)"
+                    }
+                  ]
+                },
+                {
+                  "name": "target",
+                  "arguments": [
+                    {
+                      "value": "i"
+                    }
+                  ]
+                }
+              ],
+              "operation": [
+                "||",
+                "&&"
+              ]
+            }
           ]
         }
       }
     ],
-    "formula": {
-      "raw": "create (modify1 | modify2)* (getiter1 | getiter2) useiter* (modify1 | modify2)+ useiter",
-      "raw_lines": [
-        "create (modify1 | modify2)* (getiter1 | getiter2) useiter* (modify1 | modify2)+ useiter"
-      ]
+    "ere": {
+      "expression": "create (modify1 | modify2)* (getiter1 | getiter2) useiter* (modify1 | modify2)+ useiter"
     },
     "violation": {
       "tag": "match",
-      "raw_block": [
-        "RVMLogging.out.println(Level.CRITICAL, __DEFAULT_MESSAGE);",
-        "RVMLogging.out.println(Level.CRITICAL, \"The NavigableSet was modified while an iteration over a NavigableSet that shares the same storage.\");"
-      ]
+      "body": {
+        "statements": [
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "__DEFAULT_MESSAGE"
+          },
+          {
+            "type": "log",
+            "level": "CRITICAL",
+            "message": "\"The NavigableSet was modified while an iteration over a NavigableSet that shares the same storage.\""
+          }
+        ],
+        "has_reset": false
+      }
     }
   }
 }
