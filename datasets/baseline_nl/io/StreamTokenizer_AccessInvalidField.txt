@@ -1,0 +1,51 @@
+This specification should use the following name and parameters:
+
+- name: StreamTokenizer_AccessInvalidField
+- parameters: StreamTokenizer s
+
+Use this exact name consistently throughout the generated JSON.
+Keep the parameter list exactly as shown.
+
+This property is described as a finite-state behavior with explicit states and transitions.
+
+The monitored events involved in this property are:
+
+1) nexttoken_word is observed after the call as a event. It takes StreamTokenizer s as parameter. It captures the returned value as int t. It matches: call(* StreamTokenizer+.nextToken(..)) && target(s) && condition(t == StreamTokenizer.TT_WORD).
+
+2) nexttoken_num is observed after the call as a event. It takes StreamTokenizer s as parameter. It captures the returned value as int t. It matches: call(* StreamTokenizer+.nextToken(..)) && target(s) && condition(t == StreamTokenizer.TT_NUMBER).
+
+3) nexttoken_eol is observed after the call as a event. It takes StreamTokenizer s as parameter. It captures the returned value as int t. It matches: call(* StreamTokenizer+.nextToken(..)) && target(s) && condition(t == StreamTokenizer.TT_EOL).
+
+4) nexttoken_eof is observed after the call as a event. It takes StreamTokenizer s as parameter. It captures the returned value as int t. It matches: call(* StreamTokenizer+.nextToken(..)) && target(s) && condition(t == StreamTokenizer.TT_EOF).
+
+5) sval is observed before the call as a event. It takes StreamTokenizer s as parameter. It matches: get(* StreamTokenizer.sval) && target(s).
+
+6) nval is observed before the call as a event. It takes StreamTokenizer s as parameter. It matches: get(* StreamTokenizer.nval) && target(s).
+
+The FSM structure is the following:
+
+The execution begins in the state valid.
+
+From valid, nexttoken_word moves it to read_word, nexttoken_num moves it to read_num, nexttoken_eol keeps it in valid, and nexttoken_eof moves it to done.
+
+When the monitor is in read_word, sval keeps it in read_word, nexttoken_word keeps it in read_word, nexttoken_num moves it to read_num, nexttoken_eol moves it to valid, and nexttoken_eof moves it to done.
+
+When the monitor is in read_num, nval keeps it in read_num, nexttoken_word moves it to read_word, nexttoken_num keeps it in read_num, nexttoken_eol moves it to valid, and nexttoken_eof moves it to done.
+
+When the monitor is in done, no further transitions are defined.
+
+In plain terms, this property means:
+
+The monitored execution starts in the state 'valid'. The property distinguishes the following states: valid, read_word, read_num, done. The behavior evolves through the occurrence of these events: nexttoken_word, nexttoken_num, nexttoken_eol, nexttoken_eof, sval, nval. Any execution that deviates from the expected transition behavior must be treated as a violation because: __DEFAULT_MESSAGE
+
+Any execution that does not follow this transition behavior, or that reaches an invalid behavior according to the rule below, must be treated as a violation.
+
+The violation message that must appear in the JSON output is:
+
+"__DEFAULT_MESSAGE"
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Return ONLY the IR JSON.

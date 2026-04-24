@@ -1,0 +1,53 @@
+This specification should use the following identifier and signature:
+
+- id: SecurityManager_Permission
+- parameters: SecurityManager manager, Object context
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) get is observed after the call as an event.
+   Parameters: SecurityManager manager.
+   Returning: Object context.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * SecurityManager.getSecurityContext(..)
+   - the target is manager
+
+2) check is observed before the call as an event.
+   Parameters: SecurityManager manager, Object context.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * SecurityManager.checkPermission(Permission, Object)
+   - the target is manager
+   - the arguments are .., context
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: get, check.
+
+Behavioral pattern to encode:
+The forbidden behavior follows this order:
+1) The get event occurs.
+2) A grouped main sequence may repeat any number of times, including zero. This grouped sequence consists of:
+   2.1) One of the following alternatives is allowed:
+      - the get event occurs.
+      - the check event occurs.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: fail
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="The context argument to checkPermission must come from getSecurityContext method call."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "lang"
+
+Return ONLY the IR JSON.

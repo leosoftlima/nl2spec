@@ -1,0 +1,117 @@
+This specification should use the following identifier and signature:
+
+- id: NavigableMap_Modification
+- parameters: NavigableMap m1, NavigableMap m2, Collection c, Iterator i
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) create is observed after the call as a creation event.
+   Parameters: NavigableMap m1.
+   Returning: NavigableMap m2.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching NavigableMap NavigableMap+.descendingMap()
+   - the target is m1
+
+2) getset1 is observed after the call as an event.
+   Parameters: NavigableMap m1.
+   Returning: Collection c.
+   It matches the following top-level pointcut atoms, in order. The connectors between consecutive atoms are: ||, ||, &&.
+   - a call matching Set Map+.keySet()
+   - a call matching Set Map+.entrySet()
+   - a call matching Collection Map+.values()
+   - the target is m1
+
+3) getset2 is observed after the call as an event.
+   Parameters: NavigableMap m2.
+   Returning: Collection c.
+   It matches the following top-level pointcut atoms, in order. The connectors between consecutive atoms are: ||, ||, &&.
+   - a call matching Set Map+.keySet()
+   - a call matching Set Map+.entrySet()
+   - a call matching Collection Map+.values()
+   - the target is m2
+
+4) getiter is observed after the call as an event.
+   Parameters: Collection c.
+   Returning: Iterator i.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching Iterator Iterable+.iterator()
+   - the target is c
+
+5) modify1 is observed before the call as an event.
+   Parameters: NavigableMap m1.
+   It matches the following top-level pointcut atoms, in order. The connectors between consecutive atoms are: ||, ||, &&.
+   - a call matching * Map+.clear*(..)
+   - a call matching * Map+.put*(..)
+   - a call matching * Map+.remove(..)
+   - the target is m1
+
+6) modify2 is observed before the call as an event.
+   Parameters: NavigableMap m2.
+   It matches the following top-level pointcut atoms, in order. The connectors between consecutive atoms are: ||, ||, &&.
+   - a call matching * Map+.clear*(..)
+   - a call matching * Map+.put*(..)
+   - a call matching * Map+.remove(..)
+   - the target is m2
+
+7) modify3 is observed before the call as an event.
+   Parameters: Collection c.
+   It matches the following top-level pointcut atoms, in order. The connectors between consecutive atoms are: ||, &&.
+   - a call matching * Collection+.add(..)
+   - a call matching * Collection+.addAll(..)
+   - the target is c
+
+8) useiter is observed before the call as an event.
+   Parameters: Iterator i.
+   It matches the following top-level pointcut atoms, in order. The connectors between consecutive atoms are: ||, &&.
+   - a call matching * Iterator.hasNext(..)
+   - a call matching * Iterator.next(..)
+   - the target is i
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: create, modify1, modify2, getset1, getset2, modify3, getiter, useiter.
+
+Behavioral pattern to encode:
+The forbidden behavior follows this order:
+1) The create event occurs.
+2) A grouped main sequence may repeat any number of times, including zero. This grouped sequence consists of:
+   2.1) One of the following alternatives is allowed:
+      - the modify1 event occurs.
+      - the modify2 event occurs.
+3) One of the following alternatives is allowed:
+   - the getset1 event occurs.
+   - the getset2 event occurs.
+4) A grouped main sequence may repeat any number of times, including zero. This grouped sequence consists of:
+   4.1) One of the following alternatives is allowed:
+      - the modify1 event occurs.
+      - the modify2 event occurs.
+      - the modify3 event occurs.
+5) The getiter event occurs.
+6) The useiter event may repeat any number of times, including zero.
+7) A grouped sequence must repeat one or more times. This grouped sequence consists of:
+   7.1) One of the following alternatives is allowed:
+      - the modify1 event occurs.
+      - the modify2 event occurs.
+      - the modify3 event occurs.
+8) The useiter event occurs.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: match
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="The NavigableMap was modified while an iteration over a collection view of a NavigableMap that shares the same storage."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Return ONLY the IR JSON.

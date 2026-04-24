@@ -1,0 +1,59 @@
+This specification should use the following identifier and signature:
+
+- id: Map_UnsynchronizedAddAll
+- parameters: Map t, Map s
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) enter is observed before the call as a creation event.
+   Parameters: Map t, Map s.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching boolean Map+.putAll(..)
+   - the target is t
+   - the arguments are s
+
+2) modify is observed before the call as an event.
+   Parameters: Map s.
+   It matches the following top-level pointcut atoms, in order. The connectors between consecutive atoms are: ||, ||, &&.
+   - a call matching * Map+.clear(..)
+   - a call matching * Map+.put*(..)
+   - a call matching * Map+.remove*(..)
+   - the target is s
+
+3) leave is observed after the call as an event.
+   Parameters: Map t, Map s.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching void Map+.putAll(..)
+   - the target is t
+   - the arguments are s
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: enter, leave, modify.
+
+Behavioral pattern to encode:
+1) A grouped main sequence may repeat any number of times, including zero. This grouped sequence consists of:
+   1.1) The enter event occurs.
+   1.2) The leave event occurs.
+   1.3) The modify event may repeat any number of times, including zero.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: fail
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="The source map of putAll() has been modified."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Return ONLY the IR JSON.

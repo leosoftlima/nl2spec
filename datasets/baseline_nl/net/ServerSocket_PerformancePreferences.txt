@@ -1,0 +1,62 @@
+This specification should use the following identifier and signature:
+
+- id: ServerSocket_PerformancePreferences
+- parameters: ServerSocket sock
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) create_bound is observed after the call as a creation event.
+   Parameters: none.
+   Returning: ServerSocket sock.
+   It matches the following top-level pointcut atom:
+   - a call matching ServerSocket.new(int, ..)
+
+2) create_unbound is observed after the call as a creation event.
+   Parameters: none.
+   Returning: ServerSocket sock.
+   It matches the following top-level pointcut atom:
+   - a call matching ServerSocket.new()
+
+3) bind is observed before the call as an event.
+   Parameters: ServerSocket sock.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * ServerSocket+.bind(..)
+   - the target is sock
+
+4) set is observed before the call as an event.
+   Parameters: ServerSocket sock.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * ServerSocket+.setPerformancePreferences(..)
+   - the target is sock
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: create_bound, create_unbound, set, bind.
+
+Behavioral pattern to encode:
+The forbidden behavior follows this order:
+1) One of the following alternatives is allowed:
+   - the create_bound event occurs.
+   - the grouped sequence occurs in this order: the create_unbound event occurs then the set event may repeat any number of times, including zero then the bind event occurs one or more times.
+2) The set event occurs.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: match
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="Invoking ServerSocket.setPerformancePreferences() after the socket has been bound will have no effect."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "net"
+
+Return ONLY the IR JSON.

@@ -1,0 +1,84 @@
+This specification should use the following identifier and signature:
+
+- id: PipedStream_SingleThread
+- parameters: PipedInputStream i, PipedOutputStream o, Thread t
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) create1 is observed after the call as a creation event.
+   Parameters: PipedOutputStream o.
+   Returning: PipedInputStream i.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching PipedInputStream+.new(PipedOutputStream+)
+   - the arguments are o
+
+2) create2 is observed before the call as a creation event.
+   Parameters: PipedInputStream i, PipedOutputStream o.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * PipedInputStream+.connect(PipedOutputStream+)
+   - the target is i
+   - the arguments are o
+
+3) create3 is observed after the call as a creation event.
+   Parameters: PipedInputStream i.
+   Returning: PipedOutputStream o.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching PipedOutputStream+.new(PipedInputStream+)
+   - the arguments are i
+
+4) create4 is observed before the call as a creation event.
+   Parameters: PipedOutputStream o, PipedInputStream i.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * PipedOutputStream+.connect(PipedInputStream+)
+   - the target is o
+   - the arguments are i
+
+5) write is observed before the call as an event.
+   Parameters: PipedOutputStream o, Thread t.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * OutputStream+.write(..)
+   - the target is o
+   - the executing thread is t
+
+6) read is observed before the call as an event.
+   Parameters: PipedInputStream i, Thread t.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * InputStream+.read(..)
+   - the target is i
+   - the executing thread is t
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: create1, create2, create3, create4, write, read.
+
+Behavioral pattern to encode:
+The forbidden behavior follows this order:
+1) One of the following alternatives is allowed:
+   - the create1 event occurs.
+   - the create2 event occurs.
+   - the create3 event occurs.
+   - the create4 event occurs.
+2) One of the following alternatives is allowed:
+   - the write event may repeat any number of times, including zero.
+   - the read event may repeat any number of times, including zero.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: fail
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="A single thread attempted to use both a PipedInputStream instance and a PipedOutputStream instance, which may deadlock the thread."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Return ONLY the IR JSON.

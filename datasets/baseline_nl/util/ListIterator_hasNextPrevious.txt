@@ -1,0 +1,51 @@
+This specification should use the following name and parameters:
+
+- name: ListIterator_hasNextPrevious
+- parameters: ListIterator i
+
+Use this exact name consistently throughout the generated JSON.
+Keep the parameter list exactly as shown.
+
+This property is described as a finite-state behavior with explicit states and transitions.
+
+The monitored events involved in this property are:
+
+1) hasnexttrue is observed after the call as a event. It takes ListIterator i as parameter. It captures the returned value as boolean b. It matches: call(* ListIterator.hasNext()) && target(i) && condition(b).
+
+2) hasnextfalse is observed after the call as a event. It takes ListIterator i as parameter. It captures the returned value as boolean b. It matches: call(* ListIterator.hasNext()) && target(i) && condition(!b).
+
+3) next is observed before the call as a event. It takes ListIterator i as parameter. It matches: call(* ListIterator.next()) && target(i).
+
+4) hasprevioustrue is observed after the call as a event. It takes ListIterator i as parameter. It captures the returned value as boolean b. It matches: call(* ListIterator.hasPrevious()) && target(i) && condition(b).
+
+5) haspreviousfalse is observed after the call as a event. It takes ListIterator i as parameter. It captures the returned value as boolean b. It matches: call(* ListIterator.hasPrevious()) && target(i) && condition(!b).
+
+6) previous is observed before the call as a event. It takes ListIterator i as parameter. It matches: call(* ListIterator.previous()) && target(i).
+
+The FSM structure is the following:
+
+The execution begins in the state na.
+
+From na, hasnexttrue moves it to nextavailable, hasnextfalse keeps it in na, hasprevioustrue moves it to prevavailable, and haspreviousfalse keeps it in na.
+
+When the monitor is in nextavailable, hasprevioustrue moves it to bothavailable, haspreviousfalse keeps it in nextavailable, hasnexttrue keeps it in nextavailable, hasnextfalse moves it to na, and next moves it to prevavailable.
+
+When the monitor is in prevavailable, hasnexttrue moves it to bothavailable, hasnextfalse keeps it in prevavailable, hasprevioustrue keeps it in prevavailable, haspreviousfalse moves it to na, and previous moves it to nextavailable.
+
+When the monitor is in bothavailable, hasnexttrue keeps it in bothavailable, hasnextfalse moves it to prevavailable, hasprevioustrue keeps it in bothavailable, haspreviousfalse moves it to nextavailable, next moves it to prevavailable, and previous moves it to nextavailable.
+
+In plain terms, this property means:
+
+The monitored execution starts in the state 'na'. The property distinguishes the following states: na, nextavailable, prevavailable, bothavailable. The behavior evolves through the occurrence of these events: hasnexttrue, hasnextfalse, next, hasprevioustrue, haspreviousfalse, previous. Any execution that deviates from the expected transition behavior must be treated as a violation because: __DEFAULT_MESSAGE
+
+Any execution that does not follow this transition behavior, or that reaches an invalid behavior according to the rule below, must be treated as a violation.
+
+The violation message that must appear in the JSON output is:
+
+"__DEFAULT_MESSAGE"
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Return ONLY the IR JSON.

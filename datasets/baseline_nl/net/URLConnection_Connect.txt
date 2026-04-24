@@ -1,0 +1,59 @@
+This specification should use the following identifier and signature:
+
+- id: URLConnection_Connect
+- parameters: URLConnection c
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) explicit is observed before the call as an event.
+   Parameters: URLConnection c.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * URLConnection+.connect(..)
+   - the target is c
+
+2) implicit is observed before the call as an event.
+   Parameters: URLConnection c.
+   It matches the following top-level pointcut atoms, in order. The connectors between consecutive atoms are: ||, ||, ||, ||, ||, ||, ||, ||, ||, ||, ||, &&.
+   - a call matching * URLConnection+.getContent(..)
+   - a call matching * URLConnection+.getContentEncoding(..)
+   - a call matching * URLConnection+.getContentLength(..)
+   - a call matching * URLConnection+.getContentType(..)
+   - a call matching * URLConnection+.getDate(..)
+   - a call matching * URLConnection+.getExpiration(..)
+   - a call matching * URLConnection+.getHeaderField(..)
+   - a call matching * URLConnection+.getHeaderFieldInt(..)
+   - a call matching * URLConnection+.getHeaderFields(..)
+   - a call matching * URLConnection+.getInputStream(..)
+   - a call matching * URLConnection+.getLastModified(..)
+   - a call matching * URLConnection+.getOutputStream(..)
+   - the target is c
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: explicit, implicit.
+
+Behavioral pattern to encode:
+The forbidden behavior follows this order:
+1) one of the following alternatives occurs: the explicit event; the implicit event.
+2) the explicit event occurs one or more times.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: match
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="URLConnection.connect() has been called multiple twice."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "net"
+
+Return ONLY the IR JSON.

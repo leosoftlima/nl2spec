@@ -44,17 +44,17 @@ PROJECT_ROOT = find_project_root(SCRIPT_PATH.parent)
 
 BASELINE_DIR = PROJECT_ROOT / "nl2spec" / "datasets" / "baseline_ir_temp"
 FEWSHOT_DIR = PROJECT_ROOT / "nl2spec" / "datasets" / "fewshot"
-RESULTS_DIR = PROJECT_ROOT / "results"
+RESULTS_DIR = PROJECT_ROOT / "nl2spec" / "output"/ "temp_results"
 FEWSHOT_RESULTS_DIR = RESULTS_DIR / "fewshot"
 
 # ======================================================
 # CONFIGURAÇÃO EXPERIMENTAL
 # ======================================================
 
-TARGET_FORMALISM = "event"     # "ltl " | "fsm" | "event" | "ere" | "all"
-SHOT_MODE = "few"            # "zero" | "one" | "few"
-K = 3                        #    0   |   1   | 3
-SELECTION = "structural"     # "structural" | "random"
+TARGET_FORMALISM = "ere"        # "ltl " | "fsm" | "event" | "ere" | "all"
+SHOT_MODE = "few"               # "zero" | "one" | "few"
+K = 3                           #    0   |   1   | 3
+SELECTION = "mmr"            # random | irsp  | mmr     | mmr_irsp
 
 # ======================================================
 # UTILIDADES
@@ -66,7 +66,7 @@ def load_json(path: Path) -> dict:
 
 
 def get_ir_type(spec_json: dict) -> str:
-    return spec_json.get("formalism") or spec_json.get("ir", {}).get("type", "").lower()
+    return spec_json.get("formalism").lower()
 
 
 def _ensure_results_dir() -> None:
@@ -88,6 +88,7 @@ def save_results(rows: List[dict], formalism: str) -> Path:
                 "rank",
                 "selected_fewshot",
                 "distance",
+                "score",
             ],
         )
         writer.writeheader()
@@ -113,12 +114,12 @@ def main():
     allowed = {"ltl", "fsm", "event", "ere", "all"}
     if TARGET_FORMALISM not in allowed:
         raise ValueError(f"Invalid TARGET_FORMALISM='{TARGET_FORMALISM}'")
-
+   
     loader = FewShotLoader(str(FEWSHOT_DIR))
-
+    
     print(f"Target formalism: {TARGET_FORMALISM}")
     print(f"Shot mode: {SHOT_MODE} | k={K} | selection={SELECTION}\n")
-
+   
     # 👇 agora inclui ERE
     rows_by_formalism: Dict[str, List[dict]] = {
         "ltl": [],
@@ -152,7 +153,7 @@ def main():
 
             try:
 
-                selected: List[Tuple[Path, float]] = loader.get(
+                selected: List[Path] = loader.get(
                     ir_type=ir_type,
                     shot_mode=SHOT_MODE,
                     k=K,
@@ -171,22 +172,21 @@ def main():
                         "rank": 0,
                         "selected_fewshot": "",
                         "distance": "",
+                        "score": "",
                     })
 
                 else:
-                    for rank, (path, dist) in enumerate(selected, start=1):
+                    for rank, (path,score) in enumerate(selected, start=1):
 
-                        print(
-                            f"  → Selected (rank {rank}): {path.name} "
-                            f"| distance={dist:.4f}"
-                        )
+                        print(f"  → Selected (rank {rank}): {path.name} | score={score:.6f}")
 
                         rows_by_formalism[ir_type].append({
                             "dataset": file_path.stem,
                             "formalism": ir_type,
                             "rank": rank,
                             "selected_fewshot": path.name,
-                            "distance": f"{dist:.6f}",
+                            "distance": f"{score:.6f}",
+                            "score" : f"{score:.6f}",
                         })
 
             except Exception as e:

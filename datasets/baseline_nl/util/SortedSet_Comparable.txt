@@ -1,0 +1,23 @@
+This specification is written in the EVENT formalism.
+
+This specification is called SortedSet_Comparable.
+It should use these parameters: [SortedSet s].
+
+The following events are monitored in this specification:
+
+add is observed before the call as a event. It takes SortedSet s and Object e. It matches: call(* Collection+.add*(..)) || call(* Queue+.offer*(..)) && target(s) && args(e).
+
+addall is observed before the call as a event. It takes SortedSet s and Collection c. It matches: call(* Collection+.addAll(Collection)) && target(s) && args(c).
+
+A violation occurs when a monitored event is triggered under the pointcut conditions described above and its associated violation handler is activated.
+
+The violation message that must be used in the JSON output is:
+
+"__DEFAULT_MESSAGE"
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Return ONLY the IR JSON.
+Do not include explanations, markdown, comments, or extra text.

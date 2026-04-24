@@ -1,0 +1,129 @@
+This specification should use the following identifier and signature:
+
+- id: PushbackInputStream_UnreadAheadLimit
+- parameters: PushbackInputStream p
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) create is observed after the call as a creation event.
+   Parameters: none.
+   Returning: PushbackInputStream p.
+   It matches the following top-level pointcut atom:
+   - a call matching PushbackInputStream+.new(InputStream)
+
+2) create is observed after the call as a creation event.
+   Parameters: int size.
+   Returning: PushbackInputStream p.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching PushbackInputStream+.new(InputStream, int)
+   - the arguments are .., size
+
+3) read1 is observed after the call as an event.
+   Parameters: PushbackInputStream p.
+   Returning: int r.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * PushbackInputStream+.read()
+   - the target is p
+
+4) read2 is observed after the call as an event.
+   Parameters: PushbackInputStream p.
+   Returning: int n.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * PushbackInputStream+.read(byte[], int, int)
+   - the target is p
+
+5) safeunread is observed before the call as an event.
+   Parameters: PushbackInputStream p.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * PushbackInputStream+.unread(int)
+   - the target is p
+   - the condition pos > 0 holds
+
+6) unsafeunread is observed before the call as an event.
+   Parameters: PushbackInputStream p.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * PushbackInputStream+.unread(int)
+   - the target is p
+   - the condition pos == 0 holds
+
+7) safeunread is observed before the call as an event.
+   Parameters: PushbackInputStream p, byte[] b.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * PushbackInputStream+.unread(byte[])
+   - the target is p
+   - the arguments are b
+   - the condition pos >= b.length holds
+
+8) unsafeunread is observed before the call as an event.
+   Parameters: PushbackInputStream p, byte[] b.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * PushbackInputStream+.unread(byte[])
+   - the target is p
+   - the arguments are b
+   - the condition pos < b.length holds
+
+9) safeunread is observed before the call as an event.
+   Parameters: PushbackInputStream p, Object b.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * PushbackInputStream+.unread(byte[])
+   - the target is p
+   - the arguments are b
+   - the condition pos >= ((byte[])b).length holds
+
+10) unsafeunread is observed before the call as an event.
+   Parameters: PushbackInputStream p, Object b.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * PushbackInputStream+.unread(byte[])
+   - the target is p
+   - the arguments are b
+   - the condition pos < ((byte[])b).length holds
+
+11) safeunread is observed before the call as an event.
+   Parameters: PushbackInputStream p, int len.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * PushbackInputStream+.unread(byte[], int, int)
+   - the target is p
+   - the arguments are .., len
+   - the condition pos >= len holds
+
+12) unsafeunread is observed before the call as an event.
+   Parameters: PushbackInputStream p, int len.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * PushbackInputStream+.unread(byte[], int, int)
+   - the target is p
+   - the arguments are .., len
+   - the condition pos < len holds
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: create, read1, read2, safeunread.
+
+Behavioral pattern to encode:
+The forbidden behavior follows this order:
+1) The create event occurs.
+2) A grouped main sequence may repeat any number of times, including zero. This grouped sequence consists of:
+   2.1) One of the following alternatives is allowed:
+      - the read1 event occurs.
+      - the read2 event occurs.
+      - the safeunread event occurs.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: fail
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="unread() cannot be performed because the internal pushback buffer is full."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Return ONLY the IR JSON.

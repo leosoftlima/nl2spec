@@ -1,0 +1,60 @@
+This specification should use the following identifier and signature:
+
+- id: List_UnsynchronizedSubList
+- parameters: List b, List s
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) createsublist is observed after the call as a creation event.
+   Parameters: List b.
+   Returning: List s.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * List.subList(..)
+   - the target is b
+
+2) modifybackinglist is observed before the call as an event.
+   Parameters: List b.
+   It matches the following top-level pointcut atoms, in order. The connectors between consecutive atoms are: ||, ||, ||, &&.
+   - a call matching * Collection+.add*(..)
+   - a call matching * Collection+.remove*(..)
+   - a call matching * Collection+.clear(..)
+   - a call matching * Collection+.retain*(..)
+   - the target is b
+
+3) usesublist is observed before the call as an event.
+   Parameters: List s.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * List.*(..)
+   - the target is s
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: createsublist, usesublist, modifybackinglist.
+
+Behavioral pattern to encode:
+The forbidden behavior follows this order:
+1) the createsublist event occurs.
+2) the usesublist event may repeat any number of times, including zero.
+3) the modifybackinglist event occurs one or more times.
+4) the usesublist event occurs.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: match
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="The backing list was modified while a sub-list is being used."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Return ONLY the IR JSON.

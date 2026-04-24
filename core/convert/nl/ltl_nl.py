@@ -1,288 +1,206 @@
-from typing import Dict, List, Optional
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Union
 import re
+
+from nl2spec.core.convert.event import extract_signature
+from nl2spec.core.convert.ltl import (
+    extract_formula,
+    extract_violation_block,
+    extract_events,
+)
 
 
 class LTLNL:
+    """
+    MOP -> NL renderer for LTL specifications.
 
+    Direct .mop -> NL (NO IR).
+    """
 
-    def extract_context(self, spec: Dict, domain: str) -> Dict[str, str]:
-        signature = spec.get("signature", {}) or {}
-        ir = spec.get("ir", {}) or {}
+    # ==========================================================
+    # PUBLIC API
+    # ==========================================================
+
+    def extract_context(
+        self,
+        source: Union[str, Path],
+        domain: Optional[str] = None,
+        spec_id: Optional[str] = None,
+    ) -> dict:
+
+        mop_text, resolved_id, resolved_domain = self._read_mop_source(
+            source, domain, spec_id
+        )
+
+        signature = extract_signature(mop_text)
+
+        # ⚠️ CORREÇÃO
+        events = extract_events(mop_text)
+        methods = self._unwrap_methods(events)
+
+        ltl = extract_formula(mop_text)
+        violation = extract_violation_block(mop_text)
 
         return {
-            "SPEC_NAME": signature.get("name") or spec.get("id", ""),
-            "SIGNATURE_PARAMETERS": self._render_signature_parameters(signature),
-            "EVENT_BLOCK": self._render_events_block(ir.get("events", []) or []),
-            "LTL_BLOCK": self._render_ltl_block(ir.get("ltl", {}) or {}),
-            "LTL_SEMANTICS": self._render_ltl_semantics(ir.get("ltl", {}) or {}),
-            "VIOLATION_SEMANTICS": self._render_violation_semantics(ir.get("violation", {}) or {}),
-            "DOMAIN": domain or spec.get("domain", ""),
+            "SPEC_NAME": resolved_id,
+            "SIGNATURE_PARAMETERS": self._render_signature(signature),
+            "EVENT_BLOCK": self._render_events(methods),
+            "LTL_BLOCK": self._render_ltl_block(ltl),
+            "LTL_SEMANTICS": self._render_ltl_semantics(ltl),
+            "VIOLATION_SEMANTICS": self._render_violation(violation),
+            "DOMAIN": resolved_domain,
         }
 
-    # ======================================================
-    # SIGNATURE
-    # ======================================================
+    # ==========================================================
+    # SOURCE
+    # ==========================================================
 
-    def _render_signature_parameters(self, signature: Dict) -> str:
+    def _read_mop_source(self, source, domain, spec_id):
+        path = Path(source)
+
+        if not path.exists():
+            raise FileNotFoundError(f"MOP file not found: {path}")
+
+        text = path.read_text(encoding="utf-8", errors="replace")
+
+        resolved_id = spec_id or path.stem
+        resolved_domain = domain or self._detect_domain(path)
+
+        return text, resolved_id, resolved_domain
+
+    def _detect_domain(self, path: Path):
+        for p in path.parts:
+            if p in {"io", "net", "util", "lang"}:
+                return p
+        return "unknown"
+
+    # ==========================================================
+    # SIGNATURE
+    # ==========================================================
+
+    def _render_signature(self, signature):
         params = signature.get("parameters", []) or []
+
         if not params:
             return "none"
 
-        lines = []
-        for p in params:
-            ptype = p.get("type", "<?>")
-            pname = p.get("name", "<?>")
-            lines.append(f"- {ptype} {pname}")
-        return "\n".join(lines)
+        return "\n".join(
+            f"- {p.get('type','<?>')} {p.get('name','<?>')}"
+            for p in params
+        )
 
-    # ======================================================
+    # ==========================================================
     # EVENTS
-    # ======================================================
+    # ==========================================================
 
-    def _render_events_block(self, events: List[Dict]) -> str:
-        lines: List[str] = []
+    def _unwrap_methods(self, events: List[Dict]) -> List[Dict]:
+        methods = []
 
-        for event in events:
-            body = event.get("body", {}) or {}
-            methods = body.get("methods", []) or []
-            for method in methods:
-                lines.append(self._render_single_event(method))
+        for ev in events:
+            body = ev.get("body", {})
+            methods.extend(body.get("methods", []))
 
-        return "\n\n".join(lines) if lines else "No monitored events were provided."
+        return methods
 
-    def _render_single_event(self, method: Dict) -> str:
-        name = method.get("name", "<?>")
-        timing = method.get("timing", "")
-        params = method.get("parameters", []) or []
-        returning = method.get("returning")
-        pointcut = self._render_pointcut(method)
+    def _render_events(self, methods):
+        if not methods:
+            return "No monitored events were provided."
 
-        pieces: List[str] = []
+        lines = []
 
-        if timing:
-            pieces.append(f"{name} is an event observed {timing} the call.")
-        else:
-            pieces.append(f"{name} is a monitored event.")
+        for m in methods:
+            name = m.get("name", "")
+            timing = m.get("timing", "")
+            params = self._render_params(m.get("parameters", []))
 
-        if params:
-            pieces.append(f"It takes {self._format_parameters_inline(params)}.")
-        else:
-            pieces.append("It does not take explicit event parameters.")
+            lines.append(
+                f"{name} is observed {timing} the call and receives {params}."
+            )
 
-        if returning:
-            rtype = returning.get("type", "<?>")
-            rname = returning.get("name", "<?>")
-            pieces.append(f"It captures the returned value as {rtype} {rname}.")
+        return "\n\n".join(lines)
 
-        if pointcut:
-            pieces.append(f"It matches: {pointcut}")
-
-        return " ".join(pieces)
-
-    def _render_pointcut(self, method: Dict) -> str:
-        functions = method.get("function", []) or []
-        operations = method.get("operation", []) or []
-        if not functions:
-            return ""
-
-        rendered_functions = [self._render_function(fn) for fn in functions]
-        if len(rendered_functions) == 1:
-            return rendered_functions[0]
-
-        out = [rendered_functions[0]]
-        for i, fn_text in enumerate(rendered_functions[1:], start=0):
-            op = operations[i] if i < len(operations) else "&&"
-            out.append(op)
-            out.append(fn_text)
-        return " ".join(out)
-
-    def _render_function(self, fn: Dict) -> str:
-        name = fn.get("name", "")
-        params = fn.get("parameters", []) or []
+    def _render_params(self, params):
         if not params:
-            return f"{name}()"
+            return "no parameters"
 
-        values = [p.get("name", "") for p in params]
-        return f"{name}({', '.join(values)})"
+        items = [
+            f"{p.get('type','<?>')} {p.get('name','<?>')}"
+            for p in params
+        ]
 
-    def _format_parameters_inline(self, params: List[Dict]) -> str:
-        items = [f"{p.get('type', '<?>')} {p.get('name', '<?>')}" for p in params]
-        if len(items) == 1:
-            return f"{items[0]} as parameter"
-        if len(items) == 2:
-            return f"{items[0]} and {items[1]} as parameters"
-        return f"{', '.join(items[:-1])}, and {items[-1]} as parameters"
+        return self._join(items)
 
-    # ======================================================
+    # ==========================================================
     # LTL
-    # ======================================================
+    # ==========================================================
 
-    def _render_ltl_block(self, ltl: Dict) -> str:
-        formula_name = (ltl.get("name") or "ltl").strip()
-        formula_value = (ltl.get("value") or "").strip()
+    def _render_ltl_block(self, ltl):
+        name = ltl.get("name", "ltl")
+        value = ltl.get("value", "")
 
-        if not formula_value:
+        if not value:
             return "No temporal formula was provided."
 
-        return f"{formula_name}: {formula_value}"
+        return f"{name}: {value}"
 
-    def _render_ltl_semantics(self, ltl: Dict) -> str:
-        formula_value = (ltl.get("value") or "").strip()
-        if not formula_value:
+    def _render_ltl_semantics(self, ltl):
+        formula = (ltl.get("value") or "").strip()
+
+        if not formula:
             return "No temporal semantics were provided."
 
-        formula_value = self._strip_outer_parentheses(formula_value)
+        formula = self._strip_outer(formula)
 
-        # common patterns first
-        m = re.fullmatch(r"\[\]\((.+?)\s*=>\s*o\s+(.+?)\)", formula_value)
+        m = re.fullmatch(r"\[\]\((.+?) => o (.+?)\)", formula)
         if m:
-            left = self._humanize_fragment(m.group(1))
-            right = self._humanize_fragment(m.group(2))
-            return (
-                f"it must always hold that whenever {left} occurs, then {right} occurs in the next step"
-            )
+            return f"whenever {m.group(1)} occurs, {m.group(2)} happens next"
 
-        m = re.fullmatch(r"\[\]\((.+?)\s*=>\s*\(\*\)\s+(.+?)\)", formula_value)
+        m = re.fullmatch(r"\[\]\((.+?) => <> (.+?)\)", formula)
         if m:
-            left = self._humanize_fragment(m.group(1))
-            right = self._humanize_fragment(m.group(2))
-            return (
-                f"it must always hold that whenever {left} occurs, then {right} must have occurred in the previous step"
-            )
+            return f"whenever {m.group(1)} occurs, {m.group(2)} eventually happens"
 
-        m = re.fullmatch(r"\[\]\((.+?)\s*=>\s*<>\s+(.+?)\)", formula_value)
-        if m:
-            left = self._humanize_fragment(m.group(1))
-            right = self._humanize_fragment(m.group(2))
-            return (
-                f"it must always hold that whenever {left} occurs, then {right} eventually occurs"
-            )
+        if formula.startswith("[]"):
+            inner = self._strip_outer(formula[2:].strip())
+            return f"it must always hold that {inner}"
 
-        if formula_value.startswith("[]"):
-            inner = self._strip_outer_parentheses(formula_value[2:].strip())
-            return f"it must always hold that {self._humanize_expression(inner)}"
+        if formula.startswith("<>"):
+            inner = self._strip_outer(formula[2:].strip())
+            return f"eventually {inner}"
 
-        if formula_value.startswith("<>"):
-            inner = self._strip_outer_parentheses(formula_value[2:].strip())
-            return f"at some point, {self._humanize_expression(inner)}"
+        return f"the execution must satisfy {formula}"
 
-        return f"the execution must satisfy the temporal rule {formula_value}"
-
-    def _humanize_expression(self, expr: str) -> str:
-        expr = self._strip_outer_parentheses(expr)
-
-        m = re.fullmatch(r"(.+?)\s*=>\s*o\s+(.+)", expr)
-        if m:
-            left = self._humanize_fragment(m.group(1))
-            right = self._humanize_fragment(m.group(2))
-            return f"whenever {left} occurs, then {right} occurs in the next step"
-
-        m = re.fullmatch(r"(.+?)\s*=>\s*\(\*\)\s+(.+)", expr)
-        if m:
-            left = self._humanize_fragment(m.group(1))
-            right = self._humanize_fragment(m.group(2))
-            return f"whenever {left} occurs, then {right} must have occurred in the previous step"
-
-        m = re.fullmatch(r"(.+?)\s*=>\s*<>\s+(.+)", expr)
-        if m:
-            left = self._humanize_fragment(m.group(1))
-            right = self._humanize_fragment(m.group(2))
-            return f"whenever {left} occurs, then {right} eventually occurs"
-
-        m = re.fullmatch(r"(.+?)\s+or\s+(.+)", expr)
-        if m:
-            left = self._humanize_fragment(m.group(1))
-            right = self._humanize_fragment(m.group(2))
-            return f"either {left} or {right} occurs"
-
-        m = re.fullmatch(r"(.+?)\s+and\s+(.+)", expr)
-        if m:
-            left = self._humanize_fragment(m.group(1))
-            right = self._humanize_fragment(m.group(2))
-            return f"both {left} and {right} occur"
-
-        return f"the formula {expr} holds"
-
-    def _humanize_fragment(self, fragment: str) -> str:
-        fragment = self._strip_outer_parentheses(fragment.strip())
-
-        if fragment.startswith("o "):
-            inner = fragment[2:].strip()
-            return f"{self._humanize_fragment(inner)} in the next step"
-
-        if fragment.startswith("(*) "):
-            inner = fragment[4:].strip()
-            return f"{self._humanize_fragment(inner)} in the previous step"
-
-        if fragment.startswith("<>"):
-            inner = fragment[2:].strip()
-            return f"{self._humanize_fragment(inner)} eventually"
-
-        if fragment.startswith("[]"):
-            inner = fragment[2:].strip()
-            return f"{self._humanize_expression(inner)} always"
-
-        m = re.fullmatch(r"(.+?)\s+or\s+(.+)", fragment)
-        if m:
-            left = self._humanize_fragment(m.group(1))
-            right = self._humanize_fragment(m.group(2))
-            return f"either {left} or {right}"
-
-        m = re.fullmatch(r"(.+?)\s+and\s+(.+)", fragment)
-        if m:
-            left = self._humanize_fragment(m.group(1))
-            right = self._humanize_fragment(m.group(2))
-            return f"both {left} and {right}"
-
-        return fragment
-
-    def _strip_outer_parentheses(self, text: str) -> str:
+    def _strip_outer(self, text):
         text = text.strip()
-        while text.startswith("(") and text.endswith(")") and self._is_balanced(text[1:-1]):
+        while text.startswith("(") and text.endswith(")"):
             text = text[1:-1].strip()
         return text
 
-    def _is_balanced(self, text: str) -> bool:
-        depth = 0
-        for ch in text:
-            if ch == "(":
-                depth += 1
-            elif ch == ")":
-                depth -= 1
-                if depth < 0:
-                    return False
-        return depth == 0
-
-    # ======================================================
+    # ==========================================================
     # VIOLATION
-    # ======================================================
+    # ==========================================================
 
-    def _render_violation_semantics(self, violation: Dict) -> str:
-        if not violation:
-            return "No violation handler was provided."
+    def _render_violation(self, violation):
+        stmts = violation.get("statements", []) or []
 
-        tag = (violation.get("tag") or "violation").strip()
-        statements = violation.get("statements", []) or []
+        for st in stmts:
+            if st.get("type") == "log":
+                val = st.get("value", "")
+                return self._clean(val)
 
-        if not statements:
-            return f"When the property is {tag}, no explicit handler action is provided"
+        return "A violation must be reported."
 
-        actions = [self._render_violation_statement(stmt) for stmt in statements]
-        if len(actions) == 1:
-            return f"When the property is {tag}, the monitor {actions[0]}"
-        if len(actions) == 2:
-            return f"When the property is {tag}, the monitor {actions[0]} and {actions[1]}"
+    def _clean(self, msg):
+        msg = msg.strip('"')
+        msg = msg.replace("+ __LOC", "")
+        return msg.strip()
 
-        return (
-            f"When the property is {tag}, the monitor "
-            + ", ".join(actions[:-1])
-            + f", and {actions[-1]}"
-        )
+    # ==========================================================
+    # HELPERS
+    # ==========================================================
 
-    def _render_violation_statement(self, stmt: Dict) -> str:
-        stype = (stmt.get("type") or "raw").strip().lower()
-        value = (stmt.get("value") or "").strip()
-
-        if stype == "log":
-            return f"logs {value}"
-        return f"executes `{value}`"
+    def _join(self, items):
+        if len(items) == 1:
+            return items[0]
+        if len(items) == 2:
+            return f"{items[0]} and {items[1]}"
+        return ", ".join(items[:-1]) + f", and {items[-1]}"

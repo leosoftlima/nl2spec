@@ -1,0 +1,45 @@
+This specification should use the following name and parameters:
+
+- name: ShutdownHook_SystemExit
+- parameters: Thread t
+
+Use this exact name consistently throughout the generated JSON.
+Keep the parameter list exactly as shown.
+
+This property is described as a finite-state behavior with explicit states and transitions.
+
+The monitored events involved in this property are:
+
+1) register is observed before the call as a creation event. It takes Thread t as parameter. It matches: call(* Runtime+.addShutdownHook(..)) && args(t).
+
+2) unregister is observed before the call as a creation event. It takes Thread t as parameter. It matches: call(* Runtime+.removeShutdownHook(..)) && args(t).
+
+3) start is observed before the call as a event. It takes Thread t as parameter. It matches: startThread() && thread(t).
+
+The FSM structure is the following:
+
+The execution begins in the state unregistered.
+
+From unregistered, register moves it to registered.
+
+When the monitor is in registered, unregister moves it to unregistered and start moves it to started.
+
+When the monitor is in started, exit moves it to unsafe.
+
+When the monitor is in unsafe, exit keeps it in unsafe.
+
+In plain terms, this property means:
+
+The monitored execution starts in the state 'unregistered'. The property distinguishes the following states: unregistered, registered, started, unsafe. The behavior evolves through the occurrence of these events: register, unregister, start. Any execution that deviates from the expected transition behavior must be treated as a violation because: __DEFAULT_MESSAGE
+
+Any execution that does not follow this transition behavior, or that reaches an invalid behavior according to the rule below, must be treated as a violation.
+
+The violation message that must appear in the JSON output is:
+
+"__DEFAULT_MESSAGE"
+
+The generated JSON must include the field:
+
+"domain": "lang"
+
+Return ONLY the IR JSON.

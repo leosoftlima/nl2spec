@@ -7,19 +7,13 @@ Use this exact identifier consistently throughout the generated JSON.
 The field "signature.name" must be the same as "id".
 Keep the parameter list exactly as shown.
 
-This property is described as an Extended Regular Expression (ERE) behavior over monitored runtime events.
-
 The monitored events involved in this property are:
 
 {{EVENT_BLOCK}}
 
-The ERE pattern is the following:
-
 {{ERE_BLOCK}}
 
 Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
-
-This pattern defines the forbidden behavior that must be represented in the JSON.
 
 If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
 

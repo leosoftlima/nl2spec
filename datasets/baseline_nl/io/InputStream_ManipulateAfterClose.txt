@@ -1,0 +1,53 @@
+This specification should use the following identifier and signature:
+
+- id: InputStream_ManipulateAfterClose
+- parameters: InputStream i
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) manipulate is observed before the call as an event.
+   Parameters: InputStream i.
+   It matches the following top-level pointcut atoms, in order. The connectors between consecutive atoms are: ||, ||, ||, &&, &&, &&.
+   - a call matching * InputStream+.read(..)
+   - a call matching * InputStream+.available(..)
+   - a call matching * InputStream+.reset(..)
+   - a call matching * InputStream+.skip(..)
+   - the target is i
+   - the target is not ByteArrayInputStream
+   - the target is not StringBufferInputStream
+
+2) close is observed before the call as a creation event.
+   Parameters: InputStream i.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * InputStream+.close(..)
+   - the target is i
+   - the target is not ByteArrayInputStream
+   - the target is not StringBufferInputStream
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: close, manipulate.
+
+Behavioral pattern to encode:
+The forbidden behavior begins with one or more occurrences of the close event. After that, the manipulate event occurs.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: match
+- statements:
+1) type=raw; value=RVMLogging.err.println(Level.CRITICAL, __DEFAULT_MESSAGE);
+2) type=command; name=reset
+- has_reset: true
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Return ONLY the IR JSON.

@@ -148,27 +148,33 @@ def stage_llm(ctx, flags):
         # ----------------------------
         max_prompts = 300
         allowed_specs = {
+            
             "BufferedInputStream_SynchronizedFill",
             "Closeable_MultipleClose",
             "Console_CloseReader",
+            "InputStream_MarkAfterClose",
             "OutputStream_ManipulateAfterClose",
+            "PipedStream_SingleThread",
             "Reader_ReadAheadLimit",
             "Writer_ManipulateAfterClose",
-            "InputStream_MarkAfterClose",
+            
             
             "Appendable_ThreadSafe",
             "Math_ContendedRandom",
             "SecurityManager_Permission",
             "StrictMath_ContendedRandom",
+            "StringBuilder_ThreadSafe",
             "Thread_SetDaemonBeforeStart",
             
             "HttpURLConnection_SetBeforeConnect",
+            "ServerSocket_LargeReceiveBuffer",
             "ServerSocket_ReuseAddress",
             "Socket_CloseInput",
             "Socket_OutputStreamUnavailable",
             "SocketImpl_CloseOutput",
-            "URLConnection_SetBeforeConnect",
+            "URL_SetURLStreamHandlerFactory"
             "URLConnection_Connect",
+            "URLConnection_SetBeforeConnect",
             
             "ArrayDeque_UnsafeIterator",
             "Collection_UnsynchronizedAddAll",
@@ -178,7 +184,9 @@ def stage_llm(ctx, flags):
             "List_UnsynchronizedSubList",
             "Map_CollectionViewAdd",
             "Map_UnsynchronizedAddAll",
+            "NavigableMap_UnsafeIterator",
             "Properties_ManipulateAfterLoad",
+            "ResourceBundleControl_MutateFormatList",
             "Scanner_ManipulateAfterClose",
             "ServiceLoaderIterator_Remove",
 

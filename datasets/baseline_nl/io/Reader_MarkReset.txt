@@ -1,0 +1,23 @@
+This specification is written in the EVENT formalism.
+
+This specification is called Reader_MarkReset.
+
+
+The following events are monitored in this specification:
+
+mark is observed before the call as a event. It takes Reader+ r. It matches: call(* Reader+.mark(..)) && target(r) && target(PushbackReader) || target(InputStreamReader) || target(FileReader) || target(PipedReader).
+
+reset is observed before the call as a event. It takes Reader+ r. It matches: call(* Reader+.reset(..)) && target(r) && target(PushbackReader) || target(InputStreamReader) || target(FileReader) || target(PipedReader).
+
+A violation occurs when a monitored event is triggered under the pointcut conditions described above and its associated violation handler is activated.
+
+The violation message that must be used in the JSON output is:
+
+"__DEFAULT_MESSAGE"
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Return ONLY the IR JSON.
+Do not include explanations, markdown, comments, or extra text.

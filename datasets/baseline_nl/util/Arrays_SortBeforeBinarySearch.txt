@@ -1,0 +1,55 @@
+This specification should use the following name and parameters:
+
+- name: Arrays_SortBeforeBinarySearch
+- parameters: Object[] arr
+
+Use this exact name consistently throughout the generated JSON.
+Keep the parameter list exactly as shown.
+
+This property is described as a finite-state behavior with explicit states and transitions.
+
+The monitored events involved in this property are:
+
+1) sort1 is observed before the call as a event. It takes Object[] arr as parameter. It matches: call(void Arrays.sort(Object[])) && args(arr).
+
+2) sort1 is observed before the call as a event. It takes Object[] arr, int from, and int to as parameters. It matches: call(void Arrays.sort(Object[], int, int)) && args(arr, from, to).
+
+3) sort2 is observed before the call as a event. It takes Object[] arr and Comparator comp2 as parameters. It matches: call(void Arrays.sort(Object[], Comparator)) && args(arr, comp2).
+
+4) sort2 is observed before the call as a event. It takes Object[] arr, int from, int to, and Comparator comp2 as parameters. It matches: call(void Arrays.sort(Object[], int, int, Comparator)) && args(arr, from, to, comp2).
+
+5) modify is observed before the call as a event. It takes Object[] arr as parameter. It matches: set(Object[] *) && args(arr).
+
+6) bsearch1 is observed before the call as a event. It takes Object[] arr as parameter. It matches: call(int Arrays.binarySearch(Object[], Object)) && args(arr, ..) && condition(this.fromIndex <= 0 && arr.length <= this.toIndex).
+
+7) bsearch1 is observed before the call as a event. It takes Object[] arr, int from, and int to as parameters. It matches: call(int Arrays.binarySearch(Object[], int, int, Object)) && args(arr, from, to, ..) && condition(this.fromIndex <= from && to <= this.toIndex).
+
+8) bsearch2 is observed before the call as a event. It takes Object[] arr and Comparator comp2 as parameters. It matches: call(int Arrays.binarySearch(Object[], Object, Comparator)) && args(arr, .., comp2) && condition(this.fromIndex <= 0 && arr.length <= this.toIndex && this.comp == comp2).
+
+9) bsearch2 is observed before the call as a event. It takes Object[] arr, int from, int to, and Comparator comp2 as parameters. It matches: call(int Arrays.binarySearch(Object[], int, int, Object, Comparator)) && args(arr, from, to, .., comp2) && condition(this.fromIndex <= from && to <= this.toIndex && this.comp == comp2).
+
+The FSM structure is the following:
+
+The execution begins in the state unsorted.
+
+From unsorted, sort1 moves it to sorted1, sort2 moves it to sorted2, and modify keeps it in unsorted.
+
+When the monitor is in sorted1, sort1 keeps it in sorted1, sort2 moves it to sorted2, modify moves it to unsorted, and bsearch1 keeps it in sorted1.
+
+When the monitor is in sorted2, sort1 moves it to sorted1, sort2 keeps it in sorted2, modify moves it to unsorted, and bsearch2 keeps it in sorted2.
+
+In plain terms, this property means:
+
+The monitored execution starts in the state 'unsorted'. The property distinguishes the following states: unsorted, sorted1, sorted2. The behavior evolves through the occurrence of these events: sort1, sort1, sort2, sort2, modify, bsearch1, bsearch1, bsearch2, bsearch2. Any execution that deviates from the expected transition behavior must be treated as a violation because: __DEFAULT_MESSAGE
+
+Any execution that does not follow this transition behavior, or that reaches an invalid behavior according to the rule below, must be treated as a violation.
+
+The violation message that must appear in the JSON output is:
+
+"__DEFAULT_MESSAGE"
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Return ONLY the IR JSON.

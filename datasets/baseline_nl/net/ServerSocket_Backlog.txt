@@ -1,0 +1,23 @@
+This specification is written in the EVENT formalism.
+
+This specification is called ServerSocket_Backlog.
+
+
+The following events are monitored in this specification:
+
+construct is observed before the call as a event. It takes int backlog. It matches: call(ServerSocket.new(int, int)) || call(ServerSocket.new(int, int, InetAddress)) && args(*, backlog, ..).
+
+set is observed before the call as a event. It takes int backlog. It matches: call(* ServerSocket+.bind(SocketAddress, int)) && args(*, backlog).
+
+A violation occurs when a monitored event is triggered under the pointcut conditions described above and its associated violation handler is activated.
+
+The violation message that must be used in the JSON output is:
+
+"msg"
+
+The generated JSON must include the field:
+
+"domain": "net"
+
+Return ONLY the IR JSON.
+Do not include explanations, markdown, comments, or extra text.

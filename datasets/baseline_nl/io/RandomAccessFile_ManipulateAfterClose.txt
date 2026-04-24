@@ -1,0 +1,49 @@
+This specification should use the following identifier and signature:
+
+- id: RandomAccessFile_ManipulateAfterClose
+- parameters: RandomAccessFile f
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) manipulate is observed before the call as an event.
+   Parameters: RandomAccessFile f.
+   It matches the following top-level pointcut atoms, in order. The connectors between consecutive atoms are: ||, &&.
+   - a call matching * RandomAccessFile+.read*(..)
+   - a call matching * RandomAccessFile+.write*(..)
+   - the target is f
+
+2) close is observed before the call as a creation event.
+   Parameters: RandomAccessFile f.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * RandomAccessFile+.close(..)
+   - the target is f
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: close, manipulate.
+
+Behavioral pattern to encode:
+The forbidden behavior follows this order:
+1) the close event occurs one or more times.
+2) the manipulate event occurs one or more times.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: match
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="A closed random access file cannot perform input or output operations."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Return ONLY the IR JSON.

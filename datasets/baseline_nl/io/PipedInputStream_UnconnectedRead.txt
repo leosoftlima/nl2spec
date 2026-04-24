@@ -1,0 +1,49 @@
+This specification should use the following name and parameters:
+
+- name: PipedInputStream_UnconnectedRead
+- parameters: PipedInputStream i
+
+Use this exact name consistently throughout the generated JSON.
+Keep the parameter list exactly as shown.
+
+This property is described as a finite-state behavior with explicit states and transitions.
+
+The monitored events involved in this property are:
+
+1) create is observed after the call as a creation event. It does not take explicit event parameters. It captures the returned value as PipedInputStream i. It matches: call(PipedInputStream+.new()).
+
+2) create_oi is observed after the call as a creation event. It does not take explicit event parameters. It captures the returned value as PipedInputStream i. It matches: call(PipedInputStream+.new(PipedOutputStream+)).
+
+3) create_io is observed before the call as a event. It takes PipedInputStream i as parameter. It matches: call(PipedOutputStream+.new(PipedInputStream+)) && args(i).
+
+4) connect1 is observed before the call as a event. It takes PipedInputStream i as parameter. It matches: call(* PipedOutputStream+.connect(PipedInputStream+)) && args(i).
+
+5) connect2 is observed before the call as a event. It takes PipedInputStream i as parameter. It matches: call(* PipedInputStream+.connect(PipedOutputStream+)) && target(i).
+
+6) read is observed before the call as a event. It takes PipedInputStream i as parameter. It matches: unknown(( call(* PipedInputStream+.read(..)) || call(* PipedInputStream+.receive(..)) || call(* PipedInputStream+.available(..)) )) && target(i).
+
+The FSM structure is the following:
+
+The execution begins in the state initial.
+
+From initial, create moves it to unconnected and create_oi moves it to connected.
+
+When the monitor is in unconnected, create_io moves it to connected, connect1 moves it to connected, and connect2 moves it to connected.
+
+When the monitor is in connected, read keeps it in connected.
+
+In plain terms, this property means:
+
+The monitored execution starts in the state 'initial'. The property distinguishes the following states: initial, unconnected, connected. The behavior evolves through the occurrence of these events: create, create_oi, create_io, connect1, connect2, read. Any execution that deviates from the expected transition behavior must be treated as a violation because: __DEFAULT_MESSAGE
+
+Any execution that does not follow this transition behavior, or that reaches an invalid behavior according to the rule below, must be treated as a violation.
+
+The violation message that must appear in the JSON output is:
+
+"__DEFAULT_MESSAGE"
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Return ONLY the IR JSON.

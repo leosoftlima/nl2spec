@@ -1,50 +1,27 @@
 Context:
 The IR represents an Extended Regular Expression (ERE) runtime monitor.
 
-ERE semantics:
-- The specification defines event sequences that characterize correct or incorrect runtime behavior.
-- Events correspond to monitored program actions such as method calls, returns, and creation events.
-- The ERE expression describes the relevant execution pattern over the declared events.
-- Violations are handled through the structured violation block.
-
+Event structure:
 ERE IR structure:
 - "formalism" must be "ere".
-- "ir.events" must use the structured "body.methods" format.
-- "ir.ere" must store the expression in:
-  "expression": "..."
-- "ir.violation" must use:
-  - "tag"
-  - "body.statements"
-  - "body.has_reset"
-
-Event structure:
-- Each event must include:
-  - "action"
-  - "name"
-  - "timing"
-  - "parameters"
-  - "procediments"
-  - "function"
-  - "operation"
-- Include "returning" only when it exists in the specification.
-- Each function inside the pointcut must use:
-  - "name"
-  - "arguments": [{ "value": "..." }]
+- "ir.ere" must store the expression in "expression".
+- "ir.violation" must include "tag", "body.statements", and "body.has_reset".
+- Each event in "ir.events.body.methods" must preserve:
+  "action", "name", "timing", "parameters", "procediments", "function", and "operation".
+- Include "returning" only when present.
 - Use "negated": true only when the pointcut explicitly contains negation such as !cflow(...), !target(...), or !call(...).
 
 Pointcut operator rule:
 - "function" stores the top-level pointcut atoms in order.
-- "operation" stores the logical operators between consecutive top-level pointcut atoms.
+- "operation" stores the logical operators between consecutive atoms.
 - If "function" has N items, "operation" must have N-1 items.
-- Operators inside condition(...) stay only inside the condition string and must not be added to "operation".
+- Operators inside condition(...) remain only inside the condition string.
 
 Constraints:
-- Do not invent events, methods, arguments, operators, or violation statements.
-- Preserve event names exactly as described.
-- Preserve timing, parameters, returning values, pointcut functions, logical operators, and negations exactly.
-- Use the declared event names consistently in both "ir.events" and "ir.ere.expression".
-- Do not convert the specification into FSM or LTL.
-- Follow exactly the structure shown in the examples.
+- Do not invent events, methods, operators, or violation statements.
+- Preserve names, parameters, timing, pointcut structure, operators, and negations exactly.
+- Use only the declared event names in "ir.ere.expression".
+- Follow the structure shown in the examples.
 
 Examples:
 {{FEW_SHOT_EXAMPLES}}

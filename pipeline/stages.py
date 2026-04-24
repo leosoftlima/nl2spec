@@ -121,13 +121,13 @@ def stage_prepare_datasets(cfg, flags):
     log.info("Converting MOP to IR...")
     _prepare_baseline_ir(cfg)
 
-    log.info("Converting IR to NL...")
+    log.info("Converting MOP to NL...")
     _prepare_baseline_nl(cfg)
 
     log.info("Dataset preparation completed")
 
 def _prepare_baseline_nl(cfg):
-    baseline_ir_root = Path(cfg["paths"]["baseline_ir"])
+    mop_root = Path(cfg["paths"]["mop_root"])
     baseline_nl_root = Path(cfg["paths"]["baseline_nl"])
     PROJECT_ROOT = Path(__file__).resolve().parents[2]
     TEMPLATE_DIR = PROJECT_ROOT / "nl2spec"  / "prompts" / "templates"
@@ -136,12 +136,12 @@ def _prepare_baseline_nl(cfg):
         log.info("Baseline NL already exists. Skipping IR→NL conversion.")
         return
 
-    log.info("Generating NL from IR...")
+    log.info("Generating NL from MOP...")
 
     builder = MOPToNL(TEMPLATE_DIR)
 
     total = builder.generate_from_directory(
-        baseline_ir_root,
+        mop_root,
         baseline_nl_root
     )
 

@@ -1,0 +1,82 @@
+This specification should use the following identifier and signature:
+
+- id: ListIterator_Set
+- parameters: ListIterator i
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) create is observed after the call as a creation event.
+   Parameters: none.
+   Returning: ListIterator i.
+   It matches the following top-level pointcut atom:
+   - a call matching ListIterator Iterable+.listIterator()
+
+2) remove is observed before the call as an event.
+   Parameters: ListIterator i.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching void Iterator+.remove()
+   - the target is i
+
+3) add is observed before the call as an event.
+   Parameters: ListIterator i.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching void ListIterator+.add(..)
+   - the target is i
+
+4) next is observed before the call as an event.
+   Parameters: ListIterator i.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * Iterator+.next()
+   - the target is i
+
+5) previous is observed before the call as an event.
+   Parameters: ListIterator i.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * ListIterator+.previous()
+   - the target is i
+
+6) set is observed before the call as an event.
+   Parameters: ListIterator i.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * ListIterator+.set(..)
+   - the target is i
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: create, add, next, previous, set, remove, epsilon.
+
+Behavioral pattern to encode:
+The forbidden behavior follows this order:
+1) The create event occurs.
+2) The add event may repeat any number of times, including zero.
+3) A grouped main sequence may repeat any number of times, including zero. This grouped sequence consists of:
+   3.1) A grouped sequence must repeat one or more times. This grouped sequence consists of:
+      3.1.1) One of the following alternatives is allowed:
+         - the next event occurs.
+         - the previous event occurs.
+   3.2) The set event may repeat any number of times, including zero.
+   3.3) One of the following alternatives is allowed:
+      - the remove event occurs.
+      - the add event occurs one or more times.
+      - the epsilon alternative is chosen, meaning that no event is required at this point.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: fail
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="ListIterator.set() can be made only if neither remove() nor add() have been called after the last call to next() or previous()."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Return ONLY the IR JSON.

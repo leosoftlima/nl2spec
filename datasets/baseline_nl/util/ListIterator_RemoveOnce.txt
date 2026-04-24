@@ -1,0 +1,59 @@
+This specification should use the following identifier and signature:
+
+- id: ListIterator_RemoveOnce
+- parameters: ListIterator i
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) remove is observed before the call as an event.
+   Parameters: ListIterator i.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching void Iterator+.remove()
+   - the target is i
+
+2) next is observed before the call as an event.
+   Parameters: ListIterator i.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * Iterator+.next()
+   - the target is i
+
+3) previous is observed before the call as an event.
+   Parameters: ListIterator i.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * ListIterator+.previous()
+   - the target is i
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: next, previous, remove, epsilon.
+
+Behavioral pattern to encode:
+1) A grouped main sequence may repeat any number of times, including zero. This grouped sequence consists of:
+   1.1) A grouped sequence must repeat one or more times. This grouped sequence consists of:
+      1.1.1) One of the following alternatives is allowed:
+         - the next event occurs.
+         - the previous event occurs.
+   1.2) One of the following alternatives is allowed:
+      - the remove event occurs.
+      - the epsilon alternative is chosen, meaning that no event is required at this point.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: fail
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="ListIterator.remove() can be called only once per call to next()/previous()."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Return ONLY the IR JSON.

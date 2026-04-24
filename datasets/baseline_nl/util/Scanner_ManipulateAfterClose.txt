@@ -1,0 +1,67 @@
+This specification should use the following identifier and signature:
+
+- id: Scanner_ManipulateAfterClose
+- parameters: Scanner s, Closeable c
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) create is observed after the call as a creation event.
+   Parameters: Closeable c.
+   Returning: Scanner s.
+   It matches the following top-level pointcut atoms, in order. The connectors between consecutive atoms are: ||, ||, &&.
+   - a call matching Scanner+.new(InputStream, ..)
+   - a call matching Scanner+.new(Readable, ..)
+   - a call matching Scanner+.new(ReadableByteChannel, ..)
+   - the arguments are c, ..
+
+2) close is observed after the call as an event.
+   Parameters: Scanner s.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * Scanner+.close()
+   - the target is s
+   - it is not the case that the arguments are ByteArrayInputStream
+   - it is not the case that the arguments are StringBufferInputStream
+
+3) manipulate is observed before the call as an event.
+   Parameters: Closeable c.
+   It matches the following top-level pointcut atoms, in order. The connectors between consecutive atoms are: ||, ||, ||, ||, ||, &&, &&, &&.
+   - a call matching * InputStream+.read(..)
+   - a call matching * InputStream+.available(..)
+   - a call matching * InputStream+.reset(..)
+   - a call matching * InputStream+.skip(..)
+   - a call matching * Readable+.read(..)
+   - a call matching * ReadableByteChannel+.read(..)
+   - the target is c
+   - the target is not ByteArrayInputStream
+   - the target is not StringBufferInputStream
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: create, close, manipulate.
+
+Behavioral pattern to encode:
+The forbidden behavior follows this order:
+1) the create event occurs.
+2) the close event occurs one or more times.
+3) the manipulate event occurs.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: match
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="The source stream or reader was used after the Scanner had been closed."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Return ONLY the IR JSON.

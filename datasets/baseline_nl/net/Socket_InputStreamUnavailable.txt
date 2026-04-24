@@ -1,0 +1,85 @@
+This specification should use the following identifier and signature:
+
+- id: Socket_InputStreamUnavailable
+- parameters: Socket sock
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) create_connected is observed after the call as a creation event.
+   Parameters: none.
+   Returning: Socket sock.
+   It matches when the following top-level pointcut atoms are combined using logical OR, in this order:
+   - a call matching Socket.new(InetAddress, int)
+   - a call matching Socket.new(InetAddress, int, boolean)
+   - a call matching Socket.new(InetAddress, int, InetAddress, int)
+   - a call matching Socket.new(String, int)
+   - a call matching Socket.new(String, int, boolean)
+   - a call matching Socket.new(String, int, InetAddress, int)
+
+2) create_unconnected is observed after the call as a creation event.
+   Parameters: none.
+   Returning: Socket sock.
+   It matches when the following top-level pointcut atoms are combined using logical OR, in this order:
+   - a call matching Socket.new()
+   - a call matching Socket.new(Proxy)
+   - a call matching Socket.new(SocketImpl)
+
+3) connect is observed before the call as an event.
+   Parameters: Socket sock.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * Socket+.connect(..)
+   - the target is sock
+
+4) get is observed before the call as an event.
+   Parameters: Socket sock.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * Socket+.getInputStream(..)
+   - the target is sock
+
+5) close is observed before the call as an event.
+   Parameters: Socket sock.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * Socket+.close()
+   - the target is sock
+
+6) shutdown is observed before the call as an event.
+   Parameters: Socket sock.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * Socket+.shutdownInput()
+   - the target is sock
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: create_connected, create_unconnected, connect, get, close, shutdown.
+
+Behavioral pattern to encode:
+The forbidden behavior follows this order:
+1) One of the following alternatives is allowed:
+   - the create_connected event occurs.
+   - the grouped sequence occurs in this order: the create_unconnected event occurs then the connect event occurs.
+2) The get event may repeat any number of times, including zero.
+3) A grouped main sequence may repeat any number of times, including zero. This grouped sequence consists of:
+   3.1) One of the following alternatives is allowed:
+      - the close event occurs.
+      - the shutdown event occurs.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: fail
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="An input stream is unavailable if the socket is closed, is not connected, or the socket input has been shutdown."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "net"
+
+Return ONLY the IR JSON.

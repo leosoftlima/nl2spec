@@ -1,0 +1,45 @@
+This specification should use the following name and parameters:
+
+- name: Socket_SetTimeoutBeforeBlockingInput
+- parameters: Socket sock, InputStream input
+
+Use this exact name consistently throughout the generated JSON.
+Keep the parameter list exactly as shown.
+
+This property is described as a finite-state behavior with explicit states and transitions.
+
+The monitored events involved in this property are:
+
+1) getinput is observed after the call as a creation event. It takes Socket sock as parameter. It captures the returned value as InputStream input. It matches: call(InputStream Socket+.getInputStream()) && target(sock).
+
+2) enter is observed before the call as a event. It takes InputStream input as parameter. It matches: call(* InputStream+.read(..)) && target(input).
+
+3) leave is observed after the call as a event. It takes InputStream input as parameter. It matches: call(* InputStream+.read(..)) && target(input).
+
+4) set is observed before the call as a event. It takes Socket sock and int timeout as parameters. It matches: call(* Socket+.setSoTimeout(int)) && target(sock) && args(timeout) && condition(timeout != 0).
+
+The FSM structure is the following:
+
+The execution begins in the state start.
+
+From start, getinput moves it to unblocked.
+
+When the monitor is in unblocked, getinput keeps it in unblocked, set keeps it in unblocked, and enter moves it to blocked.
+
+When the monitor is in blocked, getinput keeps it in blocked and leave moves it to unblocked.
+
+In plain terms, this property means:
+
+The monitored execution starts in the state 'start'. The property distinguishes the following states: start, unblocked, blocked. The behavior evolves through the occurrence of these events: getinput, enter, leave, set. Any execution that deviates from the expected transition behavior must be treated as a violation because: __DEFAULT_MESSAGE
+
+Any execution that does not follow this transition behavior, or that reaches an invalid behavior according to the rule below, must be treated as a violation.
+
+The violation message that must appear in the JSON output is:
+
+"__DEFAULT_MESSAGE"
+
+The generated JSON must include the field:
+
+"domain": "net"
+
+Return ONLY the IR JSON.

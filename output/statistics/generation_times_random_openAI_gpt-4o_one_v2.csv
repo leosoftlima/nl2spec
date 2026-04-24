@@ -1,0 +1,5 @@
+id,provider,model,selection,shot_mode,k,domain,ir_type,start_timestamp,end_timestamp,generation_time_ms
+Appendable_ThreadSafe,openAI,gpt-4o,random,one,1,lang,ere,1774380063.3903155,1774380074.1618898,10771.574
+Character_StaticFactory,openAI,gpt-4o,random,one,1,lang,event,1774380074.1969674,1774380076.7265892,2529.622
+Enum_NoOrdinal,openAI,gpt-4o,random,one,1,lang,event,1774380076.7465575,1774380080.0960314,3349.474
+StringTokenizer_HasMoreElements,openAI,gpt-4o,random,one,1,util,ltl,1774380080.1140792,1774380087.8890104,7774.931

@@ -1,0 +1,41 @@
+This specification should use the following identifier and signature:
+
+- id: BufferedInputStream_SynchronizedFill
+- parameters: BufferedInputStream i
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) fill is observed before the call as an event.
+   Parameters: BufferedInputStream i.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * BufferedInputStream.fill(..)
+   - the target is i
+   - the control flow does not include call(synchronized * *.*(..))
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: fill.
+
+Behavioral pattern to encode:
+The forbidden behavior consists of a single occurrence of the fill event.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: match
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="BufferedInputStream.fill() is being called by a non-synchronized method."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Return ONLY the IR JSON.

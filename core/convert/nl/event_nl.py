@@ -1,253 +1,204 @@
-from typing import Dict, List, Any, Optional
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Union
+
+from nl2spec.core.convert.event import (
+    extract_events,
+    extract_signature,
+    extract_violation_block,
+)
 
 
 class EventNL:
     """
-    Natural-language renderer for specs in the EVENT formalism.
-    It prepares textual blocks used by the prompt builder.
+    MOP -> NL renderer for EVENT specifications.
+
+    Direct .mop -> NL (NO IR).
     """
 
-    def render(self, spec: Dict[str, Any]) -> Dict[str, str]:
-        signature = spec.get("signature", {})
-        ir = spec.get("ir", {})
+    # ==========================================================
+    # PUBLIC API
+    # ==========================================================
+
+    def extract_context(
+        self,
+        source: Union[str, Path],
+        domain: Optional[str] = None,
+        spec_id: Optional[str] = None,
+    ) -> dict:
+
+        mop_text, resolved_spec_id, resolved_domain = self._read_mop_source(
+            source, domain, spec_id
+        )
+
+        signature = extract_signature(mop_text)
+
+        # ⚠️ CORREÇÃO CRÍTICA
+        events, event_bodies = extract_events(mop_text)
+
+        methods = self._unwrap_methods(events)
+
+        violation = extract_violation_block(mop_text, event_bodies)
 
         return {
-            "SPEC_NAME": signature.get("name", spec.get("id", "")),
-            "SIGNATURE_PARAMETERS_TEXT": self._render_signature_parameters_text(
-                signature.get("parameters", [])
-            ),
-            "EVENT_BLOCK": self._render_events_block(ir.get("events", [])),
-            "VIOLATION_SEMANTICS": self._render_violation_semantics(spec),
-            "DOMAIN": spec.get("domain", ""),
+            "SPEC_NAME": resolved_spec_id,
+            "SIGNATURE_PARAMETERS_TEXT": self._render_signature(signature),
+            "EVENT_BLOCK": self._render_events(methods),
+            "VIOLATION_SEMANTICS": self._render_violation(violation),
+            "DOMAIN": resolved_domain,
         }
+
+    # ==========================================================
+    # SOURCE
+    # ==========================================================
+
+    def _read_mop_source(self, source, domain, spec_id):
+        mop_path = Path(source)
+
+        if not mop_path.exists():
+            raise FileNotFoundError(f"MOP file not found: {mop_path}")
+
+        text = mop_path.read_text(encoding="utf-8", errors="replace")
+
+        resolved_id = spec_id or mop_path.stem
+        resolved_domain = domain or self._detect_domain(mop_path)
+
+        return text, resolved_id, resolved_domain
+
+    def _detect_domain(self, path: Path) -> str:
+        for p in path.parts:
+            if p in {"io", "net", "util", "lang"}:
+                return p
+        return "unknown"
 
     # ==========================================================
     # SIGNATURE
     # ==========================================================
 
-    def _render_signature_parameters(self, parameters: List[Dict[str, str]]) -> str:
-        if not parameters:
-            return "[]"
+    def _render_signature(self, signature: dict) -> str:
+        params = signature.get("parameters", [])
 
-        rendered = []
-        for param in parameters:
-            ptype = param.get("type", "").strip()
-            pname = param.get("name", "").strip()
-
-            if ptype and pname:
-                rendered.append(f"{ptype} {pname}")
-            elif pname:
-                rendered.append(pname)
-            elif ptype:
-                rendered.append(ptype)
-
-        return "[" + ", ".join(rendered) + "]"
-
-    def _render_signature_parameters_text(self, parameters: List[Dict[str, str]]) -> str:
-        rendered = self._render_signature_parameters(parameters)
-
-        if rendered == "[]":
+        if not params:
             return ""
 
-        return f"It should use these parameters: {rendered}."
+        rendered = []
+        for p in params:
+            rendered.append(f'{p.get("type")} {p.get("name")}')
+
+        return f"It should use these parameters: [{', '.join(rendered)}]."
 
     # ==========================================================
     # EVENTS
     # ==========================================================
 
-    def _render_events_block(self, events: List[Dict[str, Any]]) -> str:
-        if not events:
+    def _unwrap_methods(self, events: List[Dict]) -> List[Dict]:
+        methods = []
+
+        for ev in events:
+            body = ev.get("body", {})
+            methods.extend(body.get("methods", []))
+
+        return methods
+
+    def _render_events(self, methods: List[Dict]) -> str:
+        if not methods:
             return "No monitored events were provided."
 
-        descriptions = []
+        blocks = []
 
-        for event in events:
-            methods = event.get("body", {}).get("methods", [])
-            if not methods:
-                event_name = event.get("name", "").strip()
-                if event_name:
-                    descriptions.append(
-                        f"{event_name} is declared as a monitored event."
-                    )
-                continue
+        for m in methods:
+            blocks.append(self._render_method(m))
 
-            for method in methods:
-                descriptions.append(self._render_method(method))
+        return "\n\n".join(blocks)
 
-        return "\n\n".join(descriptions)
+    def _render_method(self, m: Dict) -> str:
+        name = m.get("name", "")
+        timing = m.get("timing", "")
+        action = m.get("action", "event")
 
-    def _render_method(self, method: Dict[str, Any]) -> str:
-        name = method.get("name", "").strip()
-        timing = method.get("timing", "").strip()
+        params = self._render_params(m.get("parameters", []))
+        returning = self._render_returning(m.get("returning"))
+        pointcut = self._render_pointcut(m)
 
-        parameters = method.get("parameters", [])
-        returning = method.get("returning")
-        procediments = method.get("procediments", {})
+        parts = []
 
-        param_text = self._render_method_parameters(parameters)
-        returning_text = self._render_returning(returning)
-        pointcut_text = self._render_pointcut(procediments)
+        parts.append(f"{name} is observed {timing} the call as a {action}.")
 
-        sentence_parts = []
+        if params:
+            parts.append(f"It takes {params}.")
 
-        if timing:
-            base = f"{name} is an event observed {timing} the call."
-        else:
-            base = f"{name} is a monitored event."
-        sentence_parts.append(base)
+        if returning:
+            parts.append(f"It captures the returned value as {returning}.")
 
-        if param_text:
-            plural = "s" if len(parameters) > 1 else ""
-            sentence_parts.append(f"It takes {param_text} as parameter{plural}.")
+        if pointcut:
+            parts.append(f"It matches: {pointcut}.")
 
-        if returning_text:
-            sentence_parts.append(f"It captures the returned value as {returning_text}.")
+        return " ".join(parts)
 
-        if pointcut_text:
-            sentence_parts.append(f"It matches: {pointcut_text}.")
+    def _render_params(self, params):
+        if not params:
+            return None
 
-        return " ".join(sentence_parts)
+        items = [f'{p["type"]} {p["name"]}' for p in params]
 
-    def _render_method_parameters(self, parameters: List[Dict[str, str]]) -> str:
-        if not parameters:
+        return self._join(items)
+
+    def _render_returning(self, r):
+        if not r:
+            return None
+
+        return f'{r.get("type")} {r.get("name")}'
+
+    def _render_pointcut(self, m):
+        funcs = m.get("procediments", {}).get("function", [])
+        ops = m.get("procediments", {}).get("operation", [])
+
+        if not funcs:
             return ""
 
-        rendered = []
-        for param in parameters:
-            ptype = param.get("type", "").strip()
-            pname = param.get("name", "").strip()
+        parts = []
 
-            if ptype and pname:
-                rendered.append(f"{ptype} {pname}")
-            elif pname:
-                rendered.append(pname)
-            elif ptype:
-                rendered.append(ptype)
+        for i, f in enumerate(funcs):
+            name = f.get("name")
+            params = f.get("parameters", [])
 
-        return self._join_phrases(rendered)
+            rendered = []
+            for p in params:
+                val = p.get("value") or p.get("name") or ""
+                if val:
+                    rendered.append(val)
 
-    def _render_returning(self, returning: Any) -> str:
-        if not returning:
-            return ""
+            atom = f"{name}({', '.join(rendered)})"
+            parts.append(atom)
 
-        rtype = returning.get("type", "").strip()
-        rname = returning.get("name", "").strip()
+            if i < len(ops):
+                parts.append(ops[i])
 
-        if rtype and rname:
-            return f"{rtype} {rname}"
-        return rname or rtype
-
-    # ==========================================================
-    # POINTCUT
-    # ==========================================================
-
-    def _render_pointcut(self, procediments: Dict[str, Any]) -> str:
-        functions = procediments.get("function", [])
-        operations = procediments.get("operation", [])
-
-        if not functions:
-            return ""
-
-        rendered_functions = [self._render_function(fn) for fn in functions]
-
-        if not operations:
-            return " ".join(rendered_functions)
-
-        pieces = [rendered_functions[0]]
-
-        for index, op in enumerate(operations):
-            next_index = index + 1
-            if next_index < len(rendered_functions):
-                pieces.append(op)
-                pieces.append(rendered_functions[next_index])
-
-        return " ".join(pieces)
-
-    def _render_function(self, function: Dict[str, Any]) -> str:
-        name = function.get("name", "").strip()
-        parameters = function.get("parameters", [])
-
-        args = []
-        for param in parameters:
-            value = param.get("value", "").strip()
-            if value:
-                args.append(value)
-
-        return f"{name}({', '.join(args)})"
+        return " ".join(parts)
 
     # ==========================================================
     # VIOLATION
     # ==========================================================
 
-    def _render_violation_semantics(self, spec: Dict[str, Any]) -> str:
-        """
-        EVENT specs may define violation messages in two places:
-        1. inside each method: ir.events[].body.methods[].violation
-        2. globally at the end: ir.violation
+    def _render_violation(self, violation: dict) -> str:
+        stmts = violation.get("body", {}).get("statements", [])
 
-        Priority:
-        - use the last non-default local violation message found in methods
-        - otherwise use the last non-default global violation message
-        - otherwise fall back to the last available default message
-        - otherwise "__DEFAULT_MESSAGE"
-        """
-        ir = spec.get("ir", {})
-
-        local_messages = self._collect_method_violation_messages(ir.get("events", []))
-        global_messages = self._extract_violation_messages(ir.get("violation", {}))
-
-        # Prefer non-default local messages
-        local_non_default = [msg for msg in local_messages if msg != "__DEFAULT_MESSAGE"]
-        if local_non_default:
-            return local_non_default[-1]
-
-        # Then non-default global messages
-        global_non_default = [msg for msg in global_messages if msg != "__DEFAULT_MESSAGE"]
-        if global_non_default:
-            return global_non_default[-1]
-
-        # Then any local message
-        if local_messages:
-            return local_messages[-1]
-
-        # Then any global message
-        if global_messages:
-            return global_messages[-1]
+        for st in stmts:
+            if st.get("type") == "log":
+                msg = st.get("message", "")
+                return self._clean(msg)
 
         return "__DEFAULT_MESSAGE"
 
-    def _collect_method_violation_messages(self, events: List[Dict[str, Any]]) -> List[str]:
-        messages = []
-
-        for event in events:
-            methods = event.get("body", {}).get("methods", [])
-            for method in methods:
-                method_violation = method.get("violation", {})
-                messages.extend(self._extract_violation_messages(method_violation))
-
-        return messages
-
-    def _extract_violation_messages(self, violation: Dict[str, Any]) -> List[str]:
-        body = violation.get("body", {})
-        statements = body.get("statements", [])
-
-        messages = []
-
-        for statement in statements:
-            if statement.get("type") == "log":
-                message = statement.get("message", "").strip()
-                if message:
-                    messages.append(message)
-
-        return messages
+    def _clean(self, msg):
+        msg = msg.strip('"')
+        msg = msg.replace("+ __LOC", "")
+        return msg.strip()
 
     # ==========================================================
     # HELPERS
     # ==========================================================
 
-    def _join_phrases(self, items: List[str]) -> str:
-        if not items:
-            return ""
+    def _join(self, items):
         if len(items) == 1:
             return items[0]
         if len(items) == 2:

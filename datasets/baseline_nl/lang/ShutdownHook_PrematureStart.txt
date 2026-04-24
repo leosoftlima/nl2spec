@@ -1,0 +1,45 @@
+This specification should use the following name and parameters:
+
+- name: ShutdownHook_PrematureStart
+- parameters: Thread t
+
+Use this exact name consistently throughout the generated JSON.
+Keep the parameter list exactly as shown.
+
+This property is described as a finite-state behavior with explicit states and transitions.
+
+The monitored events involved in this property are:
+
+1) good_register is observed before the call as a creation event. It takes Thread t as parameter. It matches: call(* Runtime+.addShutdownHook(..)) && args(t) && condition(t.getState() == Thread.State.NEW).
+
+2) bad_register is observed before the call as a creation event. It takes Thread t as parameter. It matches: call(* Runtime+.addShutdownHook(..)) && args(t) && condition(t.getState() != Thread.State.NEW).
+
+3) unregister is observed before the call as a event. It takes Thread t as parameter. It matches: call(* Runtime+.removeShutdownHook(..)) && args(t).
+
+4) userstart is observed before the call as a event. It takes Thread t as parameter. It matches: call(* Thread+.start(..)) && target(t).
+
+The FSM structure is the following:
+
+The execution begins in the state unregistered.
+
+From unregistered, good_register moves it to registered and bad_register moves it to err.
+
+When the monitor is in registered, unregister moves it to unregistered and userstart moves it to err.
+
+When the monitor is in err, no further transitions are defined.
+
+In plain terms, this property means:
+
+The monitored execution starts in the state 'unregistered'. The property distinguishes the following states: unregistered, registered, err. The behavior evolves through the occurrence of these events: good_register, bad_register, unregister, userstart. Any execution that deviates from the expected transition behavior must be treated as a violation because: __DEFAULT_MESSAGE
+
+Any execution that does not follow this transition behavior, or that reaches an invalid behavior according to the rule below, must be treated as a violation.
+
+The violation message that must appear in the JSON output is:
+
+"__DEFAULT_MESSAGE"
+
+The generated JSON must include the field:
+
+"domain": "lang"
+
+Return ONLY the IR JSON.

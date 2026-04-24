@@ -1,0 +1,78 @@
+This specification should use the following identifier and signature:
+
+- id: Collections_SynchronizedMap
+- parameters: Map syncMap, Collection col, Iterator iter
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) sync is observed after the call as a creation event.
+   Parameters: none.
+   Returning: Map syncMap.
+   It matches when the following top-level pointcut atoms are combined using logical OR, in this order:
+   - a call matching * Collections.synchronizedMap(Map)
+   - a call matching * Collections.synchronizedSortedMap(SortedMap)
+
+2) createSet is observed after the call as an event.
+   Parameters: Map syncMap.
+   Returning: Collection col.
+   It matches the following top-level pointcut atoms, in order. The connectors between consecutive atoms are: ||, ||, &&.
+   - a call matching Set Map+.keySet()
+   - a call matching Set Map+.entrySet()
+   - a call matching Collection Map+.values()
+   - the target is syncMap
+
+3) syncCreateIter is observed after the call as an event.
+   Parameters: Collection col.
+   Returning: Iterator iter.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * Collection+.iterator()
+   - the target is col
+   - the condition Thread.holdsLock(map) holds
+
+4) asyncCreateIter is observed after the call as an event.
+   Parameters: Collection col.
+   Returning: Iterator iter.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * Collection+.iterator()
+   - the target is col
+   - the condition !Thread.holdsLock(map) holds
+
+5) accessIter is observed before the call as an event.
+   Parameters: Iterator iter.
+   It matches when all the following top-level pointcut atoms are combined using logical AND, in this order:
+   - a call matching * Iterator.*(..)
+   - the target is iter
+   - the condition !Thread.holdsLock(map) holds
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: sync, createSet, asyncCreateIter, syncCreateIter, accessIter.
+
+Behavioral pattern to encode:
+The forbidden behavior follows this order:
+1) The sync event occurs.
+2) The createSet event occurs.
+3) One of the following alternatives is allowed:
+   - the asyncCreateIter event occurs.
+   - the grouped sequence occurs in this order: the syncCreateIter event occurs then the accessIter event occurs.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: match
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="A collection view of a synchronized map was accessed in a thread-unsafe manner."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Return ONLY the IR JSON.

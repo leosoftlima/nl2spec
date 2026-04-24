@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from nl2spec.core.convert.nl.fsm_nl import FSMNL
-from nl2spec.core.convert.nl.ere_nl_mop import ERENL
+from nl2spec.core.convert.nl.ere_nl import ERENL
 from nl2spec.core.convert.nl.ltl_nl import LTLNL
 from nl2spec.core.convert.nl.event_nl import EventNL
 from nl2spec.logging_utils import get_logger

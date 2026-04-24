@@ -1,0 +1,39 @@
+This specification should use the following identifier and signature:
+
+- id: URL_SetURLStreamHandlerFactory
+- parameters: none
+
+Use this exact identifier consistently throughout the generated JSON.
+The field "signature.name" must be the same as "id".
+Keep the parameter list exactly as shown.
+
+The monitored events involved in this property are:
+
+1) set is observed before the call as an event.
+   Parameters: none.
+   It matches the following top-level pointcut atom:
+   - a call matching * URL.setURLStreamHandlerFactory(..)
+
+Reconstruct the ERE expression from this behavioral description using only the declared event names: set.
+
+Behavioral pattern to encode:
+The forbidden behavior starts with one set event. After that initial set, one or more additional set events must occur.
+
+Preserve the exact ordering, repetition, alternatives, and grouping implied by the described behavior.
+When a grouped sequence is said to repeat, the repetition applies to the entire group.
+
+Preserve the pointcut atom order exactly, and encode in "operation" every top-level connector between consecutive atoms.
+
+If an execution matches this forbidden behavior, the violation block in the generated JSON must use the following information:
+
+- tag: match
+- statements:
+1) type=log; level=CRITICAL; message=__DEFAULT_MESSAGE
+2) type=log; level=CRITICAL; message="URL.setURLStreamHandlerFactory() can be called at most once in a given Java Virtual Machine."
+- has_reset: false
+
+The generated JSON must include the field:
+
+"domain": "net"
+
+Return ONLY the IR JSON.

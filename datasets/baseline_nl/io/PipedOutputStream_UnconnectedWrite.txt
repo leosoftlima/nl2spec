@@ -1,0 +1,49 @@
+This specification should use the following name and parameters:
+
+- name: PipedOutputStream_UnconnectedWrite
+- parameters: PipedOutputStream o
+
+Use this exact name consistently throughout the generated JSON.
+Keep the parameter list exactly as shown.
+
+This property is described as a finite-state behavior with explicit states and transitions.
+
+The monitored events involved in this property are:
+
+1) create is observed after the call as a creation event. It does not take explicit event parameters. It captures the returned value as PipedOutputStream o. It matches: call(PipedOutputStream+.new()).
+
+2) create_io is observed after the call as a creation event. It does not take explicit event parameters. It captures the returned value as PipedOutputStream o. It matches: call(PipedOutputStream+.new(PipedInputStream+)).
+
+3) create_oi is observed before the call as a event. It takes PipedOutputStream o as parameter. It matches: call(PipedInputStream+.new(PipedOutputStream+)) && args(o).
+
+4) connect1 is observed before the call as a event. It takes PipedOutputStream o as parameter. It matches: call(* PipedInputStream+.connect(PipedOutputStream+)) && args(o).
+
+5) connect2 is observed before the call as a event. It takes PipedOutputStream o as parameter. It matches: call(* PipedOutputStream+.connect(PipedInputStream+)) && target(o).
+
+6) write is observed before the call as a event. It takes PipedOutputStream o as parameter. It matches: call(* PipedOutputStream+.write(..)) && target(o).
+
+The FSM structure is the following:
+
+The execution begins in the state initial.
+
+From initial, create moves it to unconnected and create_io moves it to connected.
+
+When the monitor is in unconnected, create_oi moves it to connected, connect1 moves it to connected, and connect2 moves it to connected.
+
+When the monitor is in connected, write keeps it in connected.
+
+In plain terms, this property means:
+
+The monitored execution starts in the state 'initial'. The property distinguishes the following states: initial, unconnected, connected. The behavior evolves through the occurrence of these events: create, create_io, create_oi, connect1, connect2, write. Any execution that deviates from the expected transition behavior must be treated as a violation because: __DEFAULT_MESSAGE
+
+Any execution that does not follow this transition behavior, or that reaches an invalid behavior according to the rule below, must be treated as a violation.
+
+The violation message that must appear in the JSON output is:
+
+"__DEFAULT_MESSAGE"
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Return ONLY the IR JSON.

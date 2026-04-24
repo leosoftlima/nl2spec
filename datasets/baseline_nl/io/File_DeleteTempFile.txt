@@ -1,0 +1,38 @@
+This specification is called File_DeleteTempFile.
+
+It should use these parameters:
+- File f
+
+Keep this name and parameter list exactly in the generated JSON.
+
+The following events are monitored:
+
+create is observed after the call and receives no parameters.
+
+explicit is observed before the call and receives File f.
+
+implicit is observed before the call and receives File f.
+
+endProg is observed before the call and receives no parameters.
+
+The temporal property that must hold during execution is:
+
+ltl: [](create => o (explicit or implicit))
+
+In plain language, this means:
+
+whenever create occurs, (explicit or implicit) happens next
+
+If this temporal property is violated during execution, the JSON output must use the following violation behavior:
+
+__DEFAULT_MESSAGE
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Follow the same JSON structure used in the examples.
+Reuse the exact event names consistently.
+Do not invent new events, operators, or fields.
+
+Return ONLY the IR JSON.

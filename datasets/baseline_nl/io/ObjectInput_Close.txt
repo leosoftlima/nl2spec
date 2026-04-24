@@ -1,0 +1,36 @@
+This specification is called ObjectInput_Close.
+
+It should use these parameters:
+- ObjectInput i
+
+Keep this name and parameter list exactly in the generated JSON.
+
+The following events are monitored:
+
+create is observed after the call and receives no parameters.
+
+close is observed before the call and receives ObjectInput i.
+
+endProg is observed before the call and receives no parameters.
+
+The temporal property that must hold during execution is:
+
+ltl: [](create => o close)
+
+In plain language, this means:
+
+whenever create occurs, close happens next
+
+If this temporal property is violated during execution, the JSON output must use the following violation behavior:
+
+__DEFAULT_MESSAGE
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Follow the same JSON structure used in the examples.
+Reuse the exact event names consistently.
+Do not invent new events, operators, or fields.
+
+Return ONLY the IR JSON.

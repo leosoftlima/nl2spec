@@ -1,0 +1,36 @@
+This specification is called Iterator_HasNext.
+
+It should use these parameters:
+- Iterator i
+
+Keep this name and parameter list exactly in the generated JSON.
+
+The following events are monitored:
+
+hasnexttrue is observed after the call and receives Iterator i.
+
+hasnextfalse is observed after the call and receives Iterator i.
+
+next is observed before the call and receives Iterator i.
+
+The temporal property that must hold during execution is:
+
+ltl: [](next => (*) hasnexttrue)
+
+In plain language, this means:
+
+it must always hold that next => (*) hasnexttrue
+
+If this temporal property is violated during execution, the JSON output must use the following violation behavior:
+
+__DEFAULT_MESSAGE
+
+The generated JSON must include the field:
+
+"domain": "util"
+
+Follow the same JSON structure used in the examples.
+Reuse the exact event names consistently.
+Do not invent new events, operators, or fields.
+
+Return ONLY the IR JSON.

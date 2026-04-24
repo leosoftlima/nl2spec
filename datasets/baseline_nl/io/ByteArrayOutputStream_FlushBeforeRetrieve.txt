@@ -1,0 +1,53 @@
+This specification should use the following name and parameters:
+
+- name: ByteArrayOutputStream_FlushBeforeRetrieve
+- parameters: ByteArrayOutputStream b, OutputStream o
+
+Use this exact name consistently throughout the generated JSON.
+Keep the parameter list exactly as shown.
+
+This property is described as a finite-state behavior with explicit states and transitions.
+
+The monitored events involved in this property are:
+
+1) outputstreaminit is observed after the call as a creation event. It takes ByteArrayOutputStream b as parameter. It captures the returned value as OutputStream o. It matches: call(OutputStream+.new(..)) && args(b, ..).
+
+2) write is observed before the call as a event. It takes OutputStream o as parameter. It matches: call(* OutputStream+.write*(..)) && target(o).
+
+3) flush is observed before the call as a event. It takes OutputStream o as parameter. It matches: call(* OutputStream+.flush(..)) && target(o).
+
+4) close is observed before the call as a event. It takes OutputStream o as parameter. It matches: call(* OutputStream+.close(..)) && target(o).
+
+5) tobytearray is observed before the call as a event. It takes ByteArrayOutputStream b as parameter. It matches: call(* ByteArrayOutputStream+.toByteArray(..)) && target(b).
+
+6) tostring is observed before the call as a event. It takes ByteArrayOutputStream b as parameter. It matches: call(* ByteArrayOutputStream+.toString(..)) && target(b).
+
+The FSM structure is the following:
+
+The execution begins in the state initial.
+
+From initial, outputstreaminit moves it to outputstreamcreated.
+
+When the monitor is in outputstreamcreated, write moves it to writing, flush moves it to flushed, and close moves it to closed.
+
+When the monitor is in writing, write keeps it in writing, flush moves it to flushed, and close moves it to closed.
+
+When the monitor is in flushed, flush keeps it in flushed, write moves it to writing, tobytearray keeps it in flushed, tostring keeps it in flushed, and close moves it to closed.
+
+When the monitor is in closed, tobytearray keeps it in closed and tostring keeps it in closed.
+
+In plain terms, this property means:
+
+The monitored execution starts in the state 'initial'. The property distinguishes the following states: initial, outputstreamcreated, writing, flushed, closed. The behavior evolves through the occurrence of these events: outputstreaminit, write, flush, close, tobytearray, tostring. Any execution that deviates from the expected transition behavior must be treated as a violation because: __DEFAULT_MESSAGE
+
+Any execution that does not follow this transition behavior, or that reaches an invalid behavior according to the rule below, must be treated as a violation.
+
+The violation message that must appear in the JSON output is:
+
+"__DEFAULT_MESSAGE"
+
+The generated JSON must include the field:
+
+"domain": "io"
+
+Return ONLY the IR JSON.
