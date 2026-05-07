@@ -37,15 +37,31 @@ def _call_llm(llm, prompt, spec_id, provider, model,shot_mode,selection):
     if not raw:
         raise RuntimeError(f"Empty response for {spec_id}")
 
-    try:
-        raw = raw.strip()
+    
+    raw = raw.strip()
 
-        if raw.startswith("```"):
-           raw = raw.replace("```json", "").replace("```", "").strip()
-        ir = json.loads(raw)
+    if raw.startswith("```"):
+        raw = raw.replace("```json", "").replace("```", "").strip()
+    
+    try:    
+        parsed = json.loads(raw)
+        
+        if not isinstance(parsed, dict):
+            return {
+                "status": "schema_fail",
+                "raw": raw,
+                "parsed": None
+            }, start_ts, end_ts, elapsed_ms
+            
+        return {
+            "status": "ok",
+            "raw": raw,
+            "parsed": parsed
+        }, start_ts, end_ts, elapsed_ms
+        
     except json.JSONDecodeError as e:
 
-      debug_dir = BASE_OUTPUT / "llm_raw"
+      debug_dir = BASE_OUTPUT/ "llm"/ "auditoria" / provider/ model / shot_mode / selection
       debug_dir.mkdir(parents=True, exist_ok=True)
 
       debug_file = debug_dir / f"{spec_id}.txt"
@@ -58,9 +74,13 @@ def _call_llm(llm, prompt, spec_id, provider, model,shot_mode,selection):
         debug_file
        )
 
-      raise RuntimeError(f"Invalid JSON for {spec_id}: {e}")
+      #raise RuntimeError(f"Invalid JSON for {spec_id}: {e}")
 
-    return ir, start_ts, end_ts, elapsed_ms
+      return {
+        "status": "syntax_fail",
+        "raw": raw,
+        "parsed": None
+      }, start_ts, end_ts, elapsed_ms
 
 
 def stage_llm(ctx, flags):
@@ -147,56 +167,62 @@ def stage_llm(ctx, flags):
         # PROCESS ALL PROMPTS
         # ----------------------------
         max_prompts = 300
-        allowed_specs = {
+        # allowed_specs = {
             
-            "BufferedInputStream_SynchronizedFill",
-            "Closeable_MultipleClose",
-            "Console_CloseReader",
-            "InputStream_MarkAfterClose",
-            "OutputStream_ManipulateAfterClose",
-            "PipedStream_SingleThread",
-            "Reader_ReadAheadLimit",
-            "Writer_ManipulateAfterClose",
+        #     "BufferedInputStream_SynchronizedFill",
+        #     "Closeable_MultipleClose",
+        #     "Console_CloseReader",
+        #     "InputStream_MarkAfterClose",
+        #     "OutputStream_ManipulateAfterClose",
+        #     "PipedStream_SingleThread",
+        #     "Reader_ReadAheadLimit",
+        #     "Writer_ManipulateAfterClose",
             
             
-            "Appendable_ThreadSafe",
-            "Math_ContendedRandom",
-            "SecurityManager_Permission",
-            "StrictMath_ContendedRandom",
-            "StringBuilder_ThreadSafe",
-            "Thread_SetDaemonBeforeStart",
+        #     "Appendable_ThreadSafe",
+        #     "Math_ContendedRandom",
+        #     "SecurityManager_Permission",
+        #     "StrictMath_ContendedRandom",
+        #     "StringBuilder_ThreadSafe",
+        #     "Thread_SetDaemonBeforeStart",
             
-            "HttpURLConnection_SetBeforeConnect",
-            "ServerSocket_LargeReceiveBuffer",
-            "ServerSocket_ReuseAddress",
-            "Socket_CloseInput",
-            "Socket_OutputStreamUnavailable",
-            "SocketImpl_CloseOutput",
-            "URL_SetURLStreamHandlerFactory"
-            "URLConnection_Connect",
-            "URLConnection_SetBeforeConnect",
+        #     "HttpURLConnection_SetBeforeConnect",
+        #     "ServerSocket_LargeReceiveBuffer",
+        #     "ServerSocket_ReuseAddress",
+        #     "Socket_CloseInput",
+        #     "Socket_OutputStreamUnavailable",
+        #     "SocketImpl_CloseOutput",
+        #     "URL_SetURLStreamHandlerFactory",
+        #     "URLConnection_Connect",
+        #     "URLConnection_SetBeforeConnect",
             
-            "ArrayDeque_UnsafeIterator",
-            "Collection_UnsynchronizedAddAll",
-            "Collections_SynchronizedCollection",
-            "Dictionary_Obsolete",
-            "Iterator_RemoveOnce",
-            "List_UnsynchronizedSubList",
-            "Map_CollectionViewAdd",
-            "Map_UnsynchronizedAddAll",
-            "NavigableMap_UnsafeIterator",
-            "Properties_ManipulateAfterLoad",
-            "ResourceBundleControl_MutateFormatList",
-            "Scanner_ManipulateAfterClose",
-            "ServiceLoaderIterator_Remove",
+        #     "ArrayDeque_UnsafeIterator",
+        #     "Collection_UnsynchronizedAddAll",
+        #     "Collections_SynchronizedCollection",
+        #     "Dictionary_Obsolete",
+        #     "Iterator_RemoveOnce",
+        #     "List_UnsynchronizedSubList",
+        #     "Map_CollectionViewAdd",
+        #     "Map_UnsynchronizedAddAll",
+        #     "NavigableMap_UnsafeIterator",
+        #     "Properties_ManipulateAfterLoad",
+        #     "ResourceBundleControl_MutateFormatList",
+        #     "Scanner_ManipulateAfterClose",
+        #     "ServiceLoaderIterator_Remove",
 
-        }
+        # }
+       # allowed_specs={"Throwable_InitCauseOnce"}
+        allowed_ir_types = {"ere"}
         for prompt_file in prompts_root.rglob("*.txt"):
             spec_id = prompt_file.stem
-            ir_type = prompt_file.parent.name
+            ir_type = prompt_file.parent.name.lower()
             
             # só deixa passar os nomes escolhidos
-            if allowed_specs and spec_id not in allowed_specs:
+            # if allowed_specs and spec_id not in allowed_specs:
+            #     continue
+            
+            # só processa prompts dentro da pasta /ere/
+            if ir_type not in allowed_ir_types:
                 continue
             
             prompt = prompt_file.read_text(encoding="utf-8")
@@ -213,20 +239,37 @@ def stage_llm(ctx, flags):
             )
 
             try:
-                ir, start_ts, end_ts, elapsed_ms = _call_llm(
+                result, start_ts, end_ts, elapsed_ms = _call_llm(
                     llm, prompt, spec_id, provider, model_name,shot_mode,selection
                 )
-
+                
+                status = result["status"]
+                raw = result["raw"]
+                parsed = result["parsed"]
+                
                 #domain = ir.get("domain", "unknown")
 
                 target_dir = output_root / domain / ir_type
                 target_dir.mkdir(parents=True, exist_ok=True)
 
-                out_file = target_dir / f"{spec_id}.json"
-                out_file.write_text(json.dumps(ir, indent=2), encoding="utf-8")
+                #out_file = target_dir / f"{spec_id}.json"
+                #out_file.write_text(json.dumps(ir, indent=2), encoding="utf-8")
 
+                if status == "ok":
+                    out_file = target_dir / f"{spec_id}.json"
+                    with open(out_file, "w", encoding="utf-8") as f:
+                        json.dump(parsed, f, indent=2, ensure_ascii=False)
+
+                elif status == "syntax_fail":
+                    out_file = target_dir / f"{spec_id}.txt"
+                    out_file.write_text(raw, encoding="utf-8")
+                elif status == "schema_fail":
+                    out_file = target_dir / f"{spec_id}_schema_fail.txt"
+                    out_file.write_text(raw, encoding="utf-8")
+     
                 writer.writerow([
                     spec_id,
+                    status,
                     provider,
                     model_name,
                     selection,
@@ -244,8 +287,8 @@ def stage_llm(ctx, flags):
                 total_time += elapsed_ms
 
                 log.info(
-                    "[SAVED] id=%s | domain=%s | type=%s | elapsed_ms=%.3f | accumulated_ms=%.3f",
-                    spec_id, domain, ir_type, elapsed_ms, total_time
+                    "[SAVED] id=%s | status=%s | domain=%s | type=%s | elapsed_ms=%.3f | accumulated_ms=%.3f",
+                    spec_id, status, domain, ir_type, elapsed_ms, total_time
                 )
 
             except Exception as e:
@@ -304,16 +347,16 @@ def save_token_info(
                 "total_tokens",
                 "elapsed_ms"
             ])
-
+        usage_info = normalize_usage(provider, usage) 
         writer.writerow([
             spec_id,
             selection,
             shot_mode,
             provider,
             model,
-            usage.prompt_tokens,
-            usage.completion_tokens,
-            usage.total_tokens,
+            usage_info["prompt_tokens"],
+            usage_info["completion_tokens"],
+            usage_info["total_tokens"],
             elapsed_ms
         ])
         
@@ -327,3 +370,48 @@ def extract_domain_from_prompt(prompt: str) -> str:
         return matches[-1].lower()  # pega o último
 
     return "unknown"
+
+def normalize_usage(provider: str, usage: object) -> dict:
+    provider = provider.lower()
+
+    if usage is None:
+        return {
+            "prompt_tokens": None,
+            "completion_tokens": None,
+            "total_tokens": None,
+        }
+
+    if provider in {"Claude", "anthropic", "claube"}:
+        prompt_tokens = getattr(usage, "input_tokens", None)
+        completion_tokens = getattr(usage, "output_tokens", None)
+
+        total_tokens = None
+        if prompt_tokens is not None and completion_tokens is not None:
+            total_tokens = prompt_tokens + completion_tokens
+
+        return {
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": total_tokens,
+        }
+
+    # DEEPSEEK USA O MESMO FORMATO DA OPENAI
+    if provider in {"openai", "deepseek"}:  # ← Adicione "deepseek" aqui
+        return {
+            "prompt_tokens": getattr(usage, "prompt_tokens", None),
+            "completion_tokens": getattr(usage, "completion_tokens", None),
+            "total_tokens": getattr(usage, "total_tokens", None),
+        }
+
+    if provider in {"google", "gemini"}:
+        return {
+            "prompt_tokens": getattr(usage, "prompt_token_count", None),
+            "completion_tokens": getattr(usage, "candidates_token_count", None),
+            "total_tokens": getattr(usage, "total_token_count", None),
+        }
+
+    return {
+        "prompt_tokens": None,
+        "completion_tokens": None,
+        "total_tokens": None,
+    }

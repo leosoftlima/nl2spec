@@ -41,5 +41,19 @@ def create_llm(cfg: dict):
             api_key=info["api_key"],
             model=info["model"],
         )
+    
+    if provider == "Claube":
+        from nl2spec.core.llms.Claube_llm import ClaudeLLM
+        return ClaudeLLM(
+            api_key=info["api_key"],
+            model=info["model"],
+        )
+        
+    if provider == "DeepSeek":
+        from nl2spec.core.llms.deepseek_llm import DeepSeekLLM
+        return DeepSeekLLM(
+            api_key=info["api_key"],
+            model=info["model"],
+        )
 
     raise ValueError(f"Unsupported LLM provider: {provider}")
